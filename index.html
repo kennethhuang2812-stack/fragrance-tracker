@@ -4,89 +4,111 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Fragrance Prices</title>
-<meta name="theme-color" content="#0c3b4a">
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Fragrances">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,600&family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
 <style>
-:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0a1315);--ink:light-dark(#121a1c,#e8efee);--muted:light-dark(#566265,#9cabad);--line:light-dark(#e2e8e8,#20333a);--card:light-dark(#ffffff,#0f1c1f);--soft:light-dark(#eef5f4,#13262a);--band:light-dark(#0c3b4a,#072a34);--bandink:#f3f8f7;--bandmuted:#b4d0d4;--acc:light-dark(#d9432a,#ff7d5f);--trace:light-dark(#0c3b4a,#8fd0dc)}
+:root{color-scheme:light dark;
+  --bg:#f2f2f7;--card:#fff;--ink:#111114;--muted:#6e6e73;--faint:#aeaeb2;--line:#e5e5ea;--fill:#e9e9ee;
+  --accent:#0b6e7f;--accent-soft:#e3f1f3;--drop:#c2410c;--drop-soft:#fdeee6;--good:#1f7a4d;--good-soft:#e5f4ec}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#98989f;--faint:#636366;--line:#2c2c2e;--fill:#2c2c2e;
+  --accent:#5cc8d7;--accent-soft:#12343a;--drop:#ff8a5c;--drop-soft:#3a1d12;--good:#4cc38a;--good-soft:#11301f}}
 *{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
-html{background:var(--band)}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif;overflow-x:clip;-webkit-text-size-adjust:100%}
-a{color:inherit}
-.band{padding:calc(env(safe-area-inset-top) + clamp(20px,4vw,56px)) max(5vw,16px,env(safe-area-inset-right)) clamp(24px,4vw,56px) max(5vw,16px,env(safe-area-inset-left));background:var(--band);color:var(--bandink)}
-.in{max-width:1240px;margin:0 auto}
-main{padding:28px max(5vw,16px) calc(64px + env(safe-area-inset-bottom))}
-h1,h2,.name{font-family:"Bodoni Moda",Georgia,serif;font-weight:600;line-height:1.05;text-wrap:balance;margin:0}
-h1{font-size:clamp(32px,5vw,48px)}
-h2{font-size:26px;margin:44px 0 12px}
-.sub{color:var(--bandmuted);margin:10px 0 0}
-.top{display:flex;flex-wrap:wrap;gap:18px;align-items:end;justify-content:space-between}
-.seg{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;padding:3px}
-.seg button{font:600 15px Barlow,sans-serif;color:var(--bandink);background:none;border:0;border-radius:999px;min-height:44px;padding:0 16px;cursor:pointer}
-.seg button[aria-pressed=true]{background:var(--bandink);color:#0c3b4a}
-:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px}
-.card{display:grid;grid-template-columns:60px minmax(0,1fr);gap:2px 16px;align-items:start;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;transition:transform .2s,box-shadow .2s}
-.card:active{transform:scale(.99)}
-@media (prefers-reduced-motion:reduce){.card{transition:none}}
-.card .bottle{grid-row:1/5}
-.name{font-size:22px}
-.meta{color:var(--muted);font-size:14px}
-.price{font:700 40px/1.05 "Barlow Condensed",sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
-.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
-.chip{display:inline-block;font:600 13px/1.6 Barlow,sans-serif;padding:1px 9px;border-radius:999px;white-space:nowrap;background:var(--soft);color:var(--muted)}
-.chip.down{background:var(--acc);color:#fff}.chip.hit{background:var(--band);color:var(--bandink)}
-.spark{grid-column:1/-1;display:block;width:100%;height:40px;margin-top:10px}
-.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}.bar .sizes{margin:0}
-.find{flex:1 1 220px;font:16px Barlow,sans-serif;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
-.count{color:var(--muted);font-size:14px;margin:-6px 0 14px}
-.star{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #ffffff66;background:none;color:var(--bandink);font:600 15px Barlow,sans-serif;cursor:pointer}.star[aria-pressed=true]{background:var(--bandink);color:#0c3b4a}
-.empty{padding:28px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
-ul.drops{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
-ul.drops li{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
-.num{font-variant-numeric:tabular-nums;white-space:nowrap}
-.back{display:inline-flex;align-items:center;min-height:44px;color:var(--bandmuted);text-decoration:none;font-weight:600;margin:-12px 0 8px}
-.dhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center}
-.dhead .price{font-size:clamp(44px,7vw,56px)}
-.bandmeta{color:var(--bandmuted)}
-.sizes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
-.sizes button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 15px Barlow,sans-serif;cursor:pointer}
-.sizes button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
-.fig{position:relative;min-height:300px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
-.fig>svg{position:absolute;inset:0;width:100%;height:100%}
-.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;font-size:14px;color:var(--muted)}
-.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
-table{width:100%;border-collapse:collapse;margin-top:6px;font-size:15px}
-th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:13px;color:var(--muted);font-weight:600}
-.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
-tr.top1 td{background:var(--soft)}
-.lo{color:var(--acc);font-weight:600}
-form.target{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:22px}
-form.target label{font-size:13px;color:var(--bandmuted);display:grid;gap:4px}
-form.target input,form.target select{font:16px Barlow,sans-serif;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #ffffff66;background:#ffffff14;color:var(--bandink);width:120px}
-form.target option{color:#121a1c}
-.btn{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--bandink);color:#0c3b4a;font:600 15px Barlow,sans-serif;cursor:pointer}
-.btn.ghost{background:none;color:var(--bandink);border:1px solid #ffffff66}
-.tmsg{flex-basis:100%;color:var(--bandmuted);font-size:14px;margin:0}
-.note{color:var(--muted);font-size:14px}
-.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:8px 48px}
-details{margin-top:12px}summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
-.scroll{overflow-x:auto}
-.offline{display:inline-block;margin-top:8px;font-size:13px;color:var(--bandink);background:#ffffff22;border-radius:999px;padding:2px 10px}
-@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--muted)}.stack td:empty{display:none}.price{font-size:36px}}
-</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+.num{font-variant-numeric:tabular-nums}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+
+/* header */
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 0 4px}
+h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);font-size:14px;margin:4px 0 16px}
+.offline{color:var(--drop)}
+
+/* segmented control */
+.seg{display:inline-flex;background:var(--fill);border-radius:9px;padding:2px;flex:none}
+.seg button{border:0;background:none;border-radius:7px;padding:6px 12px;font-size:13px;font-weight:600;color:var(--muted);min-height:32px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px #0000001f}
+
+/* search + tabs */
+.search{position:relative;margin:0 0 12px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.find{width:100%;font:17px inherit;font-family:inherit;border:0;border-radius:10px;background:var(--fill);color:var(--ink);min-height:40px;padding:0 12px 0 34px;-webkit-appearance:none}
+.find::placeholder{color:var(--faint)}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 14px;padding:0 16px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:0 16px;min-height:36px;font-size:15px;font-weight:500;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+
+/* grouped list */
+.label{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:26px 16px 8px}
+.group{background:var(--card);border-radius:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative;min-height:60px}
+.row+.row::before{content:"";position:absolute;top:0;right:0;left:58px;border-top:.5px solid var(--line)}
+.group.plain .row+.row::before{left:16px}
+a.row:active{background:var(--fill)}
+.dot{display:inline-block;flex:none;width:30px;height:30px;border-radius:9px;position:relative;box-shadow:inset 0 0 0 .5px #0000001a}
+.dot::after{content:"";position:absolute;left:7px;top:6px;width:4px;height:16px;border-radius:2px;background:#ffffff66}
+.main{flex:1}
+.t{font-weight:600;font-size:16px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s{color:var(--muted);font-size:13px;line-height:1.3;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.end{flex:none;text-align:right}
+.p{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.p.none{color:var(--faint);font-weight:400}
+.chev{flex:none;color:var(--faint);margin-left:-4px}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;margin-top:3px;white-space:nowrap}
+.tag.drop{background:var(--drop-soft);color:var(--drop)}
+.tag.hit{background:var(--good-soft);color:var(--good)}
+.tag.info{background:var(--fill);color:var(--muted)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:15px}
+.note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 16px 0}
+.star-on{color:#e0a100}
+details.how{margin-top:26px}
+details.how summary{list-style:none;cursor:pointer;color:var(--accent);font-size:15px;padding:8px 16px}
+details.how summary::-webkit-details-marker{display:none}
+details.how .body{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);line-height:1.5}
+details.how p{margin:0 0 10px}
+
+/* detail */
+.nav{display:flex;align-items:center;justify-content:space-between;margin:4px -8px 0;min-height:44px}
+.nav a,.nav button{display:inline-flex;align-items:center;gap:2px;color:var(--accent);font-size:17px;padding:8px;border:0;background:none;cursor:pointer;min-height:44px}
+.hero{text-align:center;margin:8px 0 18px}
+.hero .dot{display:block;width:56px;height:56px;border-radius:16px;margin:0 auto 12px}
+.hero .dot::after{left:13px;top:11px;width:7px;height:30px;border-radius:4px}
+.hero h1{font-size:28px}
+.hero .brand{color:var(--muted);font-size:15px;margin-top:2px}
+.big{font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:14px;font-variant-numeric:tabular-nums;line-height:1.05}
+.big+.s{white-space:normal;font-size:14px;margin-top:4px}
+.ctrls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;margin:0 0 12px}
+.sizes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.sizes::-webkit-scrollbar{display:none}
+.sizes button{flex:none;border:0;border-radius:999px;background:var(--card);padding:0 14px;min-height:34px;font-size:14px;font-weight:500;cursor:pointer}
+.sizes button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chart{background:var(--card);border-radius:12px;padding:12px 8px 6px;position:relative;height:220px}
+.chart svg{display:block;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 16px 0;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.best{color:var(--good);font-size:12px;font-weight:600}
+form.target .row{gap:10px}
+form.target select,form.target input{font:inherit;font-size:16px;border:0;background:var(--fill);color:var(--ink);border-radius:8px;min-height:36px;padding:0 10px;-webkit-appearance:none}
+form.target input{width:100px;text-align:right}
+.btn{border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:16px;min-height:44px;padding:0 18px;cursor:pointer;width:100%}
+.btn.link{background:none;color:var(--drop);width:auto;padding:0 4px;font-weight:500}
+.tmsg{color:var(--good);font-size:13px;margin:8px 16px 0}
+</style></head>
 <body>
-<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="gl" x1="0" x2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient></defs></svg>
-<div id="app"><header class="band"><div class="in"><h1>Fragrance price tracker</h1><p class="sub">Loading your prices…</p></div></header></div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="fade" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".18"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs></svg>
+<div id="app"><div class="wrap"><div class="hdr"><h1>Fragrances</h1></div><p class="sub">Loading prices…</p></div></div>
 <script>
 {
 const $=s=>document.querySelector(s);
@@ -94,16 +116,16 @@ const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&
 const money=v=>v==null||!isFinite(v)?'—':'$'+Number(v).toFixed(2);
 const okId=s=>typeof s==='string'&&/^[a-z0-9-]+$/i.test(s);
 const okUrl=u=>typeof u==='string'&&u.startsWith('https://')?u:null;
-const okHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)?c:'#7a8a8e';
+const okHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)?c:'#8e8e93';
 const num=v=>typeof v==='number'&&isFinite(v)?v:null;
 const tOf=d=>Date.parse(d+'T00:00:00');
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?'':x.getDate()+' '+MON[x.getMonth()]};
-const LINE=['#0c7c9e','#d9432a','#7a5af5','#c88a12','#d6457f','#2f8f6b','#5b6b73','#0f9d9a'];
+const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
 const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',pending:false,series:[],tab:null,q:'',base:{}};
 const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
 S.mode=ls$('fpt-mode')==='list'?'list':'del';S.tab=ls$('fpt-tab');
-/* Watchlist and targets set on this phone. They sit on top of the shared data. */
+/* Watchlist and targets set on this phone sit on top of the shared data. */
 let LOCAL={};try{LOCAL=JSON.parse(ls$('fpt-local')||'{}')||{}}catch(e){LOCAL={}}
 function applyLocal(){const o={};for(const[id,p]of Object.entries(S.base)){const l=LOCAL[id];o[id]=l?Object.assign({},p,'fav'in l?{fav:l.fav}:{},'target'in l?{target:l.target}:{}):p}S.products=o}
 function setLocal(id,patch){LOCAL[id]=Object.assign({},LOCAL[id],patch);ls$('fpt-local',JSON.stringify(LOCAL));applyLocal()}
@@ -128,50 +150,49 @@ function lowOf(l){const s=seriesOf(l);return s.length?Math.min(...s.map(p=>p.v))
 function drops(){const out=[],now=Date.now();for(const[,l]of Object.entries(S.listings)){if(!l||!S.products[l.pid])continue;const h=hist(l);if(h.length<2)continue;const a=h[h.length-2],b=h[h.length-1];if(b.a<a.a&&now-tOf(b.d)<15*864e5){const pa=priceOf(l,a.a),pb=priceOf(l,b.a);if(pa&&pb&&pb.v<pa.v)out.push({l,from:pa.v,to:pb.v,d:b.d})}}return out.sort((x,y)=>y.d<x.d?-1:1).slice(0,10)}
 function targetHit(p,ls){const t=p.target;if(!t||num(t.price)==null||num(t.ml)==null)return null;const b=best(ls.filter(l=>l.ml===t.ml));return{t,b,hit:!!(b&&b.p.v<=t.price)}}
 
+
+
 /* ---------- drawing ---------- */
-function bottle(color,w){const c=okHex(color),h=Math.round(w*1.3);return`<svg class="bottle" width="${w}" height="${h}" viewBox="0 0 56 73" aria-hidden="true"><rect x="20" y="2" width="16" height="10" rx="2.5" fill="currentColor" opacity=".85"/><rect x="24" y="12" width="8" height="7" fill="${c}"/><rect x="6" y="18" width="44" height="52" rx="9" fill="${c}" stroke="#ffffff40"/><rect x="6" y="18" width="44" height="52" rx="9" fill="url(#gl)"/><rect x="11.5" y="24" width="4.5" height="38" rx="2.2" fill="#fff" opacity=".5"/><ellipse cx="28" cy="71.2" rx="21" ry="1.8" fill="currentColor" opacity=".14"/></svg>`}
-function spark(pts){if(pts.length<2)return`<svg class="spark" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="14" x2="100" y2="14" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/></svg>`;
-  const vs=pts.map(p=>p.v),mn=Math.min(...vs),r=(Math.max(...vs)-mn)||1,t0=pts[0].t,dt=(pts[pts.length-1].t-t0)||1;
-  const xy=pts.map(p=>((p.t-t0)/dt*100).toFixed(2)+','+(17-(p.v-mn)/r*14).toFixed(2)).join(' ');
-  return`<svg class="spark" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><polyline points="${xy}" fill="none" stroke="var(--trace)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`}
+const CHEV='<svg class="chev" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const dot=c=>`<span class="dot" style="background:${okHex(c)}" aria-hidden="true"></span>`;
 function drawChart(){const s=$('#chart');if(!s)return;const W=s.clientWidth,H=s.clientHeight;if(!W||!H)return;const ser=S.series,pts=ser.flatMap(x=>x.pts);
-  if(!pts.length){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="14">No prices recorded for this size yet</text>`;return}
-  const L=W<520?44:56,R=16,T=18,B=32,ts=pts.map(p=>p.t),vs=pts.map(p=>p.v);const t0=Math.min(...ts),t1=Math.max(...ts);let v0=Math.min(...vs),v1=Math.max(...vs);const sp=Math.max(v1-v0,v1*.12,10);v0=Math.max(0,v0-sp*.2);v1+=sp*.2;
-  const X=t=>t1===t0?L+(W-L-R)/2:L+(t-t0)/(t1-t0)*(W-L-R),Y=v=>T+(1-(v-v0)/(v1-v0))*(H-T-B);let g='';const k=W<520?3:4;
-  for(let i=0;i<=k;i++){const v=v0+(v1-v0)*i/k,y=Y(v).toFixed(1);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-8}" y="${+y+4}" text-anchor="end" font-size="12" fill="var(--muted)">$${Math.round(v)}</text>`}
-  g+=`<text x="${L}" y="${H-10}" font-size="12" fill="var(--muted)">${fmtD(t0)}</text>`;if(t1!==t0)g+=`<text x="${W-R}" y="${H-10}" text-anchor="end" font-size="12" fill="var(--muted)">${fmtD(t1)}</text>`;
-  ser.forEach(x=>{const P=x.pts.map(p=>[X(p.t).toFixed(1),Y(p.v).toFixed(1)]);if(P.length>1)g+=`<polyline points="${P.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round"/>`;P.forEach((q,i)=>g+=`<circle cx="${q[0]}" cy="${q[1]}" r="${i===P.length-1?5:3}" fill="${x.c}" stroke="var(--card)" stroke-width="2"/>`)});
+  if(!pts.length){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="14">No prices for this size yet</text>`;return}
+  const L=40,R=12,T=10,B=22,ts=pts.map(p=>p.t),vs=pts.map(p=>p.v);const t0=Math.min(...ts),t1=Math.max(...ts);let v0=Math.min(...vs),v1=Math.max(...vs);const sp=Math.max(v1-v0,v1*.12,10);v0=Math.max(0,v0-sp*.25);v1+=sp*.25;
+  const X=t=>t1===t0?L+(W-L-R)/2:L+(t-t0)/(t1-t0)*(W-L-R),Y=v=>T+(1-(v-v0)/(v1-v0))*(H-T-B);let g='';
+  for(let i=0;i<=3;i++){const v=v0+(v1-v0)*i/3,y=Y(v).toFixed(1);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-dasharray="${i?'2 3':''}"/><text x="${L-6}" y="${+y+4}" text-anchor="end" font-size="11" fill="var(--faint)">$${Math.round(v)}</text>`}
+  g+=`<text x="${L}" y="${H-4}" font-size="11" fill="var(--faint)">${fmtD(t0)}</text>`;if(t1!==t0)g+=`<text x="${W-R}" y="${H-4}" text-anchor="end" font-size="11" fill="var(--faint)">${fmtD(t1)}</text>`;
+  ser.forEach(x=>{const P=x.pts.map(p=>[X(p.t).toFixed(1),Y(p.v).toFixed(1)]);if(P.length>1)g+=`<polyline points="${P.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;const q=P[P.length-1];g+=`<circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${x.c}" stroke="var(--card)" stroke-width="2"/>`});
   s.innerHTML=g}
 const ro=new ResizeObserver(()=>drawChart());
 
 /* ---------- views ---------- */
-function head(inner){return`<header class="band"><div class="in">${inner}</div></header>`}
 function modeSeg(){return`<div class="seg" role="group" aria-label="Price shown"><button data-mode="del" aria-pressed="${S.mode==='del'}">Delivered</button><button data-mode="list" aria-pressed="${S.mode==='list'}">Listed</button></div>`}
-function statusLine(){const m=S.meta,n=Object.values(S.listings).filter(l=>l&&num(l.price)!=null).length;let t='';const d=m.lastRun?new Date(m.lastRun):null;if(d&&!isNaN(d))t=' · last checked '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});return`${Object.keys(S.products).length} fragrances · ${n} prices${t}`}
-function card(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l.ml===ml),b=best(main),bv=bestValue(ls),ser=bestSeries(main),tg=targetHit(p,ls);
-  let chips='';if(ser.length>1){const d=ser[ser.length-1].v-ser[ser.length-2].v;if(d<-.004)chips+=`<span class="chip down">▼ ${money(-d)} since last check</span>`;else if(d>.004)chips+=`<span class="chip">▲ ${money(d)}</span>`}
-  if(b){const lo=lowOf(b.l);if(lo!=null&&b.p.v<=lo&&hist(b.l).length>2)chips+=`<span class="chip down">Lowest recorded</span>`}
-  if(tg)chips+=tg.hit?`<span class="chip hit">Target hit: under ${money(tg.t.price)}</span>`:`<span class="chip">Target ${money(tg.t.price)} · ${esc(tg.t.ml)}ml</span>`;
-  const val=bv&&(!b||bv.l.id!==b.l.id)?`<div class="meta">Best value: ${money(bv.per)}/100ml (${esc(bv.l.ml)}ml, ${esc(rname(bv.l.rid))})</div>`:'';
-  return`<a class="card" href="#${pid}">${bottle(p.color,52)}<div><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.brand)} · ${esc(p.conc)}</div></div>
-  <div><span class="price">${b?money(b.p.v):'—'}</span>${b&&b.p.unk?' <span class="meta">+ delivery</span>':''}</div>
-  <div>${b?`<div>${esc(ml)}ml at ${esc(rname(b.l.rid))}</div>`:`<div class="meta">${ls.some(l=>num(l.price)!=null)?`No ${esc(ml)}ml price yet`:'No prices yet. The daily check is looking for stores.'}</div>`}${val}${chips?`<div class="chips">${chips}</div>`:''}</div>${spark(ser)}</a>`}
+function statusLine(){const m=S.meta;const d=m.lastRun?new Date(m.lastRun):null;const t=d&&!isNaN(d)?'Updated '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'Checked every morning';return t+' · '+Object.keys(S.products).length+' fragrances'}
+function row(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l.ml===ml),b=best(main),ser=bestSeries(main),tg=targetHit(p,ls);
+  let tag='';if(tg&&tg.hit)tag=`<span class="tag hit">Target hit</span>`;
+  else if(ser.length>1){const d=ser[ser.length-1].v-ser[ser.length-2].v;if(d<-.004)tag=`<span class="tag drop">▼ ${money(-d)}</span>`}
+  if(!tag&&b){const lo=lowOf(b.l);if(lo!=null&&b.p.v<=lo&&hist(b.l).length>2)tag=`<span class="tag drop">Lowest yet</span>`}
+  
+  return`<a class="row" href="#${pid}">${dot(p.color)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${esc(p.brand)}</div></div>
+  <div class="end">${b?`<div class="p">${money(b.p.v)}</div>`:`<div class="p none">No price yet</div>`}${tag}</div>${CHEV}</a>`}
 function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));const fxs=S.meta.fx?Object.entries(S.meta.fx).filter(([,v])=>num(v)!=null).map(([k,v])=>`1 ${esc(k)} = ${v.toFixed(3)} AUD`).join(', '):'';
-  return`<h2>How the prices work</h2><div class="cols"><div><p><b>Listed</b> is the price on the retailer's site, converted to Australian dollars if needed. <b>Delivered</b> adds standard delivery for a single bottle, and 10% GST for overseas stores that charge it at checkout. Where a store's delivery fee isn't known, the price shows "+ delivery" and is ranked as if delivery were $9.95.</p>
-  <p>Prices are checked every morning. The app picks up the latest check when you open it, and shows the last prices it saw when you're offline. Prices marked ≈ came from a search snapshot of the page and are confirmed on the next check.</p>
-  <p class="note">${fxs?`Exchange rate: ${fxs}${S.meta.fxDate?' ('+esc(fmtD(S.meta.fxDate))+')':''}. `:''}${S.meta.lastRunNote?esc(S.meta.lastRunNote):''}</p></div>
-  <div class="scroll"><table><thead><tr><th>Store</th><th class="n">Delivery</th><th class="n">Free over</th></tr></thead><tbody>${rs.map(([,r])=>`<tr><td>${esc(r.name)}${r.note?`<div class="note">${esc(r.note)}</div>`:''}</td><td class="n">${num(r.shipFee)!=null?money(r.shipFee):'At checkout'}</td><td class="n">${num(r.freeOver)!=null?money(r.freeOver):'—'}</td></tr>`).join('')}</tbody></table></div></div>`}
-const TABS=[['watch','Watchlist'],['men','Men'],['unisex','Unisex'],['all','All']];
+  return`<details class="how"><summary>How prices are worked out</summary><div class="body"><p><b>Listed</b> is the store's price, in Australian dollars. <b>Delivered</b> adds standard delivery for one bottle, plus 10% GST for overseas stores that charge it. If delivery isn't known, the price shows "+ delivery".</p><p>Prices are checked every morning. The app shows the last prices it saw when you're offline.${fxs?' Exchange rate: '+fxs+'.':''}</p></div>
+  <div class="label">Stores</div><div class="group plain">${rs.map(([,r])=>`<div class="row"><div class="main"><div class="t">${esc(r.name)}</div><div class="s">${num(r.shipFee)!=null?money(r.shipFee)+' delivery':'Delivery at checkout'}${num(r.freeOver)!=null?' · free over '+money(r.freeOver):''}</div></div></div>`).join('')}</div></details>`}
+const TABS=[['watch','Watchlist'],['all','All'],['men','Men'],['unisex','Unisex']];
 function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const hasFav=all.some(([,p])=>p.fav);
   if(!TABS.some(t=>t[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
   const q=S.q.trim().toLowerCase();return all.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&(!q||(String(p.name)+' '+String(p.brand)).toLowerCase().includes(q)))}
-function gridHtml(){const ps=visible();return`<p class="count">${ps.length} fragrance${ps.length===1?'':'s'}${S.q.trim()?' matching "'+esc(S.q.trim())+'"':''}</p>`+(ps.length?`<div class="grid">${ps.map(([id,p])=>card(id,p)).join('')}</div>`:`<div class="empty">No fragrances match. Try another name or tab.</div>`)}
+function gridHtml(){const ps=visible();return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No fragrances match.</div></div>`}
 function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const dr=drops();visible();
-  let body;if(!ps.length)body=`<div class="empty">${S.err?'Can\'t load prices right now. Connect to the internet and open the app again.':S.loaded?'No fragrances are being tracked yet.':'Loading your prices…'}</div>`;
-  else body=`<div class="bar"><div class="sizes" role="group" aria-label="Show">${TABS.map(([k,l])=>`<button data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join('')}</div><input class="find" id="find" type="search" placeholder="Search fragrances or brands" aria-label="Search fragrances" value="${esc(S.q)}"></div><div id="grid">${gridHtml()}</div>
-  <h2>Recent price drops</h2>${dr.length?`<ul class="drops">${dr.map(x=>`<li><span>${esc(S.products[x.l.pid].name)} ${esc(x.l.ml)}ml · ${esc(rname(x.l.rid))}</span><span class="num"><s class="meta">${money(x.from)}</s> <b class="lo">${money(x.to)}</b> <span class="meta">${esc(fmtD(x.d))}</span></span></li>`).join('')}</ul>`:`<p class="note">No drops yet. Drops from the last two weeks will show here.</p>`}${fine()}`;
-  return head(`<div class="top"><div><h1>Fragrance price tracker</h1><p class="sub">${ps.length?esc(statusLine()):'Every size, every store, checked daily'}</p>${S.offline?'<span class="offline">Offline · showing saved prices</span>':''}</div>${modeSeg()}</div>`)+`<main><div class="in">${body}</div></main>`}
-function detail(pid){const p=S.products[pid];if(!p)return head(`<a class="back" href="#">← All fragrances</a><h1>Not found</h1>`)+`<main><div class="in"><div class="empty">${S.loaded?'This fragrance isn\'t being tracked.':'Loading…'}</div></div></main>`;
+  const top=`<div class="hdr"><h1>Fragrances</h1>${modeSeg()}</div><p class="sub">${S.offline?'<span class="offline">Offline · </span>':''}${ps.length?esc(statusLine()):'Loading prices…'}</p>`;
+  if(!ps.length)return`<div class="wrap">${top}<div class="group"><div class="empty">${S.err?'Can\'t load prices. Connect to the internet and try again.':S.loaded?'Nothing tracked yet.':'Loading…'}</div></div></div>`;
+  return`<div class="wrap">${top}
+  <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="find" id="find" type="search" placeholder="Search" aria-label="Search fragrances" value="${esc(S.q)}"></div>
+  <div class="tabs" role="group" aria-label="Show">${TABS.map(([k,l])=>`<button data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join('')}</div>
+  <div id="grid">${gridHtml()}</div>
+  ${dr.length?`<div class="label">Recent drops</div><div class="group plain">${dr.map(x=>`<a class="row" href="#${esc(x.l.pid)}"><div class="main"><div class="t">${esc(S.products[x.l.pid].name)}</div><div class="s">${esc(x.l.ml)}ml · ${esc(rname(x.l.rid))} · ${esc(fmtD(x.d))}</div></div><div class="end"><div class="p" style="color:var(--drop)">${money(x.to)}</div><div class="s"><s>${money(x.from)}</s></div></div></a>`).join('')}</div>`:''}
+  ${fine()}</div>`}
+function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div class="nav"><a href="#">${'‹'} Fragrances</a></div><div class="group"><div class="empty">${S.loaded?'This fragrance isn\'t tracked.':'Loading…'}</div></div></div>`;
   const ls=listingsOf(pid),sizes=sizesOf(p,ls);if(S.sizeFor!==pid||!sizes.includes(S.size)){S.size=mainMl(p,ls);S.sizeFor=pid;if(!sizes.includes(S.size))S.size=sizes[0]}
   const sel=ls.filter(l=>l.ml===S.size),b=best(sel),tg=p.target||{};
   const rows=sel.map(l=>({l,a:aud(l)})).map(x=>Object.assign(x,{p:priceOf(x.l,x.a),d:deliv(x.l,x.a)})).sort((x,y)=>(x.p?x.p.k:1e9)-(y.p?y.p.k:1e9));
@@ -179,19 +200,23 @@ function detail(pid){const p=S.products[pid];if(!p)return head(`<a class="back" 
   const one=S.series.every(x=>x.pts.length<2);
   const perSize=sizes.map(ml=>({ml,b:best(ls.filter(l=>l.ml===ml))}));
   const opts=sizes.map(ml=>`<option value="${ml}"${(num(tg.ml)!=null?tg.ml:S.size)===ml?' selected':''}>${ml}ml</option>`).join('');
-  const band=`<a class="back" href="#">← All fragrances</a><div class="dhead">${bottle(p.color,76)}<div><h1>${esc(p.name)}</h1><div class="bandmeta">${esc(p.brand)} · ${esc(p.conc)}</div><button class="star" id="fav" aria-pressed="${!!p.fav}" style="margin-top:12px">${p.fav?'★ On your watchlist':'☆ Add to watchlist'}</button></div></div>
-  <div class="top" style="margin-top:18px"><div><div class="price">${b?money(b.p.v):'—'}</div><div class="bandmeta">${b?`Best ${S.mode==='list'?'listed':'delivered'} price for ${esc(S.size)}ml, at ${esc(rname(b.l.rid))}`:`No ${esc(S.size)}ml price recorded yet`}</div></div>${modeSeg()}</div>
-  <form class="target" id="tform"><label>Target for<select name="ml">${opts}</select></label><label>at or under (delivered)<input name="price" type="number" inputmode="decimal" min="1" step="0.01" placeholder="$0.00" value="${num(tg.price)!=null?tg.price:''}"></label><button class="btn" type="submit">Save target</button>${num(tg.price)!=null?'<button class="btn ghost" type="button" id="tclear">Clear</button>':''}<p class="tmsg" id="tmsg">${esc(S.tmsg)}</p></form>`;
-  const table=`<div class="scroll"><table class="stack"><thead><tr><th>Store</th><th class="n">Listed</th><th class="n">Delivered</th><th class="n">Per 100ml</th><th class="n">Lowest seen</th><th>Checked</th></tr></thead><tbody>${rows.map((x,i)=>{const u=okUrl(x.l.url),lo=lowOf(x.l);
-    const st=x.l.price==null?'<span class="chip">Not checked yet</span>':x.l.stock==='out'?'<span class="chip">Out of stock</span>':'';
-    return`<tr class="${i===0&&x.p&&x.l.stock!=='out'?'top1':''}"><td>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(rname(x.l.rid))} ↗</a>`:esc(rname(x.l.rid))}${x.l.note?`<div class="note">${esc(x.l.note)}</div>`:''}${st?`<div>${st}</div>`:''}</td>
-    <td class="n">${x.a!=null?money(x.a):''}${x.l.cur&&x.l.cur!=='AUD'&&num(x.l.price)!=null?`<div class="note">${esc(x.l.cur)} ${Number(x.l.price).toFixed(2)}</div>`:''}</td><td class="n">${x.d?(x.d.unk?'+ delivery':money(x.d.v)):''}</td><td class="n">${x.p?money(x.p.v/x.l.ml*100):''}</td><td class="n">${lo!=null?money(lo):''}</td><td>${x.l.checked?esc(fmtD(x.l.checked)):''}${x.l.via==='snapshot'?' ≈':''}</td></tr>`}).join('')}</tbody></table></div>`;
-  return head(band)+`<main><div class="in"><div class="sizes" role="group" aria-label="Bottle size">${sizes.map(ml=>`<button data-size="${ml}" aria-pressed="${ml===S.size}">${ml}ml</button>`).join('')}</div>
-  <div class="fig" id="fig"><svg id="chart" role="img" aria-label="${esc(S.size)}ml price history by store"></svg></div>
-  <div class="legend">${S.series.map(x=>`<span><i style="background:${x.c}"></i>${esc(x.name)}</span>`).join('')}</div>
-  ${one?`<p class="note">Each daily check adds a point, so the trend lines fill in over the coming days.</p>`:''}
-  <h2>${esc(S.size)}ml offers</h2>${sel.length?table:`<div class="empty">No store is tracked for ${esc(S.size)}ml yet. The daily check looks for new listings.</div>`}
-  <h2>Best price by size</h2><div class="scroll"><table><thead><tr><th>Size</th><th class="n">${S.mode==='list'?'Listed':'Delivered'}</th><th class="n">Per 100ml</th><th>Store</th></tr></thead><tbody>${perSize.map(x=>`<tr><td>${esc(x.ml)}ml</td><td class="n">${x.b?money(x.b.p.v)+(x.b.p.unk?' +':''):'—'}</td><td class="n">${x.b?money(x.b.p.v/x.ml*100):''}</td><td>${x.b?esc(rname(x.b.l.rid)):'<span class="note">Not found yet</span>'}</td></tr>`).join('')}</tbody></table></div></div></main>`}
+  const offers=rows.map((x,i)=>{const u=okUrl(x.l.url),lo=lowOf(x.l);const isBest=i===0&&x.p&&x.l.stock!=='out';
+    const bits=[];if(S.mode==='del'&&x.a!=null)bits.push('Listed '+money(x.a));if(S.mode==='list'&&x.d&&!x.d.unk)bits.push('Delivered '+money(x.d.v));if(lo!=null&&x.p&&lo<x.p.v-.004)bits.push('Low '+money(lo));if(x.l.checked)bits.push(fmtD(x.l.checked)+(x.l.via==='snapshot'?' ≈':''));
+    const st=x.l.price==null?'Not checked yet':x.l.stock==='out'?'Out of stock':'';
+    const inner=`<div class="main"><div class="t">${esc(rname(x.l.rid))}</div><div class="s">${st?esc(st)+' · ':''}${bits.join(' · ')}</div></div><div class="end"><div class="p">${x.p?(x.p.unk?money(x.p.v)+'<span class="s"> +del</span>':money(x.p.v)):'—'}</div>${isBest?'<div class="best">Best price</div>':''}</div>${u?CHEV:''}`;
+    return u?`<a class="row" href="${esc(u)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="row">${inner}</div>`}).join('');
+  return`<div class="wrap"><div class="nav"><a href="#"><svg width="11" height="18" viewBox="0 0 11 18" aria-hidden="true"><path d="M9 1L2 9l7 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Fragrances</a>
+  <button id="fav" aria-pressed="${!!p.fav}" aria-label="${p.fav?'Remove from watchlist':'Add to watchlist'}">${p.fav?'<span class="star-on" style="font-size:22px">★</span>':'<span style="font-size:22px">☆</span>'}</button></div>
+  <div class="hero">${dot(p.color)}<h1>${esc(p.name)}</h1><div class="brand">${esc(p.brand)} · ${esc(p.conc)}</div>
+  <div class="big">${b?money(b.p.v):'—'}</div><div class="s">${b?`Best ${S.mode==='list'?'listed':'delivered'} price for ${esc(S.size)}ml at ${esc(rname(b.l.rid))}`:`No ${esc(S.size)}ml price yet`}</div></div>
+  <div class="ctrls"><div class="sizes" role="group" aria-label="Bottle size">${sizes.map(ml=>`<button data-size="${ml}" aria-pressed="${ml===S.size}">${ml}ml</button>`).join('')}</div>${modeSeg()}</div>
+  <div class="chart" id="fig"><svg id="chart" role="img" aria-label="${esc(S.size)}ml price history by store"></svg></div>
+  ${S.series.length>1?`<div class="legend">${S.series.map(x=>`<span><i style="background:${x.c}"></i>${esc(x.name)}</span>`).join('')}</div>`:''}
+  ${one&&S.series.length?`<p class="note">A new point is added each morning, so the lines fill in over the coming days.</p>`:''}
+  <div class="label">Stores · ${esc(S.size)}ml</div>${sel.length?`<div class="group plain">${offers}</div>`:`<div class="group"><div class="empty">No store found for ${esc(S.size)}ml yet.</div></div>`}
+  <div class="label">Price alert</div><form class="target group plain" id="tform"><div class="row"><div class="main"><div class="t">Size</div></div><select name="ml" aria-label="Size">${opts}</select></div><div class="row"><div class="main"><div class="t">At or under</div><div class="s">Delivered price</div></div><input name="price" type="number" inputmode="decimal" min="1" step="0.01" placeholder="$0.00" aria-label="Target price" value="${num(tg.price)!=null?tg.price:''}"></div><div class="row"><button class="btn" type="submit">Save target</button>${num(tg.price)!=null?'<button class="btn link" type="button" id="tclear">Clear</button>':''}</div></form>
+  <p class="tmsg" id="tmsg">${esc(S.tmsg)}</p>
+  <div class="label">Best price by size</div><div class="group plain">${perSize.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.ml)}ml</div><div class="s">${x.b?esc(rname(x.b.l.rid))+' · '+money(x.b.p.v/x.ml*100)+'/100ml':'Not found yet'}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p.v)+(x.b.p.unk?' +':''):'—'}</div></div></div>`).join('')}</div></div>`}
 function render(){const f=$('#tform'),fi=$('#find');if((f&&f.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
   const id=decodeURIComponent(location.hash.slice(1));$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
 
@@ -206,7 +231,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='tform')return;e.prevent
 document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.value;$('#grid').innerHTML=gridHtml()}});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
 function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!okId(id)||!S.products[id])return;document.activeElement?.blur();
-  setLocal(id,{target:t});S.tmsg=t?`Saved. The card shows "Target hit" when ${t.ml}ml is ${money(t.price)} or less delivered.`:'Target cleared.';render()}
+  setLocal(id,{target:t});S.tmsg=t?`Saved. You'll see "Target hit" when ${t.ml}ml is ${money(t.price)} or less delivered.`:'Target cleared.';render()}
 addEventListener('hashchange',()=>{S.tmsg='';document.activeElement?.blur();render();scrollTo(0,0)});
 
 /* ---------- data ---------- */
