@@ -49,6 +49,9 @@ h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:0 16px;min-height:36px;font-size:15px;font-weight:500;cursor:pointer}
 .tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.sortbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-4px 2px 10px;color:var(--muted);font-size:13px}
+.sortbar label{display:flex;align-items:center;gap:6px}
+.sortbar select{font:inherit;font-size:15px;font-weight:600;color:var(--accent);background:var(--card);border:0;border-radius:999px;min-height:36px;padding:0 30px 0 14px;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 17px) 16px,calc(100% - 12px) 16px;background-size:5px 5px;background-repeat:no-repeat;max-width:62vw}
 .wrap.home{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:8px;padding:6px max(16px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--line)}
 .tabbar button{flex:0 1 170px;border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:48px;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
@@ -128,7 +131,8 @@ const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?''
 const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
 const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',pending:false,series:[],tab:null,q:'',base:{}};
 const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
-S.mode=ls$('fpt-mode')==='list'?'list':'del';S.tab=ls$('fpt-tab');S.sec=ls$('fpt-sec')==='dupes'?'dupes':'frag';S.dtab=ls$('fpt-dtab')||'all';
+S.mode=ls$('fpt-mode')==='list'?'list':'del';S.tab=ls$('fpt-tab');S.sec=ls$('fpt-sec')==='dupes'?'dupes':'frag';S.dtab=ls$('fpt-dtab')||'all';S.sort={frag:ls$('fpt-sort-frag')||'default',dupes:ls$('fpt-sort-dupes')||'default'};
+let SEEN={};try{SEEN=JSON.parse(ls$('fpt-seen')||'{}')||{}}catch(e){SEEN={}}
 /* Watchlist and targets set on this phone sit on top of the shared data. */
 let LOCAL={};try{LOCAL=JSON.parse(ls$('fpt-local')||'{}')||{}}catch(e){LOCAL={}}
 function applyLocal(){const o={};for(const[id,p]of Object.entries(S.base)){const l=LOCAL[id];o[id]=l?Object.assign({},p,'fav'in l?{fav:l.fav}:{},'target'in l?{target:l.target}:{}):p}S.products=o}
@@ -203,14 +207,23 @@ function per100(pid){const ls=listingsOf(pid);let m=null;for(const l of ls){if(l
 const famOf=d=>d.family||d.orig;
 function dupesOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&d.orig===pid)}
 function flankersOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&!d.orig&&famOf(d)===pid)}
+const SORTS={frag:[['default','Your order'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (per 100ml)'],['drop','Biggest price drops'],['seen','Recently viewed'],['name','Name A to Z']],
+  dupes:[['default','Original A to Z'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (per 100ml)'],['saving','Biggest saving vs original'],['drop','Biggest price drops'],['seen','Recently viewed'],['name','Dupe name A to Z']]};
+function shownPrice(pid){const p=S.products[pid],ls=listingsOf(pid),ml=mainMl(p,ls),b=best(ls.filter(l=>l.ml===ml));return b?b.p.k:null}
+function dropPct(pid){let m=0;const now=Date.now();for(const l of listingsOf(pid)){const h=hist(l);if(h.length<2)continue;const a=h[h.length-2].a,b=h[h.length-1].a;if(b<a&&now-tOf(h[h.length-1].d)<30*864e5)m=Math.max(m,(a-b)/a)}return m}
+function savingPct(pid){const d=S.products[pid];if(!d.orig)return null;const o=per100(d.orig),x=per100(pid);return o&&x?(o.v-x.v)/o.v:null}
+function sortList(r,sec){const k=S.sort[sec]||'default';const by=(f,desc)=>{const v=new Map(r.map(([id])=>[id,f(id)]));r.sort((a,b)=>{const x=v.get(a[0]),y=v.get(b[0]);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return desc?y-x:x-y})};
+  if(k==='price-asc')by(shownPrice);else if(k==='price-desc')by(shownPrice,1);else if(k==='per100')by(id=>(per100(id)||{}).v);
+  else if(k==='drop')by(id=>dropPct(id)||null,1);else if(k==='seen')by(id=>SEEN[id]||null,1);else if(k==='saving')by(savingPct,1);
+  else if(k==='name')r.sort((a,b)=>String(sec==='dupes'?a[1].dupeName:a[1].name).localeCompare(String(sec==='dupes'?b[1].dupeName:b[1].name)));return r}
 function dtabs(){const ds=Object.values(S.products).filter(isDupe);const hs=[...new Set(ds.map(d=>d.house))].sort();return[...(ds.some(d=>d.fav)?[['watch','Watchlist']]:[]),['all','All'],...hs.map(h=>['h:'+h,h])]}
 function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const q=S.q.trim().toLowerCase();const mq=p=>!q||[p.name,p.brand,p.dupeName,p.house].join(' ').toLowerCase().includes(q);
   if(S.sec==='dupes'){if(!dtabs().some(x=>x[0]===S.dtab))S.dtab='all';const r=all.filter(([,p])=>isDupe(p)&&(S.dtab==='all'||(S.dtab==='watch'?p.fav:'h:'+p.house===S.dtab))&&mq(p));
-    r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))||((per100(a[0])||{v:1e9}).v-(per100(b[0])||{v:1e9}).v));return r}
+    r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))||((per100(a[0])||{v:1e9}).v-(per100(b[0])||{v:1e9}).v));return sortList(r,'dupes')}
   const mine=all.filter(([,p])=>!isDupe(p)),hasFav=mine.some(([,p])=>p.fav);
   if(!TABS.some(x=>x[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
-  return mine.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&mq(p))}
-function gridHtml(){const ps=visible();return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No ${S.sec==='dupes'?'dupes':'fragrances'} match.</div></div>`}
+  return sortList(mine.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&mq(p)),'frag')}
+function gridHtml(){const ps=visible();const c=$('#count');if(c)c.textContent=ps.length+(ps.length===1?' shown':' shown');return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No ${S.sec==='dupes'?'dupes':'fragrances'} match.</div></div>`}
 function tabbar(){const b=(k,l,ic)=>`<button data-sec="${k}" ${S.sec===k?'aria-current="page"':''}>${ic}<span>${l}</span></button>`;
   return`<nav class="tabbar" aria-label="Sections">${b('frag','Fragrances','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="8" width="12" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8V5h4v3M9 3h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}${b('dupes','Dupes','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="12" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9V6h3v3M15 9V6h3v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}</nav>`}
 function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const D=S.sec==='dupes';const dr=drops().filter(x=>isDupe(S.products[x.l.pid])===D);visible();
@@ -219,6 +232,7 @@ function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));con
   return`<div class="wrap home">${top}
   <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="find" id="find" type="search" placeholder="${D?'Search dupes, houses or originals':'Search'}" aria-label="Search ${D?'dupes':'fragrances'}" value="${esc(S.q)}"></div>
   <div class="tabs" role="group" aria-label="Show">${(D?dtabs():TABS).map(([k,l])=>`<button data-tab="${esc(k)}" aria-pressed="${(D?S.dtab:S.tab)===k}">${esc(l)}</button>`).join('')}</div>
+  <div class="sortbar"><span id="count">${visible().length} shown</span><label for="sort">Sort<select id="sort" aria-label="Sort by">${SORTS[S.sec].map(([k,l])=>`<option value="${k}"${(S.sort[S.sec]||'default')===k?' selected':''}>${l}</option>`).join('')}</select></label></div>
   <div id="grid">${gridHtml()}</div>
   ${dr.length?`<div class="label">Recent drops</div><div class="group plain">${dr.map(x=>`<a class="row" href="#${esc(x.l.pid)}"><div class="main"><div class="t">${esc(S.products[x.l.pid].name)}</div><div class="s">${esc(x.l.ml)}ml · ${esc(rname(x.l.rid))} · ${esc(fmtD(x.d))}</div></div><div class="end"><div class="p" style="color:var(--drop)">${money(x.to)}</div><div class="s"><s>${money(x.from)}</s></div></div></a>`).join('')}</div>`:''}
   ${fine()}</div>${tabbar()}`}
@@ -261,7 +275,7 @@ function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div
   <p class="tmsg" id="tmsg">${esc(S.tmsg)}</p>
   <div class="label">Best price by size</div><div class="group plain">${perSize.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.ml)}ml</div><div class="s">${x.b?esc(rname(x.b.l.rid))+' · '+money(x.b.p.v/x.ml*100)+'/100ml':'Not found yet'}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p.v)+(x.b.p.unk?' +':''):'—'}</div></div></div>`).join('')}</div></div>`}
 function render(){const f=$('#tform'),mf=$('#mform'),fi=$('#find');if((f&&f.contains(document.activeElement))||(mf&&mf.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
-  const id=decodeURIComponent(location.hash.slice(1));$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
+  const id=decodeURIComponent(location.hash.slice(1));if(okId(id)&&S.products[id]&&S.seenId!==id){S.seenId=id;SEEN[id]=Date.now();ls$('fpt-seen',JSON.stringify(SEEN))}if(!okId(id))S.seenId=null;$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{const m=e.target.closest('[data-mode]');if(m){S.mode=m.dataset.mode==='list'?'list':'del';ls$('fpt-mode',S.mode);render();return}
@@ -279,6 +293,7 @@ document.addEventListener('submit',e=>{if(e.target.id!=='mform')return;e.prevent
   MAN.push({id:String(Date.now()),pid,store,ml,price,ship,date,url:url||null});saveManual();document.activeElement?.blur();S.mmsg=`Saved ${money(price)} at ${store} for ${ml}ml.`;if(ml!==S.size)S.size=ml;render()});
 document.addEventListener('submit',e=>{if(e.target.id!=='tform')return;e.preventDefault();const ml=Number(e.target.ml.value),pr=Number(e.target.price.value);
   if(!(pr>0)){$('#tmsg').textContent='Enter a price above $0.';return}saveTarget({ml,price:Math.round(pr*100)/100})});
+document.addEventListener('change',e=>{if(e.target.id==='sort'){S.sort[S.sec]=e.target.value;ls$('fpt-sort-'+S.sec,e.target.value);$('#grid').innerHTML=gridHtml()}});
 document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.value;$('#grid').innerHTML=gridHtml()}});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
 function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!okId(id)||!S.products[id])return;document.activeElement?.blur();
