@@ -179,21 +179,27 @@ const ro=new ResizeObserver(()=>drawChart());
 
 /* ---------- views ---------- */
 function modeSeg(){return`<div class="seg" role="group" aria-label="Price shown"><button data-mode="del" aria-pressed="${S.mode==='del'}">Delivered</button><button data-mode="list" aria-pressed="${S.mode==='list'}">Listed</button></div>`}
-function statusLine(){const m=S.meta;const d=m.lastRun?new Date(m.lastRun):null;const t=d&&!isNaN(d)?'Updated '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'Checked every morning';return t+' · '+Object.keys(S.products).length+' fragrances'}
+function statusLine(){const m=S.meta;const d=m.lastRun?new Date(m.lastRun):null;const t=d&&!isNaN(d)?'Updated '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'Checked every morning';const n=Object.values(S.products).filter(p=>!isDupe(p)).length,nd=Object.keys(S.products).length-n;return t+' · '+n+' fragrances'+(nd?' · '+nd+' dupes':'')}
 function row(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l.ml===ml),b=best(main),ser=bestSeries(main),tg=targetHit(p,ls);
   let tag='';if(tg&&tg.hit)tag=`<span class="tag hit">Target hit</span>`;
   else if(ser.length>1){const d=ser[ser.length-1].v-ser[ser.length-2].v;if(d<-.004)tag=`<span class="tag drop">▼ ${money(-d)}</span>`}
+  if(!tag&&isDupe(p)&&b){const o=per100(p.orig),d=b.p.k/ml*100;if(o&&d<o.v)tag=`<span class="tag hit">${Math.round((1-d/o.v)*100)}% cheaper</span>`}
   if(!tag&&b){const lo=lowOf(b.l);if(lo!=null&&b.p.v<=lo&&hist(b.l).length>2)tag=`<span class="tag drop">Lowest yet</span>`}
   
-  return`<a class="row" href="#${pid}">${dot(p.color)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${esc(p.brand)}</div></div>
-  <div class="end">${b?`<div class="p">${money(b.p.v)}</div>`:`<div class="p none">No price yet</div>`}${tag}</div>${CHEV}</a>`}
+  return`<a class="row" href="#${pid}">${dot(p.color)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${isDupe(p)?esc(p.dupeName)+' · '+esc(p.house)+(b?' · '+esc(ml)+'ml':''):esc(p.brand)}</div></div>
+  <div class="end">${b?`<div class="p">${money(b.p.v)}${b.p.unk?'<span class="s"> +del</span>':''}</div>`:`<div class="p none">${ls.some(l=>num(l.price)!=null)&&ls.every(l=>l.stock==='out'||num(l.price)==null)?'Sold out':'No price yet'}</div>`}${tag}</div>${CHEV}</a>`}
 function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));const fxs=S.meta.fx?Object.entries(S.meta.fx).filter(([,v])=>num(v)!=null).map(([k,v])=>`1 ${esc(k)} = ${v.toFixed(3)} AUD`).join(', '):'';
   return`<details class="how"><summary>How prices are worked out</summary><div class="body"><p><b>Listed</b> is the store's price, in Australian dollars. <b>Delivered</b> adds standard delivery for one bottle, plus 10% GST for overseas stores that charge it. If delivery isn't known, the price shows "+ delivery".</p><p>Prices are checked every morning. The app shows the last prices it saw when you're offline. Prices you add yourself are saved on this phone only.${fxs?' Exchange rate: '+fxs+'.':''}</p></div>
   <div class="label">Stores</div><div class="group plain">${rs.map(([,r])=>`<div class="row"><div class="main"><div class="t">${esc(r.name)}</div><div class="s">${num(r.shipFee)!=null?money(r.shipFee)+' delivery':'Delivery at checkout'}${num(r.freeOver)!=null?' · free over '+money(r.freeOver):''}</div></div></div>`).join('')}</div></details>`}
-const TABS=[['watch','Watchlist'],['all','All'],['men','Men'],['unisex','Unisex']];
+const TABS=[['watch','Watchlist'],['all','All'],['men','Men'],['unisex','Unisex'],['dupes','Dupes']];
+const isDupe=p=>p&&p.kind==='dupe';
+/* Best delivered (or listed) price per 100ml for a product, used to compare a dupe with its original. */
+function per100(pid){const ls=listingsOf(pid);let m=null;for(const l of ls){if(l.stock==='out')continue;const pr=priceOf(l,aud(l));if(!pr)continue;const v=pr.k/l.ml*100;if(m==null||v<m.v)m={v,p:pr.v,ml:l.ml}}return m}
+function dupesOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&d.orig===pid)}
 function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const hasFav=all.some(([,p])=>p.fav);
   if(!TABS.some(t=>t[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
-  const q=S.q.trim().toLowerCase();return all.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&(!q||(String(p.name)+' '+String(p.brand)).toLowerCase().includes(q)))}
+  const q=S.q.trim().toLowerCase();const r=all.filter(([,p])=>(S.tab==='dupes'?isDupe(p):S.tab==='watch'?p.fav:!isDupe(p)&&(S.tab==='all'||p.cat===S.tab))&&(!q||[p.name,p.brand,p.dupeName,p.house].join(' ').toLowerCase().includes(q)));
+  if(S.tab==='dupes')r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))||((per100(a[0])||{v:1e9}).v-(per100(b[0])||{v:1e9}).v));return r}
 function gridHtml(){const ps=visible();return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No fragrances match.</div></div>`}
 function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const dr=drops();visible();
   const top=`<div class="hdr"><h1>Fragrances</h1>${modeSeg()}</div><p class="sub">${S.offline?'<span class="offline">Offline · </span>':''}${ps.length?esc(statusLine()):'Loading prices…'}</p>`;
@@ -219,13 +225,14 @@ function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div
     return u?`<a class="row" href="${esc(u)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="row">${inner}</div>`}).join('');
   return`<div class="wrap"><div class="nav"><a href="#"><svg width="11" height="18" viewBox="0 0 11 18" aria-hidden="true"><path d="M9 1L2 9l7 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Fragrances</a>
   <button id="fav" aria-pressed="${!!p.fav}" aria-label="${p.fav?'Remove from watchlist':'Add to watchlist'}">${p.fav?'<span class="star-on" style="font-size:22px">★</span>':'<span style="font-size:22px">☆</span>'}</button></div>
-  <div class="hero">${dot(p.color)}<h1>${esc(p.name)}</h1><div class="brand">${esc(p.brand)} · ${esc(p.conc)}</div>
+  <div class="hero">${dot(p.color)}<h1>${esc(p.name)}</h1><div class="brand">${isDupe(p)?esc(p.dupeName)+' by '+esc(p.house)+' · '+esc(p.conc):esc(p.brand)+' · '+esc(p.conc)}</div>
   <div class="big">${b?money(b.p.v):'—'}</div><div class="s">${b?`Best ${S.mode==='list'?'listed':'delivered'} price for ${esc(S.size)}ml at ${esc(rname(b.l.rid))}`:`No ${esc(S.size)}ml price yet`}</div></div>
   <div class="ctrls"><div class="sizes" role="group" aria-label="Bottle size">${sizes.map(ml=>`<button data-size="${ml}" aria-pressed="${ml===S.size}">${ml}ml</button>`).join('')}</div>${modeSeg()}</div>
   <div class="chart" id="fig"><svg id="chart" role="img" aria-label="${esc(S.size)}ml price history by store"></svg></div>
   ${S.series.length>1?`<div class="legend">${S.series.map(x=>`<span><i style="background:${x.c}"></i>${esc(x.name)}</span>`).join('')}</div>`:''}
   ${one&&S.series.length?`<p class="note">A new point is added each morning, so the lines fill in over the coming days.</p>`:''}
   <div class="label">Stores · ${esc(S.size)}ml</div>${sel.length?`<div class="group plain">${offers}</div>`:`<div class="group"><div class="empty">No store found for ${esc(S.size)}ml yet.</div></div>`}
+  ${isDupe(p)?(()=>{const o=S.products[p.orig],op=per100(p.orig),dp=b?b.p.k/S.size*100:null;return o?`<div class="label">Inspired by</div><div class="group plain"><a class="row" href="#${esc(p.orig)}">${dot(o.color)}<div class="main"><div class="t">${esc(o.name)}</div><div class="s">${esc(o.brand)}${op?' · '+money(op.v)+'/100ml':''}</div></div><div class="end">${op?`<div class="p">${money(op.p)}</div><div class="s">${esc(op.ml)}ml</div>`:'<div class="p none">No price yet</div>'}${op&&dp!=null&&dp<op.v?`<span class="tag hit">Dupe ${Math.round((1-dp/op.v)*100)}% cheaper</span>`:''}</div>${CHEV}</a></div>`:''})():(()=>{const ds=dupesOf(pid).map(([id,d])=>({id,d,b:per100(id)})).sort((x,y)=>(x.b?x.b.v:1e9)-(y.b?y.b.v:1e9));return ds.length?`<div class="label">Dupes</div><div class="group plain">${ds.map(x=>`<a class="row" href="#${esc(x.id)}"><div class="main"><div class="t">${esc(x.d.dupeName)}</div><div class="s">${esc(x.d.house)}${x.b?' · '+esc(x.b.ml)+'ml · '+money(x.b.v)+'/100ml':''}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p):'—'}</div></div>${CHEV}</a>`).join('')}</div>`:''})()}
   <div class="label">Add a price yourself</div><form class="target group plain" id="mform">
   <div class="row"><div class="main"><div class="t">Store</div></div><input name="store" list="storelist" placeholder="e.g. Priceline" autocomplete="off" style="width:58%;text-align:left" aria-label="Store"></div>
   <div class="row"><div class="main"><div class="t">Size (ml)</div></div><input name="ml" type="number" inputmode="numeric" min="1" step="1" list="sizelist" value="${esc(S.size)}" aria-label="Size in ml"></div>
