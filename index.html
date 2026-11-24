@@ -49,6 +49,10 @@ h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0
 .tabs::-webkit-scrollbar{display:none}
 .tabs button{flex:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:0 16px;min-height:36px;font-size:15px;font-weight:500;cursor:pointer}
 .tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.wrap.home{padding-bottom:calc(96px + env(safe-area-inset-bottom))}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:20;display:flex;justify-content:center;gap:8px;padding:6px max(16px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(20px);backdrop-filter:blur(20px);border-top:.5px solid var(--line)}
+.tabbar button{flex:0 1 170px;border:0;background:none;color:var(--muted);display:flex;flex-direction:column;align-items:center;gap:3px;min-height:48px;font:inherit;font-size:11px;font-weight:600;cursor:pointer}
+.tabbar button[aria-current=page]{color:var(--accent)}
 
 /* grouped list */
 .label{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:26px 16px 8px}
@@ -124,7 +128,7 @@ const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?''
 const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
 const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',pending:false,series:[],tab:null,q:'',base:{}};
 const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
-S.mode=ls$('fpt-mode')==='list'?'list':'del';S.tab=ls$('fpt-tab');
+S.mode=ls$('fpt-mode')==='list'?'list':'del';S.tab=ls$('fpt-tab');S.sec=ls$('fpt-sec')==='dupes'?'dupes':'frag';S.dtab=ls$('fpt-dtab')||'all';
 /* Watchlist and targets set on this phone sit on top of the shared data. */
 let LOCAL={};try{LOCAL=JSON.parse(ls$('fpt-local')||'{}')||{}}catch(e){LOCAL={}}
 function applyLocal(){const o={};for(const[id,p]of Object.entries(S.base)){const l=LOCAL[id];o[id]=l?Object.assign({},p,'fav'in l?{fav:l.fav}:{},'target'in l?{target:l.target}:{}):p}S.products=o}
@@ -192,27 +196,32 @@ function row(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l
 function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));const fxs=S.meta.fx?Object.entries(S.meta.fx).filter(([,v])=>num(v)!=null).map(([k,v])=>`1 ${esc(k)} = ${v.toFixed(3)} AUD`).join(', '):'';
   return`<details class="how"><summary>How prices are worked out</summary><div class="body"><p><b>Listed</b> is the store's price, in Australian dollars. <b>Delivered</b> adds standard delivery for one bottle, plus 10% GST for overseas stores that charge it. If delivery isn't known, the price shows "+ delivery".</p><p>Prices are checked every morning. The app shows the last prices it saw when you're offline. Prices you add yourself are saved on this phone only.${fxs?' Exchange rate: '+fxs+'.':''}</p></div>
   <div class="label">Stores</div><div class="group plain">${rs.map(([,r])=>`<div class="row"><div class="main"><div class="t">${esc(r.name)}</div><div class="s">${num(r.shipFee)!=null?money(r.shipFee)+' delivery':'Delivery at checkout'}${num(r.freeOver)!=null?' · free over '+money(r.freeOver):''}</div></div></div>`).join('')}</div></details>`}
-const TABS=[['watch','Watchlist'],['all','All'],['men','Men'],['unisex','Unisex'],['dupes','Dupes']];
+const TABS=[['watch','Watchlist'],['all','All'],['men','Men'],['unisex','Unisex']];
 const isDupe=p=>p&&p.kind==='dupe';
 /* Best delivered (or listed) price per 100ml for a product, used to compare a dupe with its original. */
 function per100(pid){const ls=listingsOf(pid);let m=null;for(const l of ls){if(l.stock==='out')continue;const pr=priceOf(l,aud(l));if(!pr)continue;const v=pr.k/l.ml*100;if(m==null||v<m.v)m={v,p:pr.v,ml:l.ml}}return m}
 const famOf=d=>d.family||d.orig;
 function dupesOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&d.orig===pid)}
 function flankersOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&!d.orig&&famOf(d)===pid)}
-function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const hasFav=all.some(([,p])=>p.fav);
-  if(!TABS.some(t=>t[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
-  const q=S.q.trim().toLowerCase();const r=all.filter(([,p])=>(S.tab==='dupes'?isDupe(p):S.tab==='watch'?p.fav:!isDupe(p)&&(S.tab==='all'||p.cat===S.tab))&&(!q||[p.name,p.brand,p.dupeName,p.house].join(' ').toLowerCase().includes(q)));
-  if(S.tab==='dupes')r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))||((per100(a[0])||{v:1e9}).v-(per100(b[0])||{v:1e9}).v));return r}
-function gridHtml(){const ps=visible();return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No fragrances match.</div></div>`}
-function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const dr=drops();visible();
-  const top=`<div class="hdr"><h1>Fragrances</h1>${modeSeg()}</div><p class="sub">${S.offline?'<span class="offline">Offline · </span>':''}${ps.length?esc(statusLine()):'Loading prices…'}</p>`;
+function dtabs(){const ds=Object.values(S.products).filter(isDupe);const hs=[...new Set(ds.map(d=>d.house))].sort();return[...(ds.some(d=>d.fav)?[['watch','Watchlist']]:[]),['all','All'],...hs.map(h=>['h:'+h,h])]}
+function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const q=S.q.trim().toLowerCase();const mq=p=>!q||[p.name,p.brand,p.dupeName,p.house].join(' ').toLowerCase().includes(q);
+  if(S.sec==='dupes'){if(!dtabs().some(x=>x[0]===S.dtab))S.dtab='all';const r=all.filter(([,p])=>isDupe(p)&&(S.dtab==='all'||(S.dtab==='watch'?p.fav:'h:'+p.house===S.dtab))&&mq(p));
+    r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name))||((per100(a[0])||{v:1e9}).v-(per100(b[0])||{v:1e9}).v));return r}
+  const mine=all.filter(([,p])=>!isDupe(p)),hasFav=mine.some(([,p])=>p.fav);
+  if(!TABS.some(x=>x[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
+  return mine.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&mq(p))}
+function gridHtml(){const ps=visible();return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No ${S.sec==='dupes'?'dupes':'fragrances'} match.</div></div>`}
+function tabbar(){const b=(k,l,ic)=>`<button data-sec="${k}" ${S.sec===k?'aria-current="page"':''}>${ic}<span>${l}</span></button>`;
+  return`<nav class="tabbar" aria-label="Sections">${b('frag','Fragrances','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="8" width="12" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8V5h4v3M9 3h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}${b('dupes','Dupes','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="12" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9V6h3v3M15 9V6h3v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}</nav>`}
+function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const D=S.sec==='dupes';const dr=drops().filter(x=>isDupe(S.products[x.l.pid])===D);visible();
+  const top=`<div class="hdr"><h1>${D?'Dupes':'Fragrances'}</h1>${modeSeg()}</div><p class="sub">${S.offline?'<span class="offline">Offline · </span>':''}${ps.length?esc(statusLine()):'Loading prices…'}</p>`;
   if(!ps.length)return`<div class="wrap">${top}<div class="group"><div class="empty">${S.err?'Can\'t load prices. Connect to the internet and try again.':S.loaded?'Nothing tracked yet.':'Loading…'}</div></div></div>`;
-  return`<div class="wrap">${top}
-  <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="find" id="find" type="search" placeholder="Search" aria-label="Search fragrances" value="${esc(S.q)}"></div>
-  <div class="tabs" role="group" aria-label="Show">${TABS.map(([k,l])=>`<button data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join('')}</div>
+  return`<div class="wrap home">${top}
+  <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="find" id="find" type="search" placeholder="${D?'Search dupes, houses or originals':'Search'}" aria-label="Search ${D?'dupes':'fragrances'}" value="${esc(S.q)}"></div>
+  <div class="tabs" role="group" aria-label="Show">${(D?dtabs():TABS).map(([k,l])=>`<button data-tab="${esc(k)}" aria-pressed="${(D?S.dtab:S.tab)===k}">${esc(l)}</button>`).join('')}</div>
   <div id="grid">${gridHtml()}</div>
   ${dr.length?`<div class="label">Recent drops</div><div class="group plain">${dr.map(x=>`<a class="row" href="#${esc(x.l.pid)}"><div class="main"><div class="t">${esc(S.products[x.l.pid].name)}</div><div class="s">${esc(x.l.ml)}ml · ${esc(rname(x.l.rid))} · ${esc(fmtD(x.d))}</div></div><div class="end"><div class="p" style="color:var(--drop)">${money(x.to)}</div><div class="s"><s>${money(x.from)}</s></div></div></a>`).join('')}</div>`:''}
-  ${fine()}</div>`}
+  ${fine()}</div>${tabbar()}`}
 function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div class="nav"><a href="#">${'‹'} Fragrances</a></div><div class="group"><div class="empty">${S.loaded?'This fragrance isn\'t tracked.':'Loading…'}</div></div></div>`;
   const ls=listingsOf(pid),sizes=sizesOf(p,ls);if(S.sizeFor!==pid||!sizes.includes(S.size)){S.size=mainMl(p,ls);S.sizeFor=pid;if(!sizes.includes(S.size))S.size=sizes[0]}
   const sel=ls.filter(l=>l.ml===S.size),b=best(sel),tg=p.target||{};
@@ -226,7 +235,7 @@ function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div
     const st=x.l.mine?'Added by you':x.l.price==null?'Not checked yet':x.l.stock==='out'?'Out of stock':'';
     const inner=`<div class="main"><div class="t">${esc(rname(x.l.rid))}${x.l.mine?' <span class="tag info">Yours</span>':''}</div><div class="s">${st?esc(st)+' · ':''}${bits.join(' · ')}</div></div><div class="end"><div class="p">${x.p?(x.p.unk?money(x.p.v)+'<span class="s"> +del</span>':money(x.p.v)):'—'}</div>${isBest?'<div class="best">Best price</div>':''}</div>${u?CHEV:''}`;
     return u?`<a class="row" href="${esc(u)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="row">${inner}</div>`}).join('');
-  return`<div class="wrap"><div class="nav"><a href="#"><svg width="11" height="18" viewBox="0 0 11 18" aria-hidden="true"><path d="M9 1L2 9l7 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Fragrances</a>
+  return`<div class="wrap"><div class="nav"><a href="#"><svg width="11" height="18" viewBox="0 0 11 18" aria-hidden="true"><path d="M9 1L2 9l7 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> ${S.sec==='dupes'?'Dupes':'Fragrances'}</a>
   <button id="fav" aria-pressed="${!!p.fav}" aria-label="${p.fav?'Remove from watchlist':'Add to watchlist'}">${p.fav?'<span class="star-on" style="font-size:22px">★</span>':'<span style="font-size:22px">☆</span>'}</button></div>
   <div class="hero">${dot(p.color)}<h1>${esc(p.name)}</h1><div class="brand">${isDupe(p)?esc(p.dupeName)+' by '+esc(p.house)+' · '+esc(p.conc):esc(p.brand)+' · '+esc(p.conc)}</div>
   <div class="big">${b?money(b.p.v):'—'}</div><div class="s">${b?`Best ${S.mode==='list'?'listed':'delivered'} price for ${esc(S.size)}ml at ${esc(rname(b.l.rid))}`:`No ${esc(S.size)}ml price yet`}</div></div>
@@ -256,7 +265,8 @@ function render(){const f=$('#tform'),mf=$('#mform'),fi=$('#find');if((f&&f.cont
 
 /* ---------- events ---------- */
 document.addEventListener('click',e=>{const m=e.target.closest('[data-mode]');if(m){S.mode=m.dataset.mode==='list'?'list':'del';ls$('fpt-mode',S.mode);render();return}
-  const t=e.target.closest('[data-tab]');if(t){S.tab=t.dataset.tab;ls$('fpt-tab',S.tab);render();return}
+  const sc=e.target.closest('[data-sec]');if(sc){if(S.sec===sc.dataset.sec){scrollTo(0,0);return}S.sec=sc.dataset.sec==='dupes'?'dupes':'frag';ls$('fpt-sec',S.sec);S.q='';render();scrollTo(0,0);return}
+  const t=e.target.closest('[data-tab]');if(t){if(S.sec==='dupes'){S.dtab=t.dataset.tab;ls$('fpt-dtab',S.dtab)}else{S.tab=t.dataset.tab;ls$('fpt-tab',S.tab)}render();return}
   if(e.target.closest('#fav')){const id=decodeURIComponent(location.hash.slice(1));if(S.products[id]){setLocal(id,{fav:!S.products[id].fav});render()}return}
   const z=e.target.closest('[data-size]');if(z){S.size=Number(z.dataset.size);render();return}
   const del=e.target.closest('[data-del]');if(del){MAN=MAN.filter(m=>String(m.id)!==del.dataset.del);saveManual();S.mmsg='Price deleted.';render();return}

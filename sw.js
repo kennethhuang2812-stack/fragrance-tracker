@@ -1,6 +1,6 @@
 // Offline support. The page and price data always come fresh from the network
 // (skipping the browser's HTTP cache); the saved copy is only used when offline.
-const CACHE = 'fpt-v4';
+const CACHE = 'fpt-v5';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
