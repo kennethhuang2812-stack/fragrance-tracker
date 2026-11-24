@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Liquor Prices</title>
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Liquor">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+:root{color-scheme:light dark;
+  --bg:#f2f2f7;--card:#fff;--ink:#111114;--muted:#6e6e73;--faint:#aeaeb2;--line:#e5e5ea;--fill:#e9e9ee;
+  --accent:#9a5b00;--accent-soft:#f7ecdc;--drop:#c2410c;--drop-soft:#fdeee6;--good:#1f7a4d;--good-soft:#e5f4ec}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#98989f;--faint:#636366;--line:#2c2c2e;--fill:#2c2c2e;
+  --accent:#f0b35a;--accent-soft:#3a2a12;--drop:#ff8a5c;--drop-soft:#3a1d12;--good:#4cc38a;--good-soft:#11301f}}
+:root[data-theme=dark]{color-scheme:dark;
+  --bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#98989f;--faint:#636366;--line:#2c2c2e;--fill:#2c2c2e;
+  --accent:#f0b35a;--accent-soft:#3a2a12;--drop:#ff8a5c;--drop-soft:#3a1d12;--good:#4cc38a;--good-soft:#11301f}
+:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 0 4px}
+h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0}
+.sub{color:var(--muted);font-size:14px;margin:4px 0 16px}
+.offline{color:var(--drop)}
+.search{position:relative;margin:0 0 12px}
+.search svg{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:var(--faint)}
+.find{width:100%;font-size:17px;font-family:inherit;border:0;border-radius:10px;background:var(--fill);color:var(--ink);min-height:40px;padding:0 12px 0 34px;-webkit-appearance:none}
+.find::placeholder{color:var(--faint)}
+.tabs{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 -16px 14px;padding:0 16px}
+.tabs::-webkit-scrollbar{display:none}
+.tabs button{flex:none;border:0;border-radius:999px;background:var(--card);color:var(--ink);padding:0 16px;min-height:36px;font-size:15px;font-weight:500;cursor:pointer}
+.tabs button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.sortbar{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:-4px 2px 10px;color:var(--muted);font-size:13px}
+.sortbar label{display:flex;align-items:center;gap:6px}
+.sortbar select{font:inherit;font-size:15px;font-weight:600;color:var(--accent);background:var(--card);border:0;border-radius:999px;min-height:36px;padding:0 30px 0 14px;-webkit-appearance:none;appearance:none;background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);background-position:calc(100% - 17px) 16px,calc(100% - 12px) 16px;background-size:5px 5px;background-repeat:no-repeat;max-width:62vw}
+.label{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:26px 16px 8px}
+.group{background:var(--card);border-radius:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative;min-height:60px}
+.row+.row::before{content:"";position:absolute;top:0;right:0;left:58px;border-top:.5px solid var(--line)}
+.group.plain .row+.row::before{left:16px}
+a.row:active{background:var(--fill)}
+.dot{display:inline-grid;place-items:center;flex:none;width:30px;height:30px;border-radius:9px;color:#fff;box-shadow:inset 0 0 0 .5px #0000001a}
+.dot svg{width:18px;height:18px;opacity:.9}
+.main{flex:1}
+.t{font-weight:600;font-size:16px;line-height:1.25;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.s{color:var(--muted);font-size:13px;line-height:1.3;margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.end{flex:none;text-align:right}
+.p{font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.p.none{color:var(--faint);font-weight:400}
+.chev{flex:none;color:var(--faint);margin-left:-4px}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;margin-top:3px;white-space:nowrap}
+.tag.drop{background:var(--drop-soft);color:var(--drop)}
+.tag.hit{background:var(--good-soft);color:var(--good)}
+.tag.info{background:var(--fill);color:var(--muted)}
+.empty{padding:28px 16px;text-align:center;color:var(--muted);font-size:15px}
+.note{color:var(--muted);font-size:13px;line-height:1.45;margin:8px 16px 0}
+.star-on{color:#e0a100}
+details.how{margin-top:26px}
+details.how summary{list-style:none;cursor:pointer;color:var(--accent);font-size:15px;padding:8px 16px}
+details.how summary::-webkit-details-marker{display:none}
+details.how .body{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);line-height:1.5}
+details.how p{margin:0 0 10px}
+.nav{display:flex;align-items:center;justify-content:space-between;margin:4px -8px 0;min-height:44px}
+.nav a,.nav button{display:inline-flex;align-items:center;gap:2px;color:var(--accent);font-size:17px;padding:8px;border:0;background:none;cursor:pointer;min-height:44px}
+.hero{text-align:center;margin:8px 0 18px}
+.hero .dot{display:grid;width:56px;height:56px;border-radius:16px;margin:0 auto 12px}
+.hero .dot svg{width:32px;height:32px}
+.hero h1{font-size:28px}
+.hero .brand{color:var(--muted);font-size:15px;margin-top:2px}
+.big{font-size:44px;font-weight:700;letter-spacing:-.02em;margin-top:14px;font-variant-numeric:tabular-nums;line-height:1.05}
+.big+.s{white-space:normal;font-size:14px;margin-top:4px}
+.sizes{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;margin:0 0 12px}
+.sizes::-webkit-scrollbar{display:none}
+.sizes button{flex:none;border:0;border-radius:999px;background:var(--card);padding:0 14px;min-height:34px;font-size:14px;font-weight:500;cursor:pointer}
+.sizes button[aria-pressed=true]{background:var(--ink);color:var(--bg)}
+.chart{background:var(--card);border-radius:12px;padding:12px 8px 6px;position:relative;height:220px}
+.chart svg{display:block;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:4px 14px;margin:8px 16px 0;font-size:13px;color:var(--muted)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:5px;vertical-align:1px}
+.best{color:var(--good);font-size:12px;font-weight:600}
+form.f .row{gap:10px}
+form.f select,form.f input{font:inherit;font-size:16px;border:0;background:var(--fill);color:var(--ink);border-radius:8px;min-height:36px;padding:0 10px;-webkit-appearance:none}
+form.f input{width:110px;text-align:right}
+.btn{border:0;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:16px;min-height:44px;padding:0 18px;cursor:pointer;width:100%}
+@media (prefers-color-scheme:dark){.btn{color:#1c1c1e}}
+.btn.link{background:none;color:var(--drop);width:auto;padding:0 4px;font-weight:500}
+.tmsg{color:var(--good);font-size:13px;margin:8px 16px 0}
+</style></head>
+<body>
+<div id="app"><div class="wrap"><div class="hdr"><h1>Liquor</h1></div><p class="sub">Loading prices…</p></div></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>v==null||!isFinite(v)?'—':'$'+Number(v).toFixed(2);
+const okId=s=>typeof s==='string'&&/^[a-z0-9-]+$/i.test(s);
+const okUrl=u=>typeof u==='string'&&u.startsWith('https://')?u:null;
+const okHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)?c:'#8e8e93';
+const okSize=s=>typeof s==='string'&&/^(\d{1,2}x)?\d{2,4}ml$|^1L$/.test(s);
+const num=v=>typeof v==='number'&&isFinite(v)?v:null;
+const tOf=d=>Date.parse(d+'T00:00:00');
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?'':x.getDate()+' '+MON[x.getMonth()]};
+const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
+const S={products:{},retailers:{},listings:{},meta:{},size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',mmsg:'',pending:false,series:[],q:'',base:{}};
+const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
+S.tab=ls$('lpt-tab');S.sort=ls$('lpt-sort')||'default';
+let SEEN={};try{SEEN=JSON.parse(ls$('lpt-seen')||'{}')||{}}catch(e){SEEN={}}
+/* Watchlist and targets set on this phone sit on top of the shared data. */
+let LOCAL={};try{LOCAL=JSON.parse(ls$('lpt-local')||'{}')||{}}catch(e){LOCAL={}}
+function applyLocal(){const o={};for(const[id,p]of Object.entries(S.base)){const l=LOCAL[id];o[id]=l?Object.assign({},p,'fav'in l?{fav:l.fav}:{},'target'in l?{target:l.target}:{}):p}S.products=o}
+let MAN=[];try{MAN=JSON.parse(ls$('lpt-manual')||'[]');if(!Array.isArray(MAN))MAN=[]}catch(e){MAN=[]}
+const slug=s=>String(s).toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,40)||'store';
+const today=()=>new Date().toLocaleDateString('en-CA');
+/* Prices typed in on this phone: merged in as extra store rows with their own history. */
+function applyManual(){const R=Object.assign({},S.baseR),L=Object.assign({},S.baseL),byName={};for(const[id,r]of Object.entries(S.baseR||{}))byName[String(r.name).trim().toLowerCase()]=id;
+  for(const m of MAN){if(!m||!okId(m.pid)||!(m.price>0)||!okSize(m.size)||!/^\d{4}-\d\d-\d\d$/.test(m.date||''))continue;const name=String(m.store||'').trim();if(!name)continue;
+    let rid=byName[name.toLowerCase()];if(!rid){rid='my-'+slug(name);if(!R[rid])R[rid]={name,note:'Store you added'}}
+    const lid='my-'+m.pid+'-'+rid+'-'+m.size;const l=L[lid]||(L[lid]={pid:m.pid,rid,size:m.size,cur:'AUD',hist:[],mine:true,stock:'unknown',via:'manual'});
+    l.hist=l.hist.filter(h=>h.d!==m.date).concat({d:m.date,a:m.price});if(okUrl(m.url))l.url=m.url}
+  for(const l of Object.values(L))if(l.mine){const h=hist(l),last=h[h.length-1];l.price=l.aud=last.a;l.checked=last.d}
+  S.retailers=R;S.listings=L}
+function saveManual(){ls$('lpt-manual',JSON.stringify(MAN));applyManual()}
+function setLocal(id,patch){LOCAL[id]=Object.assign({},LOCAL[id],patch);ls$('lpt-local',JSON.stringify(LOCAL));applyLocal()}
+
+/* ---------- sizes and standard drinks ---------- */
+function vol(k){const m=/^(?:(\d+)x)?(\d+)ml$/.exec(k);if(k==='1L')return{n:1,ml:1000,total:1000};if(!m)return null;const n=+(m[1]||1),ml=+m[2];return{n,ml,total:n*ml}}
+function sizeLabel(k){const v=vol(k);if(!v)return String(k);const one=v.ml===1000?'1L':v.ml+'ml';return v.n>1?v.n+' × '+one:one}
+const sizeKey=k=>{const v=vol(k);return v?v.total*100+v.n:0};
+/* Australian standard drink = 10 g of alcohol; ethanol weighs 0.789 g per ml. */
+function stdOf(p,k){const v=vol(k),abv=num(p.abv);return v&&abv?v.total*abv/100*0.789/10:null}
+
+/* ---------- pricing ---------- */
+const rname=id=>S.retailers[id]?.name||id;
+function aud(l){return num(l.aud)!=null?l.aud:num(l.price)}
+function hist(l){return(Array.isArray(l.hist)?l.hist:[]).filter(x=>x&&typeof x.d==='string'&&num(x.a)!=null).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
+function listingsOf(pid){return Object.entries(S.listings).filter(([,l])=>l&&l.pid===pid&&okSize(l.size)).map(([id,l])=>Object.assign({id},l))}
+function sizesOf(p,ls){return[...new Set([...(Array.isArray(p.sizes)?p.sizes.filter(okSize):[]),...ls.map(l=>l.size)])].sort((a,b)=>sizeKey(a)-sizeKey(b))}
+function mainSize(p,ls){if(okSize(p.main))return p.main;return sizesOf(p,ls)[0]}
+function best(ls){let b=null;for(const l of ls){if(l.stock==='out')continue;const a=aud(l);if(a!=null&&(!b||a<b.v))b={l,v:a}}return b}
+function seriesOf(l){return hist(l).map(x=>({t:tOf(x.d),v:x.a})).filter(p=>!isNaN(p.t))}
+function bestSeries(ls){const hs=ls.map(l=>hist(l));const ds=[...new Set(hs.flatMap(h=>h.map(x=>x.d)))].sort();
+  return ds.map(d=>{let m=null;for(const h of hs){let x=null;for(const y of h){if(y.d<=d)x=y;else break}if(x&&(m==null||x.a<m))m=x.a}return m==null?null:{t:tOf(d),v:m}}).filter(Boolean)}
+function lowOf(l){const s=seriesOf(l);return s.length?Math.min(...s.map(p=>p.v)):null}
+function perStd(pid){const p=S.products[pid];let m=null;for(const l of listingsOf(pid)){if(l.stock==='out')continue;const a=aud(l),sd=stdOf(p,l.size);if(a==null||!sd)continue;const v=a/sd;if(m==null||v<m.v)m={v,l,a,sd}}return m}
+function drops(){const out=[],now=Date.now();for(const[,l]of Object.entries(S.listings)){if(!l||!S.products[l.pid])continue;const h=hist(l);if(h.length<2)continue;const a=h[h.length-2],b=h[h.length-1];if(b.a<a.a&&now-tOf(b.d)<15*864e5)out.push({l,from:a.a,to:b.a,d:b.d})}return out.sort((x,y)=>y.d<x.d?-1:1).slice(0,10)}
+function specials(){const out=[];for(const[,l]of Object.entries(S.listings)){if(!l||!S.products[l.pid]||l.stock==='out')continue;const a=aud(l),w=num(l.was);if(a!=null&&w&&w>a+.004)out.push({l,a,w,pct:(w-a)/w})}return out.sort((x,y)=>y.pct-x.pct).slice(0,10)}
+function targetHit(p,ls){const t=p.target;if(!t||num(t.price)==null||!okSize(t.size))return null;const b=best(ls.filter(l=>l.size===t.size));return{t,b,hit:!!(b&&b.v<=t.price)}}
+
+/* ---------- drawing ---------- */
+const CHEV='<svg class="chev" width="8" height="14" viewBox="0 0 8 14" aria-hidden="true"><path d="M1 1l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+const ICON={
+  spirits:'<path d="M10 2h4v4l2 3v12a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V9l2-3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+  beer:'<path d="M6 6h9v14a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1zM15 9h2a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 6c0-2 2-3 4.5-3S15 4 15 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+  wine:'<path d="M7 3h10l-1 6a4 4 0 0 1-8 0zM12 13v8M8 21h8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>',
+  rtd:'<rect x="7" y="4" width="10" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M9 4V2.5h6V4M7 8h10" fill="none" stroke="currentColor" stroke-width="2"/>'};
+const dot=p=>`<span class="dot" style="background:${okHex(p.color)}" aria-hidden="true"><svg viewBox="0 0 24 24">${ICON[p.cat]||ICON.spirits}</svg></span>`;
+function drawChart(){const s=$('#chart');if(!s)return;const W=s.clientWidth,H=s.clientHeight;if(!W||!H)return;const ser=S.series,pts=ser.flatMap(x=>x.pts);
+  if(!pts.length){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="14">No prices for this size yet</text>`;return}
+  const L=40,R=12,T=10,B=22,ts=pts.map(p=>p.t),vs=pts.map(p=>p.v);const t0=Math.min(...ts),t1=Math.max(...ts);let v0=Math.min(...vs),v1=Math.max(...vs);const sp=Math.max(v1-v0,v1*.12,10);v0=Math.max(0,v0-sp*.25);v1+=sp*.25;
+  const X=t=>t1===t0?L+(W-L-R)/2:L+(t-t0)/(t1-t0)*(W-L-R),Y=v=>T+(1-(v-v0)/(v1-v0))*(H-T-B);let g='';
+  for(let i=0;i<=3;i++){const v=v0+(v1-v0)*i/3,y=Y(v).toFixed(1);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)" stroke-dasharray="${i?'2 3':''}"/><text x="${L-6}" y="${+y+4}" text-anchor="end" font-size="11" fill="var(--faint)">$${Math.round(v)}</text>`}
+  g+=`<text x="${L}" y="${H-4}" font-size="11" fill="var(--faint)">${fmtD(t0)}</text>`;if(t1!==t0)g+=`<text x="${W-R}" y="${H-4}" text-anchor="end" font-size="11" fill="var(--faint)">${fmtD(t1)}</text>`;
+  ser.forEach(x=>{const P=x.pts.map(p=>[X(p.t).toFixed(1),Y(p.v).toFixed(1)]);if(P.length>1)g+=`<polyline points="${P.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;const q=P[P.length-1];g+=`<circle cx="${q[0]}" cy="${q[1]}" r="4.5" fill="${x.c}" stroke="var(--card)" stroke-width="2"/>`});
+  s.innerHTML=g}
+const ro=new ResizeObserver(()=>drawChart());
+
+/* ---------- views ---------- */
+function statusLine(){const m=S.meta;const d=m.lastRun?new Date(m.lastRun):null;const t=d&&!isNaN(d)?'Updated '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'Checked every morning';return t+' · '+Object.keys(S.products).length+' drinks · '+Object.values(S.listings).filter(l=>num(aud(l))!=null).length+' prices'}
+function row(pid,p){const ls=listingsOf(pid),k=mainSize(p,ls),main=ls.filter(l=>l.size===k),b=best(main),ser=bestSeries(main),tg=targetHit(p,ls);
+  let tag='';if(tg&&tg.hit)tag=`<span class="tag hit">Target hit</span>`;
+  else if(ser.length>1){const d=ser[ser.length-1].v-ser[ser.length-2].v;if(d<-.004)tag=`<span class="tag drop">▼ ${money(-d)}</span>`}
+  if(!tag&&b&&num(b.l.was)&&b.l.was>b.v)tag=`<span class="tag drop">On special</span>`;
+  if(!tag&&b){const lo=lowOf(b.l);if(lo!=null&&b.v<=lo&&hist(b.l).length>2)tag=`<span class="tag drop">Lowest yet</span>`}
+  if(!tag&&b&&S.sort==='std'){const ps=perStd(pid);if(ps)tag=`<span class="tag info">${money(ps.v)}/std drink</span>`}
+  return`<a class="row" href="#${pid}">${dot(p)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${esc(sizeLabel(k))}${b?' · '+esc(rname(b.l.rid)):''}</div></div>
+  <div class="end">${b?`<div class="p">${money(b.v)}</div>`:`<div class="p none">${ls.length&&ls.every(l=>l.stock==='out')?'Sold out':'No price yet'}</div>`}${tag}</div>${CHEV}</a>`}
+function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));
+  return`<details class="how"><summary>How prices are worked out</summary><div class="body"><p>Prices are the shelf price on each store's website, in Australian dollars, before delivery. Store prices in Melbourne can differ a little from the online price.</p><p><b>Per standard drink</b> uses the Australian standard drink (10 g of alcohol), worked out from the bottle size and alcohol %. It's the fairest way to compare a slab with a bottle.</p><p>Prices are checked every morning. Prices marked ≈ come from a search snapshot of the store's page and may be a day or two old. Liquorland, First Choice and Vintage Cellars ask AI tools not to read their sites, so add their prices yourself if you want them. Prices you add are saved on this phone only.</p></div>
+  <div class="label">Stores</div><div class="group plain">${rs.map(([,r])=>`<div class="row"><div class="main"><div class="t">${esc(r.name)}</div><div class="s" style="white-space:normal">${esc(r.note||'')}</div></div></div>`).join('')}</div></details>`}
+const CATS=[['spirits','Spirits'],['beer','Beer'],['wine','Wine'],['rtd','Premix']];
+function tabs(){const ps=Object.values(S.products);return[...(ps.some(p=>p.fav)?[['watch','Watchlist']]:[]),['all','All'],['deals','Deals'],...CATS.filter(([k])=>ps.some(p=>p.cat===k))]}
+const SORTS=[['default','Popular'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['std','Cheapest per std drink'],['drop','Biggest price drops'],['seen','Recently viewed'],['name','Name A to Z']];
+function shownPrice(pid){const p=S.products[pid],ls=listingsOf(pid),b=best(ls.filter(l=>l.size===mainSize(p,ls)));return b?b.v:null}
+function dropPct(pid){let m=0;const now=Date.now();for(const l of listingsOf(pid)){const h=hist(l);if(h.length<2)continue;const a=h[h.length-2].a,b=h[h.length-1].a;if(b<a&&now-tOf(h[h.length-1].d)<30*864e5)m=Math.max(m,(a-b)/a)}return m}
+function dealPct(pid){let m=0;for(const l of listingsOf(pid)){const a=aud(l),w=num(l.was);if(a!=null&&w&&l.stock!=='out')m=Math.max(m,(w-a)/w)}return m}
+function sortList(r){const k=S.sort;const by=(f,desc)=>{const v=new Map(r.map(([id])=>[id,f(id)]));r.sort((a,b)=>{const x=v.get(a[0]),y=v.get(b[0]);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return desc?y-x:x-y})};
+  if(k==='price-asc')by(shownPrice);else if(k==='price-desc')by(shownPrice,1);else if(k==='std')by(id=>(perStd(id)||{}).v);
+  else if(k==='drop')by(id=>dropPct(id)||null,1);else if(k==='seen')by(id=>SEEN[id]||null,1);
+  else if(k==='name')r.sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));return r}
+function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const q=S.q.trim().toLowerCase();
+  if(!tabs().some(x=>x[0]===S.tab))S.tab=all.some(([,p])=>p.fav)?'watch':'all';
+  const r=all.filter(([id,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:S.tab==='deals'?dealPct(id)>0||dropPct(id)>0:p.cat===S.tab))&&(!q||[p.name,p.brand,p.type].join(' ').toLowerCase().includes(q)));
+  if(S.tab==='deals'&&S.sort==='default'){const v=new Map(r.map(([id])=>[id,Math.max(dealPct(id),dropPct(id))]));return r.sort((a,b)=>v.get(b[0])-v.get(a[0]))}
+  return sortList(r)}
+function gridHtml(){const ps=visible();const c=$('#count');if(c)c.textContent=ps.length+' shown';return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">${S.tab==='deals'?'No specials or price drops right now.':'No drinks match.'}</div></div>`}
+function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const dr=drops(),sp=specials();visible();
+  const top=`<div class="hdr"><h1>Liquor</h1></div><p class="sub">${S.offline?'<span class="offline">Offline · </span>':''}${ps.length?esc(statusLine()):'Loading prices…'}</p>`;
+  if(!ps.length)return`<div class="wrap">${top}<div class="group"><div class="empty">${S.err?'Can\'t load prices. Connect to the internet and try again.':S.loaded?'Nothing tracked yet.':'Loading…'}</div></div></div>`;
+  return`<div class="wrap">${top}
+  <div class="search"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="7" cy="7" r="5.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M11 11l3.5 3.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg><input class="find" id="find" type="search" placeholder="Search drinks, brands or types" aria-label="Search drinks" value="${esc(S.q)}"></div>
+  <div class="tabs" role="group" aria-label="Show">${tabs().map(([k,l])=>`<button data-tab="${esc(k)}" aria-pressed="${S.tab===k}">${esc(l)}</button>`).join('')}</div>
+  <div class="sortbar"><span id="count">${visible().length} shown</span><label for="sort">Sort<select id="sort" aria-label="Sort by">${SORTS.map(([k,l])=>`<option value="${k}"${S.sort===k?' selected':''}>${l}</option>`).join('')}</select></label></div>
+  <div id="grid">${gridHtml()}</div>
+  ${sp.length?`<div class="label">On special now</div><div class="group plain">${sp.map(x=>`<a class="row" href="#${esc(x.l.pid)}"><div class="main"><div class="t">${esc(S.products[x.l.pid].name)}</div><div class="s">${esc(sizeLabel(x.l.size))} · ${esc(rname(x.l.rid))}</div></div><div class="end"><div class="p" style="color:var(--drop)">${money(x.a)}</div><div class="s"><s>${money(x.w)}</s> · ${Math.round(x.pct*100)}% off</div></div></a>`).join('')}</div>`:''}
+  ${dr.length?`<div class="label">Recent drops</div><div class="group plain">${dr.map(x=>`<a class="row" href="#${esc(x.l.pid)}"><div class="main"><div class="t">${esc(S.products[x.l.pid].name)}</div><div class="s">${esc(sizeLabel(x.l.size))} · ${esc(rname(x.l.rid))} · ${esc(fmtD(x.d))}</div></div><div class="end"><div class="p" style="color:var(--drop)">${money(x.to)}</div><div class="s"><s>${money(x.from)}</s></div></div></a>`).join('')}</div>`:''}
+  ${fine()}</div>`}
+function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div class="nav"><a href="#">‹ Liquor</a></div><div class="group"><div class="empty">${S.loaded?'This drink isn\'t tracked.':'Loading…'}</div></div></div>`;
+  const ls=listingsOf(pid),sizes=sizesOf(p,ls);if(S.sizeFor!==pid||!sizes.includes(S.size)){S.size=mainSize(p,ls);S.sizeFor=pid;if(!sizes.includes(S.size))S.size=sizes[0]}
+  const sel=ls.filter(l=>l.size===S.size),b=best(sel),tg=p.target||{},sd=stdOf(p,S.size);
+  const rows=sel.map(l=>({l,a:aud(l)})).sort((x,y)=>(x.a??1e9)-(y.a??1e9)+((x.l.stock==='out')-(y.l.stock==='out'))*1e9);
+  S.series=rows.filter(x=>hist(x.l).length).map((x,i)=>({c:LINE[i%LINE.length],name:rname(x.l.rid)+(x.l.mine?' (yours)':''),pts:seriesOf(x.l)})).filter(x=>x.pts.length);
+  const one=S.series.every(x=>x.pts.length<2);
+  const perSize=sizes.map(k=>({k,b:best(ls.filter(l=>l.size===k)),sd:stdOf(p,k)}));
+  const opts=sizes.map(k=>`<option value="${esc(k)}"${(okSize(tg.size)?tg.size:S.size)===k?' selected':''}>${esc(sizeLabel(k))}</option>`).join('');
+  const bi=rows.findIndex(x=>x.a!=null&&x.l.stock!=='out');
+  const offers=rows.map((x,i)=>{const u=okUrl(x.l.url),lo=lowOf(x.l);
+    const bits=[];if(num(x.l.was)&&x.a!=null&&x.l.was>x.a)bits.push('Was '+money(x.l.was));if(lo!=null&&x.a!=null&&lo<x.a-.004)bits.push('Low '+money(lo));if(x.l.checked)bits.push(fmtD(x.l.checked)+(x.l.via==='snapshot'?' ≈':''));
+    const st=x.l.mine?'Added by you':x.l.note?x.l.note:x.a==null?'Not checked yet':x.l.stock==='out'?'Out of stock':'';
+    const inner=`<div class="main"><div class="t">${esc(rname(x.l.rid))}${x.l.mine?' <span class="tag info">Yours</span>':''}</div><div class="s">${st?esc(st)+' · ':''}${bits.join(' · ')}</div></div><div class="end"><div class="p">${money(x.a)}</div>${i===bi?'<div class="best">Best price</div>':sd&&x.a!=null?`<div class="s">${money(x.a/sd)}/std</div>`:''}</div>${u?CHEV:''}`;
+    return u?`<a class="row" href="${esc(u)}" target="_blank" rel="noopener">${inner}</a>`:`<div class="row">${inner}</div>`}).join('');
+  return`<div class="wrap"><div class="nav"><a href="#"><svg width="11" height="18" viewBox="0 0 11 18" aria-hidden="true"><path d="M9 1L2 9l7 8" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg> Liquor</a>
+  <button id="fav" aria-pressed="${!!p.fav}" aria-label="${p.fav?'Remove from watchlist':'Add to watchlist'}">${p.fav?'<span class="star-on" style="font-size:22px">★</span>':'<span style="font-size:22px">☆</span>'}</button></div>
+  <div class="hero">${dot(p)}<h1>${esc(p.name)}</h1><div class="brand">${esc(p.type)}${num(p.abv)?' · '+esc(p.abv)+'% alc':''}</div>
+  <div class="big">${b?money(b.v):'—'}</div><div class="s">${b?`Best price for ${esc(sizeLabel(S.size))} at ${esc(rname(b.l.rid))}${sd?' · '+money(b.v/sd)+' per standard drink ('+sd.toFixed(1)+' in total)':''}`:`No ${esc(sizeLabel(S.size))} price yet`}</div></div>
+  <div class="sizes" role="group" aria-label="Size">${sizes.map(k=>`<button data-size="${esc(k)}" aria-pressed="${k===S.size}">${esc(sizeLabel(k))}</button>`).join('')}</div>
+  <div class="chart" id="fig"><svg id="chart" role="img" aria-label="${esc(sizeLabel(S.size))} price history by store"></svg></div>
+  ${S.series.length>1?`<div class="legend">${S.series.map(x=>`<span><i style="background:${x.c}"></i>${esc(x.name)}</span>`).join('')}</div>`:''}
+  ${one&&S.series.length?`<p class="note">A new point is added each morning, so the lines fill in over the coming days.</p>`:''}
+  <div class="label">Stores · ${esc(sizeLabel(S.size))}</div>${sel.length?`<div class="group plain">${offers}</div>`:`<div class="group"><div class="empty">No store found for ${esc(sizeLabel(S.size))} yet.</div></div>`}
+  <div class="label">Best price by size</div><div class="group plain">${perSize.map(x=>`<div class="row"><div class="main"><div class="t">${esc(sizeLabel(x.k))}</div><div class="s">${x.b?esc(rname(x.b.l.rid))+(x.sd?' · '+money(x.b.v/x.sd)+' per std drink':''):'Not found yet'}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.v):'—'}</div></div></div>`).join('')}</div>
+  <div class="label">Price alert</div><form class="f group plain" id="tform"><div class="row"><div class="main"><div class="t">Size</div></div><select name="size" aria-label="Size">${opts}</select></div><div class="row"><div class="main"><div class="t">At or under</div></div><input name="price" type="number" inputmode="decimal" min="1" step="0.01" placeholder="$0.00" aria-label="Target price" value="${num(tg.price)!=null?tg.price:''}"></div><div class="row"><button class="btn" type="submit">Save target</button>${num(tg.price)!=null?'<button class="btn link" type="button" id="tclear">Clear</button>':''}</div></form>
+  <p class="tmsg" id="tmsg">${esc(S.tmsg)}</p>
+  <div class="label">Add a price yourself</div><form class="f group plain" id="mform">
+  <div class="row"><div class="main"><div class="t">Store</div></div><input name="store" list="storelist" placeholder="e.g. Dan Murphy's" autocomplete="off" style="width:58%;text-align:left" aria-label="Store"></div>
+  <div class="row"><div class="main"><div class="t">Size</div></div><select name="size" aria-label="Size">${sizes.map(k=>`<option value="${esc(k)}"${k===S.size?' selected':''}>${esc(sizeLabel(k))}</option>`).join('')}</select></div>
+  <div class="row"><div class="main"><div class="t">Price</div><div class="s">Shelf or website price</div></div><input name="price" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="$0.00" aria-label="Price"></div>
+  <div class="row"><div class="main"><div class="t">Date</div><div class="s">Use an older date to add past prices</div></div><input name="date" type="date" max="${today()}" value="${today()}" aria-label="Date" style="width:150px"></div>
+  <div class="row"><div class="main"><div class="t">Link</div><div class="s">Optional</div></div><input name="url" type="url" inputmode="url" placeholder="https://" autocomplete="off" style="width:58%;text-align:left" aria-label="Link to the product"></div>
+  <div class="row"><button class="btn" type="submit">Save price</button></div></form>
+  <datalist id="storelist">${[...new Set([...Object.values(S.retailers).map(r=>String(r.name)),'Liquorland','First Choice Liquor','Vintage Cellars','Woolworths'])].sort().map(n=>`<option value="${esc(n)}">`).join('')}</datalist>
+  <p class="tmsg" id="mmsg">${esc(S.mmsg)}</p>
+  ${(()=>{const mine=MAN.filter(m=>m&&m.pid===pid).sort((a,b)=>a.date<b.date?1:-1);return mine.length?`<div class="label">Prices you added</div><div class="group plain">${mine.map(m=>`<div class="row"><div class="main"><div class="t">${esc(m.store)} · ${esc(sizeLabel(m.size))}</div><div class="s">${esc(fmtD(m.date))} ${esc(String(m.date).slice(0,4))}</div></div><div class="end"><div class="p">${money(m.price)}</div></div><button class="btn link" data-del="${esc(m.id)}" aria-label="Delete this price">Delete</button></div>`).join('')}</div>`:''})()}
+  </div>`}
+function render(){const f=$('#tform'),mf=$('#mform'),fi=$('#find');if((f&&f.contains(document.activeElement))||(mf&&mf.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
+  const id=decodeURIComponent(location.hash.slice(1));if(okId(id)&&S.products[id]&&S.seenId!==id){S.seenId=id;SEEN[id]=Date.now();ls$('lpt-seen',JSON.stringify(SEEN))}if(!okId(id))S.seenId=null;$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{
+  const t=e.target.closest('[data-tab]');if(t){S.tab=t.dataset.tab;ls$('lpt-tab',S.tab);render();return}
+  if(e.target.closest('#fav')){const id=decodeURIComponent(location.hash.slice(1));if(S.products[id]){setLocal(id,{fav:!S.products[id].fav});render()}return}
+  const z=e.target.closest('[data-size]');if(z){S.size=z.dataset.size;render();return}
+  const del=e.target.closest('[data-del]');if(del){MAN=MAN.filter(m=>String(m.id)!==del.dataset.del);saveManual();S.mmsg='Price deleted.';render();return}
+  if(e.target.id==='tclear')saveTarget(null)});
+document.addEventListener('submit',e=>{if(e.target.id!=='mform')return;e.preventDefault();const f=e.target,pid=decodeURIComponent(location.hash.slice(1)),msg=s=>{$('#mmsg').textContent=s};
+  const store=f.store.value.trim().slice(0,60),size=f.size.value,price=Math.round(Number(f.price.value)*100)/100,date=f.date.value,url=f.url.value.trim();
+  if(!store)return msg('Enter the store name.');if(!okSize(size))return msg('Pick a size.');if(!(price>0))return msg('Enter a price above $0.');
+  if(!/^\d{4}-\d\d-\d\d$/.test(date)||date>today())return msg('Pick a date that isn\'t in the future.');
+  if(url&&!okUrl(url))return msg('Links need to start with https://');
+  MAN.push({id:String(Date.now()),pid,store,size,price,date,url:url||null});saveManual();document.activeElement?.blur();S.mmsg=`Saved ${money(price)} at ${store} for ${sizeLabel(size)}.`;S.size=size;render()});
+document.addEventListener('submit',e=>{if(e.target.id!=='tform')return;e.preventDefault();const size=e.target.size.value,pr=Number(e.target.price.value);
+  if(!(pr>0)){$('#tmsg').textContent='Enter a price above $0.';return}saveTarget({size,price:Math.round(pr*100)/100})});
+document.addEventListener('change',e=>{if(e.target.id==='sort'){S.sort=e.target.value;ls$('lpt-sort',S.sort);$('#grid').innerHTML=gridHtml()}});
+document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.value;$('#grid').innerHTML=gridHtml()}});
+document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
+function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!okId(id)||!S.products[id])return;document.activeElement?.blur();
+  setLocal(id,{target:t});S.tmsg=t?`Saved. You'll see "Target hit" when ${sizeLabel(t.size)} is ${money(t.price)} or less.`:'Target cleared.';render()}
+addEventListener('hashchange',()=>{S.tmsg='';S.mmsg='';document.activeElement?.blur();render();scrollTo(0,0)});
+
+/* ---------- data ---------- */
+function take(d){if(!d||typeof d!=='object')return;S.base=d.products||{};S.baseR=d.retailers||{};S.baseL=d.listings||{};applyManual();S.meta=d.meta||{};applyLocal();S.loaded=true}
+async function load(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'no-store'});if(!r.ok)throw 0;const d=await r.json();take(d);S.offline=false;S.err=null;ls$('lpt-data',JSON.stringify(d))}
+  catch(e){S.offline=true;if(!S.loaded){try{take(JSON.parse(ls$('lpt-data')||'null'))}catch(x){}if(!S.loaded)S.err='load'}}render()}
+try{take(JSON.parse(ls$('lpt-data')||'null'))}catch(e){}
+render();load();
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')load()});
+if('serviceWorker'in navigator){const had=!!navigator.serviceWorker.controller;let done=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!done){done=true;location.reload()}});
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update()})}).catch(()=>{}))}
+}
+</script>
+</body>
+</html>

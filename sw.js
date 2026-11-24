@@ -1,6 +1,6 @@
 // Offline support. The page and price data always come fresh from the network
 // (skipping the browser's HTTP cache); the saved copy is only used when offline.
-const CACHE = 'fpt-v10';
+const CACHE = 'fpt-v11';
 const SHELL = ['./', 'index.html', 'manifest.webmanifest', 'apple-touch-icon.png', 'icon-192.png', 'icon-512.png'];
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL.map(u => new Request(u, { cache: 'reload' })))));
@@ -13,6 +13,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
+  if (url.origin === location.origin && url.pathname.includes('/alcohol/')) return; // the liquor app has its own worker
   const fresh = url.origin === location.origin &&
     (req.mode === 'navigate' || url.pathname.endsWith('/') || /\.(html|json|webmanifest)$/.test(url.pathname));
   if (fresh) {
