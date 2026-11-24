@@ -241,7 +241,9 @@ async function load(){try{const r=await fetch('data.json?t='+Date.now(),{cache:'
 try{take(JSON.parse(ls$('fpt-data')||'null'))}catch(e){}
 render();load();
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')load()});
-if('serviceWorker'in navigator)addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+if('serviceWorker'in navigator){const had=!!navigator.serviceWorker.controller;let done=false;
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had&&!done){done=true;location.reload()}});
+  addEventListener('load',()=>navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>{r.update();document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')r.update()})}).catch(()=>{}))}
 }
 </script>
 </body>
