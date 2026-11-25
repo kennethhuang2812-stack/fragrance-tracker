@@ -128,6 +128,7 @@ form.target input{width:100px;text-align:right}
 {
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const REG=[['all','All stores'],['AU','Australian stores'],['NZ','NZ stores']];
 const CURS=[['AUD','Australian dollar'],['USD','US dollar'],['EUR','Euro'],['GBP','British pound'],['NZD','New Zealand dollar'],['CAD','Canadian dollar'],['SGD','Singapore dollar'],['MYR','Malaysian ringgit'],['HKD','Hong Kong dollar'],['JPY','Japanese yen'],['CNY','Chinese yuan'],['KRW','South Korean won'],['INR','Indian rupee'],['THB','Thai baht'],['PHP','Philippine peso'],['IDR','Indonesian rupiah'],['CHF','Swiss franc']];
 /* AUD per one unit of the chosen currency; 1 for AUD or when no rate is known */
 const rate=()=>{const c=S.cur;if(!c||c==='AUD')return 1;const f=S.meta&&S.meta.fx&&Number(S.meta.fx[c]);return f>0?f:1};
@@ -147,7 +148,7 @@ const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?''
 const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
 const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',pending:false,series:[],tab:null,q:'',base:{}};
 const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
-S.mode=ls$('fpt-mode')==='list'?'list':'del';S.cur=CURS.some(c=>c[0]===ls$('fpt-cur'))?ls$('fpt-cur'):'AUD';S.tab=ls$('fpt-tab');S.sec=ls$('fpt-sec')==='dupes'?'dupes':'frag';S.dtab=ls$('fpt-dtab')||'all';S.sort={frag:ls$('fpt-sort-frag')||'default',dupes:ls$('fpt-sort-dupes')||'default'};
+S.mode=ls$('fpt-mode')==='list'?'list':'del';S.cur=CURS.some(c=>c[0]===ls$('fpt-cur'))?ls$('fpt-cur'):'AUD';S.region=REG.some(c=>c[0]===ls$('fpt-reg'))?ls$('fpt-reg'):'all';S.tab=ls$('fpt-tab');S.sec=ls$('fpt-sec')==='dupes'?'dupes':'frag';S.dtab=ls$('fpt-dtab')||'all';S.sort={frag:ls$('fpt-sort-frag')||'default',dupes:ls$('fpt-sort-dupes')||'default'};
 let ORDER=[];try{ORDER=JSON.parse(ls$('fpt-order')||'[]')||[]}catch(e){ORDER=[]}
 let SEEN={};try{SEEN=JSON.parse(ls$('fpt-seen')||'{}')||{}}catch(e){SEEN={}}
 /* Watchlist and targets set on this phone sit on top of the shared data. */
@@ -175,7 +176,8 @@ function ship(l,a){const r=S.retailers[l.rid]||{};if(num(l.ship)!=null)return l.
 function deliv(l,a){if(a==null)return null;const s=ship(l,a);if(s==null)return{v:a,unk:true,k:a+9.95};let v=a+s;if(S.retailers[l.rid]?.gstExtra)v*=1.1;v=Math.round(v*100)/100;return{v,unk:false,k:v}}
 const priceOf=(l,a)=>a==null?null:S.mode==='list'?{v:a,unk:false,k:a}:deliv(l,a);
 function hist(l){return(Array.isArray(l.hist)?l.hist:[]).filter(x=>x&&typeof x.d==='string'&&num(x.a)!=null).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
-function listingsOf(pid){return Object.entries(S.listings).filter(([,l])=>l&&l.pid===pid&&num(l.ml)!=null).map(([id,l])=>Object.assign({id},l))}
+function inRegion(l){const g=S.region;if(!g||g==='all'||l.mine)return true;const c=(S.retailers[l.rid]||{}).country;return g==='AU'?c!=='NZ':c!=='AU'}
+function listingsOf(pid){return Object.entries(S.listings).filter(([,l])=>l&&l.pid===pid&&num(l.ml)!=null&&inRegion(l)).map(([id,l])=>Object.assign({id},l))}
 function sizesOf(p,ls){return[...new Set([...(Array.isArray(p.sizes)?p.sizes.filter(n=>num(n)!=null):[]),...ls.map(l=>l.ml)])].sort((a,b)=>a-b)}
 function mainMl(p,ls){if(num(p.mainMl)!=null)return p.mainMl;const c={};ls.forEach(l=>c[l.ml]=(c[l.ml]||0)+1);return Number(Object.keys(c).sort((a,b)=>c[b]-c[a])[0])||100}
 function best(ls){let b=null;for(const l of ls){if(l.stock==='out')continue;const p=priceOf(l,aud(l));if(p&&(!b||p.k<b.p.k))b={l,p}}return b}
@@ -245,7 +247,7 @@ function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id))
   return sortList(mine.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&mq(p)),'frag')}
 function editHtml(ps){return`<div class="group" id="elist">${ps.map(([id,p],i)=>`<div class="row erow" data-id="${esc(id)}">${dot(p.color)}<div class="main"><div class="t">${esc(p.name)}</div><div class="s">${esc(p.brand)}</div></div><button class="mv" data-mv="-1" aria-label="Move ${esc(p.name)} up"${i?'':' disabled'}>▲</button><button class="mv" data-mv="1" aria-label="Move ${esc(p.name)} down"${i<ps.length-1?'':' disabled'}>▼</button><span class="handle" title="Drag to move"><svg width="18" height="14" viewBox="0 0 18 14" aria-hidden="true"><path d="M1 2h16M1 7h16M1 12h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg></span></div>`).join('')}</div>`}
 function gridHtml(){const ps=visible();if(S.edit&&S.sec==='frag')return editHtml(ps);const c=$('#count');if(c)c.textContent=ps.length+(ps.length===1?' shown':' shown');return ps.length?`<div class="group">${ps.map(([id,p])=>row(id,p)).join('')}</div>`:`<div class="group"><div class="empty">No ${S.sec==='dupes'?'dupes':'fragrances'} match.</div></div>`}
-function curPick(){const known=c=>c==='AUD'||(S.meta.fx&&Number(S.meta.fx[c])>0);return`<label class="curpick">Prices in <select id="cur" aria-label="Currency">${CURS.filter(([c])=>known(c)).map(([c,n])=>`<option value="${c}"${c===curNow()?' selected':''}>${c} · ${esc(n)}</option>`).join('')}</select></label>`}
+function curPick(){const known=c=>c==='AUD'||(S.meta.fx&&Number(S.meta.fx[c])>0);return`<label class="curpick">Prices in <select id="cur" aria-label="Currency">${CURS.filter(([c])=>known(c)).map(([c,n])=>`<option value="${c}"${c===curNow()?' selected':''}>${c} · ${esc(n)}</option>`).join('')}</select>${Object.values(S.retailers).some(x=>x&&x.country==='NZ')?` · <select id="reg" aria-label="Which stores">${REG.map(([k,n])=>`<option value="${k}"${(S.region||'all')===k?' selected':''}>${n}</option>`).join('')}</select>`:''}</label>`}
 function tabbar(){const b=(k,l,ic)=>`<button data-sec="${k}" ${S.sec===k?'aria-current="page"':''}>${ic}<span>${l}</span></button>`;
   return`<nav class="tabbar" aria-label="Sections">${b('frag','Fragrances','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="8" width="12" height="13" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 8V5h4v3M9 3h6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}${b('dupes','Dupes','<svg width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><rect x="12" y="9" width="9" height="11" rx="2.5" fill="none" stroke="currentColor" stroke-width="2"/><path d="M6 9V6h3v3M15 9V6h3v3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>')}</nav>`}
 function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const D=S.sec==='dupes';const dr=drops().filter(x=>isDupe(S.products[x.l.pid])===D);visible();
@@ -332,7 +334,7 @@ document.addEventListener('pointermove',e=>{if(!DRAG)return;e.preventDefault();c
   const vh=innerHeight;if(e.clientY<80)scrollBy(0,-8);else if(e.clientY>vh-110)scrollBy(0,8)},{passive:false});
 function endDrag(){if(!DRAG)return;const {r}=DRAG;r.style.transform='';r.classList.remove('drag');DRAG=null;setOrder([...document.querySelectorAll('#elist .erow')].map(x=>x.dataset.id));$('#grid').innerHTML=gridHtml()}
 document.addEventListener('pointerup',endDrag);document.addEventListener('pointercancel',endDrag);
-document.addEventListener('change',e=>{if(e.target.id==='cur'){S.cur=e.target.value;ls$('fpt-cur',S.cur);render();return}if(e.target.id==='sort'){S.sort[S.sec]=e.target.value;if(e.target.value!=='default')S.edit=false;ls$('fpt-sort-'+S.sec,e.target.value);$('#grid').innerHTML=gridHtml()}});
+document.addEventListener('change',e=>{if(e.target.id==='reg'){S.region=e.target.value;ls$('fpt-reg',S.region);render();return}if(e.target.id==='cur'){S.cur=e.target.value;ls$('fpt-cur',S.cur);render();return}if(e.target.id==='sort'){S.sort[S.sec]=e.target.value;if(e.target.value!=='default')S.edit=false;ls$('fpt-sort-'+S.sec,e.target.value);$('#grid').innerHTML=gridHtml()}});
 document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.value;$('#grid').innerHTML=gridHtml()}});
 document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
 function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!okId(id)||!S.products[id])return;document.activeElement?.blur();
