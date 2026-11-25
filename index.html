@@ -144,7 +144,7 @@ const okHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)?c:'#8e8e93';
 const num=v=>typeof v==='number'&&isFinite(v)?v:null;
 const tOf=d=>Date.parse(d+'T00:00:00');
 const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?'':x.getDate()+' '+MON[x.getMonth()]};
+const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?'':x.getDate()+' '+MON[x.getMonth()]+(x.getFullYear()!==new Date().getFullYear()?' '+x.getFullYear():'')};
 const LINE=['#0b84a5','#e8590c','#7950f2','#d4a017','#d6336c','#2b8a3e','#868e96','#15aabf'];
 const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,err:null,offline:false,tmsg:'',pending:false,series:[],tab:null,q:'',base:{}};
 const ls$=(k,v)=>{try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v)}catch(e){return null}};
