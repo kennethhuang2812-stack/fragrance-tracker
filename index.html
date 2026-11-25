@@ -120,6 +120,21 @@ form.target input{width:100px;text-align:right}
 .tmsg{color:var(--good);font-size:13px;margin:8px 16px 0}
 .curpick{display:flex;align-items:center;gap:6px;margin:-6px 0 12px;font-size:15px;color:var(--faint)}.curpick select{font:inherit;color:var(--accent);background:transparent;border:0;padding:2px 0;min-width:0;max-width:75%}
 .pml{font-size:12px;color:var(--faint);margin-top:1px;white-space:nowrap}.pml.cheaper{color:var(--good)}.pmlbest{display:block;margin:8px auto 0;font:inherit;font-size:14px;color:var(--faint);background:var(--fill);border:0;border-radius:10px;padding:6px 12px;max-width:100%}.pmlbest b{color:var(--good)}
+
+.mynotes{padding:4px 0}
+.mrow{padding:12px 16px}.mrow+.mrow{border-top:.5px solid var(--line)}
+.mh{font-size:13px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;display:flex;justify-content:space-between}
+.msaved{text-transform:none;letter-spacing:0;font-weight:500;color:var(--good)}
+.rate{display:flex;gap:6px}.rate button{border:0;background:none;font-size:34px;line-height:1;color:var(--line);padding:2px;cursor:pointer;min-width:44px;min-height:44px;transition:transform .12s}
+.rate button.on{color:#f5a623}.rate button:active{transform:scale(1.2)}
+.mchips{display:flex;flex-wrap:wrap;gap:8px}
+.mchip{border:0;background:var(--fill);color:var(--ink);border-radius:999px;padding:7px 14px;font-size:15px;font-weight:500;min-height:36px;cursor:pointer;display:inline-flex;align-items:baseline;gap:6px}
+.mchip small{font-size:12px;color:var(--muted)}
+.mchip.on{background:var(--accent);color:var(--card);font-weight:600}.mchip.on small{color:inherit;opacity:.8}
+#mytxt{width:100%;font:inherit;font-size:16px;line-height:1.45;color:var(--ink);background:var(--fill);border:0;border-radius:10px;padding:10px 12px;resize:vertical;min-height:84px}
+#mytxt::placeholder{color:var(--faint)}
+.mfoot{color:var(--faint);font-size:13px;margin:8px 16px 0}
+.rowstars,.mystars{color:#f5a623;letter-spacing:-1px;font-size:12px}.rowstars .off,.mystars .off{color:var(--line)}
 /* sales tab */
 .badge{position:absolute;top:-3px;left:calc(50% + 6px);background:var(--drop);color:#fff;font-size:11px;font-weight:700;line-height:18px;min-width:18px;height:18px;border-radius:9px;padding:0 5px;text-align:center}
 .tabbar button{position:relative}
@@ -201,6 +216,20 @@ function applyManual(){const R=Object.assign({},S.baseR),L=Object.assign({},S.ba
   for(const l of Object.values(L))if(l.mine){const h=hist(l),last=h[h.length-1];l.price=l.aud=last.a;l.checked=last.d}
   S.retailers=R;S.listings=L}
 function saveManual(){ls$('fpt-manual',JSON.stringify(MAN));applyManual()}
+let MYN={};try{MYN=JSON.parse(ls$('fpt-notes')||'{}')||{}}catch(_){MYN={}}
+const LONG=[['Weak','Under 2 hrs'],['Moderate','2–4 hrs'],['Long','4–8 hrs'],['Very long','8–12 hrs'],['Beast','12+ hrs']],SILL=['Close','Moderate','Strong','Huge'],WHEN=['Spring','Summer','Autumn','Winter','Day','Night'],VERD=[['own','I own it'],['want','Want it'],['tried','Tried it'],['pass','Not for me']];
+function myOf(id){const m=MYN[id];return m&&typeof m==='object'?m:{}}
+function setMy(id,patch){const m=Object.assign({},myOf(id),patch,{upd:Date.now()});for(const k of Object.keys(m))if(m[k]===''||m[k]==null||(Array.isArray(m[k])&&!m[k].length))delete m[k];if(Object.keys(m).length<=1)delete MYN[id];else MYN[id]=m;ls$('fpt-notes',JSON.stringify(MYN))}
+function starsHtml(n,cls){return`<span class="${cls||'mystars'}" aria-label="${n} out of 5">${'★'.repeat(n)}<span class="off">${'★'.repeat(5-n)}</span></span>`}
+function myNotes(pid){const m=myOf(pid);const r=m.r||0;const chip=(grp,v,l,on,sub)=>`<button type="button" class="mchip${on?' on':''}" data-my="${grp}" data-v="${esc(v)}" aria-pressed="${!!on}">${esc(l)}${sub?`<small>${esc(sub)}</small>`:''}</button>`;
+  return`<div class="label">My notes</div><div class="group plain mynotes">
+  <div class="mrow"><div class="mh">My rating</div><div class="rate" role="radiogroup" aria-label="My rating">${[1,2,3,4,5].map(i=>`<button type="button" data-my="r" data-v="${i}" role="radio" aria-checked="${r===i}" aria-label="${i} star${i>1?'s':''}" class="${i<=r?'on':''}">★</button>`).join('')}</div></div>
+  <div class="mrow"><div class="mh">Status</div><div class="mchips">${VERD.map(([v,l])=>chip('v',v,l,m.v===v)).join('')}</div></div>
+  <div class="mrow"><div class="mh">Longevity</div><div class="mchips">${LONG.map(([l,sub],i)=>chip('lon',i+1,l,m.lon===i+1,sub)).join('')}</div></div>
+  <div class="mrow"><div class="mh">Projection</div><div class="mchips">${SILL.map((l,i)=>chip('sil',i+1,l,m.sil===i+1)).join('')}</div></div>
+  <div class="mrow"><div class="mh">Best for</div><div class="mchips">${WHEN.map(l=>chip('when',l,l,(m.when||[]).includes(l))).join('')}</div></div>
+  <div class="mrow"><div class="mh">Notes<span id="mysaved" class="msaved">${m.upd?'Saved':''}</span></div><textarea id="mytxt" rows="3" maxlength="2000" placeholder="What it smells like to you, compliments, how it wears…">${esc(m.txt||'')}</textarea></div>
+  </div><p class="mfoot">Saved on this phone only.${m.upd?' Last changed '+esc(fmtD(m.upd))+'.':''}</p>`}
 function setLocal(id,patch){LOCAL[id]=Object.assign({},LOCAL[id],patch);ls$('fpt-local',JSON.stringify(LOCAL));applyLocal()}
 
 /* ---------- pricing ---------- */
@@ -250,7 +279,7 @@ function row(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l
   if(!tag&&isDupe(p)&&p.orig&&b){const o=per100(p.orig),d=b.p.k/ml*100;if(o&&d<o.v)tag=`<span class="tag hit">${Math.round((1-d/o.v)*100)}% cheaper</span>`}
   if(!tag&&b){const lo=lowOf(b.l);if(lo!=null&&b.p.v<=lo&&hist(b.l).length>2)tag=`<span class="tag drop">Lowest yet</span>`}
   
-  return`<a class="row" href="#${pid}">${dot(p.color)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${isDupe(p)?esc(p.dupeName)+' · '+esc(p.house)+(b?' · '+esc(ml)+'ml':''):esc(p.brand)}</div></div>
+  return`<a class="row" href="#${pid}">${dot(p.color)}<div class="main"><div class="t">${p.fav?'<span class="star-on" aria-label="Watchlist">★</span> ':''}${esc(p.name)}</div><div class="s">${myOf(pid).r?starsHtml(myOf(pid).r,'rowstars')+' ':''}${isDupe(p)?esc(p.dupeName)+' · '+esc(p.house)+(b?' · '+esc(ml)+'ml':''):esc(p.brand)}</div></div>
   <div class="end">${b?`<div class="p">${money(b.p.v)}${b.p.unk?'<span class="s"> +del</span>':''}</div>`:bv?`<div class="p">${money(bv.p.v)}</div><div class="pml">${esc(bv.l.ml)}ml</div>`:`<div class="p none">${ls.some(l=>num(l.price)!=null)&&ls.every(l=>l.stock==='out'||num(l.price)==null)?'Sold out':'No price yet'}</div>`}${bv?`<div class="pml${b&&bv.l.ml!==ml?' cheaper':''}" title="Cheapest per ml, any size">${perMl(bv.p.k,bv.l.ml)}${b&&bv.l.ml!==ml?' at '+esc(bv.l.ml)+'ml':''}</div>`:''}${tag}</div>${CHEV}</a>`}
 function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));const fxs=S.meta.fx?Object.entries(S.meta.fx).filter(([,v])=>num(v)!=null).filter(([k])=>k===curNow()||k==='USD').map(([k,v])=>`1 ${esc(k)} = ${v.toFixed(3)} AUD`).join(', '):'';
   return`<details class="how"><summary>How prices are worked out</summary><div class="body"><p><b>Listed</b> is the store's price. Prices are kept in Australian dollars and shown in the currency you pick at the top, using the latest exchange rate. <b>Delivered</b> adds standard delivery for one bottle, plus 10% GST for overseas stores that charge it. If delivery isn't known, the price shows "+ delivery".</p><p>Prices are checked every morning. The app shows the last prices it saw when you're offline. Prices you add yourself are saved on this phone only.${fxs?' Exchange rate: '+fxs+'.':''}</p></div>
@@ -262,14 +291,14 @@ function per100(pid){const ls=listingsOf(pid);let m=null;for(const l of ls){if(l
 const famOf=d=>d.family||d.orig;
 function dupesOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&d.orig===pid)}
 function flankersOf(pid){return Object.entries(S.products).filter(([,d])=>isDupe(d)&&!d.orig&&famOf(d)===pid)}
-const SORTS={frag:[['default','My order'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (price per ml)'],['drop','Biggest price drops'],['seen','Recently viewed'],['name','Name A to Z']],
-  dupes:[['default','Original A to Z'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (price per ml)'],['saving','Biggest saving vs original'],['drop','Biggest price drops'],['seen','Recently viewed'],['name','Dupe name A to Z']]};
+const SORTS={frag:[['default','My order'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (price per ml)'],['drop','Biggest price drops'],['seen','Recently viewed'],['mine','My rating'],['name','Name A to Z']],
+  dupes:[['default','Original A to Z'],['price-asc','Price: low to high'],['price-desc','Price: high to low'],['per100','Best value (price per ml)'],['saving','Biggest saving vs original'],['drop','Biggest price drops'],['seen','Recently viewed'],['mine','My rating'],['name','Dupe name A to Z']]};
 function shownPrice(pid){const p=S.products[pid],ls=listingsOf(pid),ml=mainMl(p,ls),b=best(ls.filter(l=>l.ml===ml));return b?b.p.k:null}
 function dropPct(pid){let m=0;const now=Date.now();for(const l of listingsOf(pid)){const h=hist(l);if(h.length<2)continue;const a=h[h.length-2].a,b=h[h.length-1].a;if(b<a&&now-tOf(h[h.length-1].d)<30*864e5)m=Math.max(m,(a-b)/a)}return m}
 function savingPct(pid){const d=S.products[pid];if(!d.orig)return null;const o=per100(d.orig),x=per100(pid);return o&&x?(o.v-x.v)/o.v:null}
 function sortList(r,sec){const k=S.sort[sec]||'default';const by=(f,desc)=>{const v=new Map(r.map(([id])=>[id,f(id)]));r.sort((a,b)=>{const x=v.get(a[0]),y=v.get(b[0]);if(x==null&&y==null)return 0;if(x==null)return 1;if(y==null)return -1;return desc?y-x:x-y})};
   if(k==='price-asc')by(shownPrice);else if(k==='price-desc')by(shownPrice,1);else if(k==='per100')by(id=>(per100(id)||{}).v);
-  else if(k==='drop')by(id=>dropPct(id)||null,1);else if(k==='seen')by(id=>SEEN[id]||null,1);else if(k==='saving')by(savingPct,1);
+  else if(k==='drop')by(id=>dropPct(id)||null,1);else if(k==='seen')by(id=>SEEN[id]||null,1);else if(k==='saving')by(savingPct,1);else if(k==='mine')by(id=>myOf(id).r||null,1);
   else if(k==='name')r.sort((a,b)=>String(sec==='dupes'?a[1].dupeName:a[1].name).localeCompare(String(sec==='dupes'?b[1].dupeName:b[1].name)));return r}
 function dtabs(){const ds=Object.values(S.products).filter(isDupe);const hs=[...new Set(ds.filter(d=>!d.clone).map(d=>d.house))].sort();return[...(ds.some(d=>d.fav)?[['watch','Watchlist']]:[]),['all','All'],['priced','With prices'],...hs.map(h=>['h:'+h,h]),...(ds.some(d=>d.clone&&!d.ext)?[['clone','Clone brands']]:[]),...(ds.some(d=>d.ext)?[['ext','More originals']]:[])]}
 function rank(id){const i=ORDER.indexOf(id);return i<0?1e4+(S.products[id].order??99):i}
@@ -342,6 +371,7 @@ function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div
   ${p.ext?`<div class="label">Inspired by</div><div class="group plain"><div class="row">${dot(p.color)}<div class="main"><div class="t">${esc(p.name)}</div><div class="s">${esc(p.brand)} · not on your list, so no % cheaper is shown</div></div></div></div>`:isDupe(p)&&!p.orig?(()=>{const o=S.products[famOf(p)];return o?`<div class="label">A flanker of</div><div class="group plain"><a class="row" href="#${esc(famOf(p))}">${dot(o.color)}<div class="main"><div class="t">${esc(o.name)}</div><div class="s">${esc(o.brand)} · a different version, so no % cheaper is shown</div></div>${CHEV}</a></div>`:''})():isDupe(p)?(()=>{const o=S.products[p.orig],op=per100(p.orig),dp=b?b.p.k/S.size*100:null;return o?`<div class="label">Inspired by</div><div class="group plain"><a class="row" href="#${esc(p.orig)}">${dot(o.color)}<div class="main"><div class="t">${esc(o.name)}</div><div class="s">${esc(o.brand)}${op?' · '+money(op.v/100)+'/ml':''}</div></div><div class="end">${op?`<div class="p">${money(op.p)}</div><div class="s">${esc(op.ml)}ml</div>`:'<div class="p none">No price yet</div>'}${op&&dp!=null&&dp<op.v?`<span class="tag hit">Dupe ${Math.round((1-dp/op.v)*100)}% cheaper</span>`:''}</div>${CHEV}</a></div>`:''})():(()=>{const ds=dupesOf(pid).map(([id,d])=>({id,d,b:per100(id)})).sort((x,y)=>(x.b?x.b.v:1e9)-(y.b?y.b.v:1e9));return ds.length?`<div class="label">Dupes</div><div class="group plain">${ds.map(x=>`<a class="row" href="#${esc(x.id)}"><div class="main"><div class="t">${esc(x.d.dupeName)}</div><div class="s">${esc(x.d.house)}${x.b?' · '+esc(x.b.ml)+'ml · '+money(x.b.v/100)+'/ml':''}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p):'—'}</div></div>${CHEV}</a>`).join('')}</div>`:''})()}
   ${!isDupe(p)?(()=>{const fs=flankersOf(pid).map(([id,d])=>({id,d,b:per100(id)})).sort((x,y)=>String(x.d.name).localeCompare(String(y.d.name))||(x.b?x.b.v:1e9)-(y.b?y.b.v:1e9));return fs.length?`<div class="label">Dupes of flankers</div><div class="group plain">${fs.map(x=>`<a class="row" href="#${esc(x.id)}"><div class="main"><div class="t">${esc(x.d.name)}</div><div class="s">${esc(x.d.dupeName)} · ${esc(x.d.house)}${x.b?' · '+esc(x.b.ml)+'ml':''}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p):'—'}</div></div>${CHEV}</a>`).join('')}</div>`:''})():''}
   ${p.clone?`<div class="label">From your clone list</div><div class="group plain"><div class="row"><div class="main"><div class="s" style="white-space:normal">${p.note?'Community note: “'+esc(p.note)+'”. ':''}${listingsOf(pid).length?'':'No Australian store price yet. The morning check looks for one, or you can add a price below.'}</div></div></div></div>`:''}
+  ${myNotes(pid)}
   ${(()=>{const q=isDupe(p)&&p.house?p.house+' '+(p.dupeName||p.name):(p.brand||'')+' '+p.name;return`<div class="label">Reviews</div><div class="group plain"><a class="row" href="https://www.fragrantica.com/search/?query=${encodeURIComponent(q.trim())}" target="_blank" rel="noopener"><div class="main"><div class="t">See it on Fragrantica</div><div class="s">Notes, ratings, longevity and sillage</div></div><div class="end"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M5 3l4 4-4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity=".4"/></svg></div></a></div>`})()}
   <div class="label">Add a price yourself</div><form class="target group plain" id="mform">
   <div class="row"><div class="main"><div class="t">Store</div></div><input name="store" list="storelist" placeholder="e.g. Priceline" autocomplete="off" style="width:58%;text-align:left" aria-label="Store"></div>
@@ -357,11 +387,14 @@ function detail(pid){const p=S.products[pid];if(!p)return`<div class="wrap"><div
   <div class="label">Price alert</div><form class="target group plain" id="tform"><div class="row"><div class="main"><div class="t">Size</div></div><select name="ml" aria-label="Size">${opts}</select></div><div class="row"><div class="main"><div class="t">At or under</div><div class="s">Delivered price</div></div><input name="price" type="number" inputmode="decimal" min="1" step="0.01" placeholder="0.00" aria-label="Target price" value="${num(tg.price)!=null?fromAud(tg.price):''}"></div><div class="row"><button class="btn" type="submit">Save target</button>${num(tg.price)!=null?'<button class="btn link" type="button" id="tclear">Clear</button>':''}</div></form>
   <p class="tmsg" id="tmsg">${esc(S.tmsg)}</p>
   <div class="label">Best price by size</div><div class="group plain">${perSize.map(x=>`<div class="row"><div class="main"><div class="t">${esc(x.ml)}ml</div><div class="s">${x.b?esc(rname(x.b.l.rid))+' · '+money(x.b.p.v/x.ml)+'/ml':'Not found yet'}</div></div><div class="end"><div class="p${x.b?'':' none'}">${x.b?money(x.b.p.v)+(x.b.p.unk?' +':''):'—'}</div></div></div>`).join('')}</div></div>`}
-function render(){const f=$('#tform'),mf=$('#mform'),fi=$('#find');if((f&&f.contains(document.activeElement))||(mf&&mf.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
+function render(){const f=$('#tform'),mf=$('#mform'),fi=$('#find');if((document.activeElement&&document.activeElement.id==='mytxt')||(f&&f.contains(document.activeElement))||(mf&&mf.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
   const id=decodeURIComponent(location.hash.slice(1));if(okId(id)&&S.products[id]&&S.seenId!==id){S.seenId=id;SEEN[id]=Date.now();ls$('fpt-seen',JSON.stringify(SEEN))}if(!okId(id))S.seenId=null;$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
 
 /* ---------- events ---------- */
-document.addEventListener('click',e=>{const rg=e.target.closest('[data-reg]');if(rg){S.region=REG.some(c=>c[0]===rg.dataset.reg)?rg.dataset.reg:'all';ls$('fpt-reg',S.region);render();return}
+document.addEventListener('click',e=>{const my=e.target.closest('[data-my]');if(my){const id=decodeURIComponent(location.hash.slice(1));if(!S.products[id])return;const g=my.dataset.my,v=my.dataset.v,m=myOf(id);
+    if(g==='when'){const w=new Set(m.when||[]);w.has(v)?w.delete(v):w.add(v);setMy(id,{when:WHEN.filter(x=>w.has(x))})}else if(g==='v')setMy(id,{v:m.v===v?'':v});else{const n=Number(v);setMy(id,{[g]:m[g]===n?'':n})}
+    const y=scrollY;render();scrollTo(0,y);if(navigator.vibrate)try{navigator.vibrate(8)}catch(_){}return}
+const rg=e.target.closest('[data-reg]');if(rg){S.region=REG.some(c=>c[0]===rg.dataset.reg)?rg.dataset.reg:'all';ls$('fpt-reg',S.region);render();return}
   const cd=e.target.closest('[data-code]');if(cd){const c=cd.querySelector('.c');const done=t=>{if(c){c.textContent=t;setTimeout(()=>{c.textContent='Copy'},1600)}};try{navigator.clipboard.writeText(cd.dataset.code).then(()=>done('Copied ✓'),()=>done('Hold to copy'))}catch(_){done('Hold to copy')}return}
 const m=e.target.closest('[data-mode]');if(m){S.mode=m.dataset.mode==='list'?'list':'del';ls$('fpt-mode',S.mode);render();return}
   const sc=e.target.closest('[data-sec]');if(sc){if(S.sec===sc.dataset.sec){scrollTo(0,0);return}S.edit=false;S.sec=['dupes','sales'].includes(sc.dataset.sec)?sc.dataset.sec:'frag';ls$('fpt-sec',S.sec);S.q='';render();scrollTo(0,0);return}
@@ -399,6 +432,7 @@ document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.valu
 document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
 function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!okId(id)||!S.products[id])return;document.activeElement?.blur();
   setLocal(id,{target:t});S.tmsg=t?`Saved. You'll see "Target hit" when ${t.ml}ml is ${money(t.price)} or less delivered.`:'Target cleared.';render()}
+document.addEventListener('input',e=>{if(e.target.id!=='mytxt')return;const id=decodeURIComponent(location.hash.slice(1));if(!S.products[id])return;setMy(id,{txt:e.target.value.slice(0,2000)});const sv=$('#mysaved');if(sv)sv.textContent='Saved'});
 addEventListener('hashchange',()=>{S.tmsg='';S.mmsg='';document.activeElement?.blur();render();scrollTo(0,0)});
 
 /* ---------- data ---------- */
