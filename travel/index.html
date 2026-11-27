@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Flight Prices</title>
+<meta name="theme-color" content="#f2f2f7" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Flights">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<style>
+:root{color-scheme:light dark;
+  --bg:#f2f2f7;--card:#fff;--ink:#111114;--muted:#6e6e73;--faint:#aeaeb2;--line:#e5e5ea;--fill:#e9e9ee;
+  --accent:#0b5cad;--accent-soft:#e3eefa;--good:#1f7a4d;--good-soft:#e5f4ec;
+  --q1:#cdeedb;--q1i:#0f5a34;--q2:#e3f2d3;--q2i:#35591a;--q3:#f4efcf;--q3i:#5c4f0e;--q4:#fbe3cc;--q4i:#7a3f0c;--q5:#f8d3c2;--q5i:#8a2c0c}
+@media (prefers-color-scheme:dark){:root:not([data-theme=light]){
+  --bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#98989f;--faint:#636366;--line:#2c2c2e;--fill:#2c2c2e;
+  --accent:#6fb1ff;--accent-soft:#132a45;--good:#4cc38a;--good-soft:#11301f;
+  --q1:#123a25;--q1i:#8fe0b4;--q2:#22361a;--q2i:#b9de98;--q3:#38330f;--q3i:#e9dc8c;--q4:#41270f;--q4i:#f5bb85;--q5:#46200f;--q5i:#ffab88}}
+:root[data-theme=dark]{color-scheme:dark;
+  --bg:#000;--card:#1c1c1e;--ink:#f5f5f7;--muted:#98989f;--faint:#636366;--line:#2c2c2e;--fill:#2c2c2e;
+  --accent:#6fb1ff;--accent-soft:#132a45;--good:#4cc38a;--good-soft:#11301f;
+  --q1:#123a25;--q1i:#8fe0b4;--q2:#22361a;--q2i:#b9de98;--q3:#38330f;--q3i:#e9dc8c;--q4:#41270f;--q4i:#f5bb85;--q5:#46200f;--q5i:#ffab88}
+:root[data-theme=light]{color-scheme:light}
+*{box-sizing:border-box;min-width:0;-webkit-tap-highlight-color:transparent}
+html,body{background:var(--bg)}
+body{margin:0;color:var(--ink);font:17px/1.4 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,system-ui,sans-serif;-webkit-font-smoothing:antialiased;-webkit-text-size-adjust:100%;overflow-x:clip}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit}
+.wrap{max-width:720px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 12px) max(16px,env(safe-area-inset-right)) calc(40px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:8px}
+.hdr{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:18px 0 4px}
+h1{font-size:34px;line-height:1.1;font-weight:700;letter-spacing:-.02em;margin:0}
+h2.route{font-size:22px;line-height:1.2;font-weight:700;margin:22px 2px 4px}
+.sub{color:var(--muted);font-size:14px;margin:4px 0 12px}
+.offline{color:#c2410c}
+.sale{display:block;background:var(--accent-soft);color:var(--ink);border-radius:12px;padding:12px 14px;font-size:14px;line-height:1.4;margin:0 0 6px}
+.sale p{margin:0}.sale p+p{margin-top:8px}
+.sale b{color:var(--accent)}
+.label{font-size:13px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);margin:22px 4px 8px;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.label span{text-transform:none;letter-spacing:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;background:var(--card);border-radius:12px;padding:8px}
+.wd{font-size:11px;color:var(--muted);text-align:center;padding:2px 0}
+.cell{border:0;border-radius:8px;min-height:50px;padding:4px 2px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;background:var(--fill);color:var(--ink);cursor:pointer;font-variant-numeric:tabular-nums}
+.cell .dn{font-size:11px;color:inherit;opacity:.75;line-height:1}
+.cell .pr{font-size:12.5px;font-weight:650;line-height:1.15;white-space:nowrap}
+.cell.none{cursor:default;color:var(--faint);background:transparent}
+.cell.q1{background:var(--q1);color:var(--q1i)}.cell.q2{background:var(--q2);color:var(--q2i)}.cell.q3{background:var(--q3);color:var(--q3i)}.cell.q4{background:var(--q4);color:var(--q4i)}.cell.q5{background:var(--q5);color:var(--q5i)}
+.cell.stale{opacity:.5}
+.cell.pad{visibility:hidden}
+.group{background:var(--card);border-radius:12px;overflow:hidden}
+.row{display:flex;align-items:center;gap:12px;padding:12px 16px;position:relative;min-height:56px}
+.row+.row::before{content:"";position:absolute;top:0;right:0;left:16px;border-top:.5px solid var(--line)}
+a.row:active{background:var(--fill)}
+.main{flex:1}
+.t{font-weight:600;font-size:16px;line-height:1.25}
+.s{color:var(--muted);font-size:13px;line-height:1.35;margin-top:2px}
+.end{flex:none;text-align:right;color:var(--muted);font-size:13px}
+.chev{flex:none;color:var(--faint);margin-left:-4px}
+.tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap;background:var(--good-soft);color:var(--good);vertical-align:1px}
+.nights{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
+.nights select{font:inherit;font-size:14px;font-weight:600;color:var(--accent);background:var(--card);border:0;border-radius:999px;min-height:32px;padding:0 10px;-webkit-appearance:none;appearance:none}
+.empty{padding:20px 16px;text-align:center;color:var(--muted);font-size:15px}
+.note{color:var(--muted);font-size:13px;line-height:1.45;margin:10px 4px 0}
+.nav{display:flex;align-items:center;margin:4px -8px 0;min-height:44px}
+.nav button{display:inline-flex;align-items:center;gap:2px;color:var(--accent);font-size:17px;padding:8px;border:0;background:none;cursor:pointer;min-height:44px}
+details.how{margin-top:22px}
+details.how summary{list-style:none;cursor:pointer;color:var(--accent);font-size:15px;padding:8px 4px}
+details.how summary::-webkit-details-marker{display:none}
+details.how .body{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);line-height:1.5}
+details.how p{margin:0 0 10px}
+#sheet{position:fixed;inset:0;background:#0006;display:flex;align-items:flex-end;justify-content:center;z-index:10}
+#sheet .panel{background:var(--bg);width:100%;max-width:720px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px max(16px,env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom))}
+#sheet .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
+#sheet h3{margin:0;font-size:20px;line-height:1.25}
+#sheet .x{border:0;background:var(--fill);border-radius:999px;min-width:44px;min-height:44px;font-size:20px;cursor:pointer}
+.opt .price{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums}
+.links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
+.links a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px}
+.links a.alt{background:var(--card);color:var(--accent)}
+@media (prefers-color-scheme:dark){.links a:not(.alt){color:#0b1a2b}}
+</style></head>
+<body>
+<div id="app"><div class="wrap"><div class="hdr"><h1>Flights</h1></div><p class="sub">Loading prices…</p></div></div>
+<script type="module">
+import { shown } from './lib/flights.js';
+import { bestPairs, fmtDate } from './lib/pairs.js';
+import { googleUrl, skyscannerUrl, airlineUrl } from './lib/links.js';
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const ls$ = (k, v) => { try { if (v === undefined) return localStorage.getItem(k); localStorage.setItem(k, v); } catch (e) { return null; } };
+const okUrl = u => (typeof u === 'string' && u.startsWith('https://') ? u : null);
+const money = n => '$' + Math.round(n).toLocaleString('en-AU');
+const epoch = d => Date.UTC(+d.slice(0, 4), +d.slice(5, 7) - 1, +d.slice(8, 10)) / 864e5;
+const fromEpoch = n => new Date(n * 864e5).toISOString().slice(0, 10);
+const today = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Australia/Melbourne' }).format(new Date());
+const ago = d => { const n = epoch(today()) - epoch(d); return n <= 0 ? 'today' : n === 1 ? 'yesterday' : `${n} days ago`; };
+const hm = m => (m == null ? '' : `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m`);
+
+const S = { data: null, routes: null, offline: false, sheet: null };
+const nights = (() => { try { const v = JSON.parse(ls$('tvl-nights') || 'null'); if (v && v.min >= 1 && v.max >= v.min) return v; } catch (e) { /* default */ } return { min: 3, max: 30 }; })();
+
+const param = new URLSearchParams(location.search).get('data');
+const DATA_URL = param && /^[\w-]+(\/[\w-]+)*\.json$/.test(param) ? param : 'data.json';
+
+async function getJson(url, key) {
+  try {
+    const r = await fetch(url + '?t=' + Date.now(), { cache: 'no-store' });
+    if (!r.ok) throw new Error(r.status);
+    const j = await r.json();
+    ls$(key, JSON.stringify(j));
+    return { j, cached: false };
+  } catch (e) {
+    const c = ls$(key);
+    return c ? { j: JSON.parse(c), cached: true } : { j: null, cached: true };
+  }
+}
+
+async function load() {
+  const [d, r] = await Promise.all([getJson(DATA_URL, 'tvl-data'), getJson('routes.json', 'tvl-routes')]);
+  S.data = d.j; S.routes = r.j; S.offline = d.cached;
+  render();
+}
+
+const place = c => (S.routes.places[c] || { label: c, q: c });
+const label = c => place(c).label;
+
+function salesFor(a, b) {
+  const t = today();
+  const dirs = [`${a}-${b}`, `${b}-${a}`];
+  return ((S.data.sales || {}).items || []).filter(s => (!s.ends || s.ends >= t) && (s.dir === null ? a === S.routes.main[0] && b === S.routes.main[1] : dirs.includes(s.dir)));
+}
+
+function saleHtml(items) {
+  if (!items.length) return '';
+  return `<div class="sale">${items.map(s => {
+    const what = s.dir ? `${esc(label(s.dir.split('-')[0]))} → ${esc(label(s.dir.split('-')[1]))} from <b>${money(s.price)}</b>${s.fare ? ` (${esc(s.fare)})` : ''}` : esc(s.title);
+    const travel = s.travel ? ` Travel ${esc(s.travel.replace(/^Economy:\s*/, ''))}.` : '';
+    const ends = s.ends ? ` Ends ${esc(fmtDate(s.ends))}.` : '';
+    const u = okUrl(s.url);
+    return `<p>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">` : ''}<b>${esc(s.airline)} sale:</b> ${what}.${travel}${ends}${u ? '</a>' : ''}</p>`;
+  }).join('')}</div>`;
+}
+
+function calHtml(dir) {
+  const [from, to] = dir.split('-');
+  const days = (S.data.days || {})[dir] || {};
+  const t = epoch(today());
+  const dates = Array.from({ length: S.routes.windowDays }, (_, i) => fromEpoch(t + 1 + i));
+  const prices = dates.map(d => shown(days[d])).filter(Boolean).map(f => f.price).sort((x, y) => x - y);
+  const q = p => { if (prices.length < 2) return 'q1'; const rank = prices.filter(x => x < p).length / (prices.length - 1); return 'q' + Math.min(5, 1 + Math.floor(rank * 5)); };
+  const lead = (new Date(epoch(dates[0]) * 864e5).getUTCDay() + 6) % 7;
+  const cells = [];
+  for (const w of ['M', 'T', 'W', 'T', 'F', 'S', 'S']) cells.push(`<div class="wd" aria-hidden="true">${w}</div>`);
+  for (let i = 0; i < lead; i++) cells.push('<div class="cell pad" aria-hidden="true"></div>');
+  for (const d of dates) {
+    const day = days[d], f = shown(day);
+    const dn = +d.slice(8, 10) === 1 || d === dates[0] ? `${+d.slice(8, 10)} ${fmtDate(d).slice(-3)}` : +d.slice(8, 10);
+    if (!f) { cells.push(`<div class="cell none" aria-label="${esc(fmtDate(d))}: no price yet"><span class="dn">${dn}</span><span class="pr">–</span></div>`); continue; }
+    const stale = epoch(today()) - epoch(day.checked) > 2 ? ' stale' : '';
+    cells.push(`<button class="cell ${q(f.price)}${stale}" data-dir="${esc(dir)}" data-date="${esc(d)}" aria-label="${esc(fmtDate(d))}: ${money(f.price)} on ${esc(f.airlines)}, checked ${esc(ago(day.checked))}"><span class="dn">${dn}</span><span class="pr">${money(f.price)}</span></button>`);
+  }
+  return `<div class="label">${esc(label(from))} → ${esc(label(to))}</div><div class="cal">${cells.join('')}</div>`;
+}
+
+function pairsHtml(a, b) {
+  const o = `${a}-${b}`, r = `${b}-${a}`;
+  const list = bestPairs(S.data.days[o], S.data.days[r], { minNights: nights.min, maxNights: nights.max, limit: 5, roundTrips: (S.data.roundTrips || {})[o] || [] });
+  const opts = (sel, lo, hi) => Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map(n => `<option value="${n}"${n === sel ? ' selected' : ''}>${n}</option>`).join('');
+  const ctl = `<span class="nights"><select id="nmin" aria-label="Fewest nights">${opts(nights.min, 1, 56)}</select>–<select id="nmax" aria-label="Most nights">${opts(nights.max, 1, 56)}</select> nights</span>`;
+  const rows = list.map(p => `<div class="row"><div class="main"><div class="t">${money(p.price)} · ${p.nights} night${p.nights === 1 ? '' : 's'}${p.roundTrip ? '<span class="tag">return ticket</span>' : ''}</div>
+    <div class="s">Out ${esc(fmtDate(p.out))} ${esc(p.outFlight.airlines)} ${esc(p.outFlight.dep)} · Back ${esc(fmtDate(p.back))} ${esc(p.backFlight.airlines)} ${esc(p.backFlight.dep)}</div></div></div>`).join('');
+  return `<div class="label">Best pairs ${ctl}</div><div class="group pairs">${rows || '<div class="empty">No pairs in this range yet.</div>'}</div>`;
+}
+
+function othersHtml() {
+  const rows = S.routes.pairs.map(p => {
+    const o = `${p.a}-${p.b}`, r = `${p.b}-${p.a}`;
+    const low = dir => { const t = today(); let m = null; for (const [d, day] of Object.entries(S.data.days[dir] || {})) { const f = d > t && shown(day); if (f && (!m || f.price < m)) m = f.price; } return m; };
+    const checks = [...Object.values(S.data.days[o] || {}), ...Object.values(S.data.days[r] || {})].map(d => d.checked).sort();
+    const lo = low(o), lr = low(r);
+    const age = checks.length ? ago(checks.at(-1)) : 'not checked yet';
+    return `<a class="row" href="#${esc(o)}"><div class="main"><div class="t">${esc(label(p.a))} ⇄ ${esc(label(p.b))}</div>
+      <div class="s">${lo ? `from ${money(lo)} out` : 'no price out yet'} · ${lr ? `${money(lr)} back` : 'none back yet'}</div></div><div class="end">${esc(age)}</div><span class="chev" aria-hidden="true">›</span></a>`;
+  }).join('');
+  return `<div class="label">Other routes</div><div class="group others">${rows}</div>`;
+}
+
+function routeHtml(a, b) {
+  return `${saleHtml(salesFor(a, b))}<h2 class="route">${esc(label(a))} ⇄ ${esc(label(b))}</h2>${calHtml(`${a}-${b}`)}${calHtml(`${b}-${a}`)}${pairsHtml(a, b)}`;
+}
+
+function currentPair() {
+  const m = location.hash.match(/^#([A-Z]{3})-([A-Z]{3})$/);
+  if (m && S.routes.pairs.some(p => (p.a === m[1] && p.b === m[2]) || (p.a === m[2] && p.b === m[1]))) return [m[1], m[2]];
+  return null;
+}
+
+function render() {
+  const app = $('#app');
+  if (!S.data || !S.routes) { app.innerHTML = '<div class="wrap"><div class="hdr"><h1>Flights</h1></div><p class="sub offline">Couldn’t load prices. Check your connection and try again.</p></div>'; return; }
+  const meta = S.data.meta || {};
+  const when = meta.lastRun ? `Checked ${ago(meta.lastRun.slice(0, 10))}${meta.lastRun.slice(0, 10) === today() ? ' at ' + esc(new Date(meta.lastRun).toLocaleTimeString('en-AU', { hour: 'numeric', minute: '2-digit', timeZone: 'Australia/Melbourne' })) : ''}` : 'Not checked yet';
+  const sub = S.offline ? `<span class="offline">Offline: showing prices from ${esc(meta.lastRun ? fmtDate(meta.lastRun.slice(0, 10)) : 'earlier')}</span>` : when;
+  const pair = currentPair();
+  const [a, b] = pair || S.routes.main;
+  const body = pair
+    ? `<div class="nav"><button type="button" id="back">‹ All routes</button></div>${routeHtml(a, b)}`
+    : `${routeHtml(a, b)}${othersHtml()}`;
+  app.innerHTML = `<div class="wrap"><div class="hdr"><h1>Flights</h1></div><p class="sub">${sub}</p>${body}
+    <p class="note">${esc(meta.note || '')}</p>
+    <details class="how"><summary>How this works</summary><div class="body">
+      <p>Each morning a cloud check reads Google Flights one route and date at a time and keeps the cheapest fare on a decent airline: no Jetstar, Scoot or other budget airlines, including Jetstar flights sold as Qantas.</p>
+      <p>Melbourne ⇄ Auckland is checked first, every day for the next 8 weeks. Other routes get a rotating sample, so their prices can be a few days old (faded days are more than 2 days old).</p>
+      <p>Prices are one adult, economy, in AUD, and may not include a checked bag. Always confirm on the airline’s site before you book.</p>
+    </div></details></div>`;
+  if (S.sheet) openSheet(S.sheet.dir, S.sheet.date);
+}
+
+function optHtml(kind, f, dir) {
+  if (!f) return '';
+  const plus = f.arrDate > f.depDate ? ' <span class="s">+1</span>' : '';
+  const stops = f.stops === 0 ? 'Non-stop' : `1 stop${f.via && f.via.length ? ' via ' + esc(f.via.join(', ')) : ''}`;
+  const bag = /Air New Zealand/.test(f.airlines) ? '<div class="s">Cheapest fare may not include a checked bag.</div>' : '';
+  const op = f.operated ? `<div class="s">Operated by ${esc(f.operated)}</div>` : '';
+  return `<div class="row opt"><div class="main"><div class="t">${esc(f.airlines)}</div>
+    <div class="s">${esc(f.dep)} → ${esc(f.arr)}${plus} · ${esc(hm(f.mins))} · ${stops}</div>${op}${bag}</div><div class="price">${money(f.price)}</div></div>`;
+}
+
+function openSheet(dir, date) {
+  const day = ((S.data.days || {})[dir] || {})[date];
+  if (!day) return;
+  S.sheet = { dir, date };
+  const [from, to] = dir.split('-');
+  const f = shown(day);
+  const air = airlineUrl(f && f.airlines);
+  const links = [
+    `<a href="${esc(googleUrl(place(from).q, place(to).q, date))}" target="_blank" rel="noopener">Google Flights</a>`,
+    `<a class="alt" href="${esc(skyscannerUrl(place(from).q, place(to).q, date))}" target="_blank" rel="noopener">Skyscanner</a>`,
+    air ? `<a class="alt" href="${esc(air)}" target="_blank" rel="noopener">${esc(f.airlines.split(/ and |, /)[0])}</a>` : '',
+  ].join('');
+  let el = $('#sheet');
+  if (!el) { el = document.createElement('div'); el.id = 'sheet'; el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true'); document.body.appendChild(el); }
+  el.innerHTML = `<div class="panel"><div class="top"><div><h3>${esc(label(from))} → ${esc(label(to))}</h3><div class="s">${esc(fmtDate(date))} · checked ${esc(ago(day.checked))}</div></div>
+    <button class="x" type="button" aria-label="Close">×</button></div>
+    <div class="group">${optHtml('Non-stop', day.nonstop, dir)}${optHtml('One stop', day.onestop, dir)}</div>
+    <div class="links">${links}</div></div>`;
+  el.querySelector('.x').focus();
+}
+
+function closeSheet() { S.sheet = null; const el = $('#sheet'); if (el) el.remove(); }
+
+document.addEventListener('click', e => {
+  const cell = e.target.closest('button.cell[data-dir]');
+  if (cell) { openSheet(cell.dataset.dir, cell.dataset.date); return; }
+  if (e.target.closest('#sheet .x') || e.target.id === 'sheet') { closeSheet(); return; }
+  if (e.target.closest('#back')) { location.hash = ''; }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeSheet(); });
+document.addEventListener('change', e => {
+  if (e.target.id !== 'nmin' && e.target.id !== 'nmax') return;
+  const v = +e.target.value;
+  if (e.target.id === 'nmin') { nights.min = v; if (nights.max < v) nights.max = v; } else { nights.max = v; if (nights.min > v) nights.min = v; }
+  ls$('tvl-nights', JSON.stringify(nights));
+  render();
+});
+addEventListener('hashchange', () => { closeSheet(); render(); scrollTo(0, 0); });
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+load();
+</script>
+</body>
+</html>
