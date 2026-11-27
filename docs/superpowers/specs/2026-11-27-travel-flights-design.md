@@ -207,8 +207,8 @@ time. Its prompt tells it to:
 4. commit only `travel/data.json` to `main` and push;
 5. end with a short summary that leads with notable drops or sales.
 
-It follows the site rules in Ken's other checks, except for the Google Flights exception if Ken
-approves it (open question 1).
+It follows the site rules in Ken's other checks, except that Google Flights is always its price
+source (Ken: "always scrape google"). It still keeps to robots.txt and stops at a bot check.
 
 ## Left to the builder
 
