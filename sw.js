@@ -13,7 +13,7 @@ self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
-  if (url.origin === location.origin && url.pathname.includes('/alcohol/')) return; // the liquor app has its own worker
+  if (url.origin === location.origin && /\/(alcohol|jobs)\//.test(url.pathname)) return; // the liquor and jobs apps have their own workers
   const fresh = url.origin === location.origin &&
     (req.mode === 'navigate' || url.pathname.endsWith('/') || /\.(html|json|webmanifest)$/.test(url.pathname));
   if (fresh) {
