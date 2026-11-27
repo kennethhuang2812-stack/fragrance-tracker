@@ -57,11 +57,30 @@ export async function robotsAllowsFlights() {
   }
 }
 
+// Pages google.com/robots.txt disallows (the checker must never load them), and Google's bot page.
+const DISALLOWED = ['/travel/flights/search', '/travel/flights/s/', '/travel/flights/booking', '/travel/search'];
+const disallowed = url => { const p = new URL(url).pathname; return DISALLOWED.some(d => p.startsWith(d)); };
+
+/** Turn a results page's labels into a search result, rejecting anything that isn't exactly
+ * what was searched: another date, one-way vs round trip, a disallowed page, or Google's bot page. */
+export function pageResult(labels, date, backDate, finalUrl) {
+  if (new URL(finalUrl).pathname.startsWith('/sorry')) return { status: 'bot', flights: [] };
+  if (disallowed(finalUrl)) return { status: 'blank', flights: [] };
+  const flights = labels.map(l => parseLabel(l, date)).filter(Boolean);
+  if (!labelsMatchDate(flights, date)) return { status: 'blank', flights: [] };
+  if (flights.some(f => f.roundTrip !== !!backDate)) return { status: 'blank', flights: [] };
+  return { status: 'ok', flights };
+}
+
 /** One Google Flights search in a fresh tab: {status: 'ok'|'blank'|'bot', flights}. */
 export async function search(ctx, fromQ, toQ, date, backDate) {
-  const page = await ctx.newPage();
+  let page = null;
   try {
+    page = await ctx.newPage();
+    // Never let the page load a disallowed Google path, even if Google redirects or a click navigates.
+    await page.route(u => u.hostname === 'www.google.com' && disallowed(u.href), r => r.abort());
     await page.goto(googleUrl(fromQ, toQ, date, backDate), { waitUntil: 'domcontentloaded', timeout: 45000 });
+    if (new URL(page.url()).pathname.startsWith('/sorry')) return { status: 'bot', flights: [] };
     let ready = false;
     for (let waited = 0; waited < 25000 && !ready; waited += 1500) {
       await page.waitForTimeout(1500);
@@ -75,12 +94,10 @@ export async function search(ctx, fromQ, toQ, date, backDate) {
     const more = await page.$('button[aria-label*="more flights"], button:has-text("more flights")');
     if (more) { await more.click().catch(() => {}); await page.waitForTimeout(3000); }
     const labels = await page.$$eval('[aria-label^="From "]', es => [...new Set(es.map(e => e.getAttribute('aria-label')))]);
-    const flights = labels.map(l => parseLabel(l, date)).filter(Boolean);
-    if (!labelsMatchDate(flights, date)) return { status: 'blank', flights: [] };
-    return { status: 'ok', flights };
+    return pageResult(labels, date, backDate, page.url());
   } catch (e) {
     return { status: 'blank', flights: [], error: String(e).slice(0, 160) };
   } finally {
-    await page.close().catch(() => {});
+    if (page) await page.close().catch(() => {});
   }
 }

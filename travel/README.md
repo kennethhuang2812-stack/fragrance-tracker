@@ -36,8 +36,15 @@ include a checked bag (Air NZ's "seat" fares don't). Confirm on the airline's si
 
 **Budget airlines are left out**, including when they fly a flight sold under another airline's
 number (Google names the airline that flies the plane): Jetstar, Scoot, AirAsia, Zipair, Peach,
-Spring Airlines, Cebu Pacific, Tigerair, Bonza, Lion Air, Batik Air, VietJet, Jeju Air, T'way,
-Jin Air, HK Express and Air Busan. The list is in `routes.json`.
+Spring Airlines, Spring Japan, Cebu Pacific, Tigerair, Bonza, Lion Air, Batik Air, VietJet, Jeju
+Air, T'way, Jin Air, HK Express, Air Busan, Lucky Air, 9 Air, West Air and China United. The list
+is in `routes.json`.
+
+**Return tickets:** Google's result only describes the outbound flight of a return ticket, so a
+return fare could hide a budget-airline flight home. Return-ticket totals are therefore not kept
+for airlines that also run a budget airline (Qantas, Singapore Airlines, JAL, ANA, Cathay Pacific;
+`roundTripUnsafe` in `routes.json`). A return-ticket total is only shown when it was checked at
+least as recently as the one-way prices it beats.
 
 ## The daily check
 A scheduled Claude task ("Flight price check") runs early each morning Melbourne time:

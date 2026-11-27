@@ -62,8 +62,9 @@ export async function fetchSales(routes, today, fetchFn = fetch) {
   for (const page of PAGES) {
     try {
       const origin = new URL(page.url).origin;
+      // Read the page only if robots.txt allows it, or doesn't exist (404); skip it if robots.txt can't be read.
       const rb = await fetchFn(`${origin}/robots.txt`);
-      if (rb.ok && !robotsDecision(await rb.text(), page.url).ok) continue;
+      if (rb.ok ? !robotsDecision(await rb.text(), page.url).ok : rb.status !== 404) continue;
       const r = await fetchFn(page.url);
       if (!r.ok) continue;
       out.push(...page.parse(await r.text(), routes, page.url));

@@ -93,3 +93,10 @@ test('shown rule', () => {
   assert.equal(shown({ nonstop: null, onestop: x }), x);
   assert.equal(shown({ nonstop: null, onestop: null }), null);
 });
+
+test('budget list covers Japan and China budget airlines', () => {
+  const base = parseLabel(L1, '2026-12-10');
+  for (const name of ['Spring Japan', 'Lucky Air', '9 Air', 'West Air', 'China United Airlines'])
+    assert.equal(isBudget({ ...base, airlines: name }, BUDGET), true, name);
+  assert.equal(isBudget({ ...base, airlines: 'Air China' }, BUDGET), false);
+});

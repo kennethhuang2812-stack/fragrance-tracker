@@ -55,3 +55,11 @@ test('fetchSales keeps current sales and respects robots.txt', async () => {
   const later = await fetchSales(routes, '2026-12-02', fake);
   assert.ok(!later.some(s => s.dir === 'MEL-AKL'), 'the AU sale ended on 1 Dec');
 });
+
+test('fetchSales does not read a page when robots.txt cannot be read', async () => {
+  const { fetchSales } = await import('../tools/sales.js');
+  const fake = async url => url.endsWith('/robots.txt')
+    ? { ok: false, status: 500, text: async () => '' }
+    : { ok: true, status: 200, text: async () => (url.includes('.com.au') ? au : nz) };
+  assert.deepEqual(await fetchSales(routes, '2026-11-27', fake), []);
+});

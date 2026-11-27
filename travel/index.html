@@ -62,6 +62,7 @@ a.row:active{background:var(--fill)}
 .s{color:var(--muted);font-size:13px;line-height:1.35;margin-top:2px}
 .end{flex:none;text-align:right;color:var(--muted);font-size:13px}
 .chev{flex:none;color:var(--faint);margin-left:-4px}
+.go{color:var(--accent);font-weight:600;font-size:14px;min-height:44px;display:inline-flex;align-items:center}
 .tag{display:inline-block;font-size:12px;font-weight:600;border-radius:6px;padding:1px 6px;margin-left:6px;white-space:nowrap;background:var(--good-soft);color:var(--good);vertical-align:1px}
 .nights{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--muted)}
 .nights select{font:inherit;font-size:14px;font-weight:600;color:var(--accent);background:var(--card);border:0;border-radius:999px;min-height:32px;padding:0 10px;-webkit-appearance:none;appearance:none}
@@ -171,23 +172,30 @@ function calHtml(dir) {
 
 function pairsHtml(a, b) {
   const o = `${a}-${b}`, r = `${b}-${a}`;
-  const list = bestPairs(S.data.days[o], S.data.days[r], { minNights: nights.min, maxNights: nights.max, limit: 5, roundTrips: (S.data.roundTrips || {})[o] || [] });
+  const list = bestPairs(S.data.days[o], S.data.days[r], { minNights: nights.min, maxNights: nights.max, limit: 5, roundTrips: (S.data.roundTrips || {})[o] || [], after: today() });
   const opts = (sel, lo, hi) => Array.from({ length: hi - lo + 1 }, (_, i) => lo + i).map(n => `<option value="${n}"${n === sel ? ' selected' : ''}>${n}</option>`).join('');
   const ctl = `<span class="nights"><select id="nmin" aria-label="Fewest nights">${opts(nights.min, 1, 56)}</select>–<select id="nmax" aria-label="Most nights">${opts(nights.max, 1, 56)}</select> nights</span>`;
-  const rows = list.map(p => `<div class="row"><div class="main"><div class="t">${money(p.price)} · ${p.nights} night${p.nights === 1 ? '' : 's'}${p.roundTrip ? '<span class="tag">return ticket</span>' : ''}</div>
-    <div class="s">Out ${esc(fmtDate(p.out))} ${esc(p.outFlight.airlines)} ${esc(p.outFlight.dep)} · Back ${esc(fmtDate(p.back))} ${esc(p.backFlight.airlines)} ${esc(p.backFlight.dep)}</div></div></div>`).join('');
+  const rows = list.map(p => {
+    const detail = p.rt
+      ? `${esc(p.rt.airlines)} return ticket · Out ${esc(fmtDate(p.out))} · Back ${esc(fmtDate(p.back))}`
+      : `Out ${esc(fmtDate(p.out))} ${esc(p.outFlight.airlines)} ${esc(p.outFlight.dep)} · Back ${esc(fmtDate(p.back))} ${esc(p.backFlight.airlines)} ${esc(p.backFlight.dep)}`;
+    const link = googleUrl(p.outFlight.fromQ || place(a).q, p.outFlight.toQ || place(b).q, p.out, p.back);
+    return `<div class="row"><div class="main"><div class="t">${money(p.price)} · ${p.nights} night${p.nights === 1 ? '' : 's'}${p.roundTrip ? '<span class="tag">return ticket</span>' : ''}</div>
+    <div class="s">${detail}</div></div><a class="end go" href="${esc(link)}" target="_blank" rel="noopener" aria-label="Search these dates on Google Flights">Search ›</a></div>`;
+  }).join('');
   return `<div class="label">Best pairs ${ctl}</div><div class="group pairs">${rows || '<div class="empty">No pairs in this range yet.</div>'}</div>`;
 }
 
 function othersHtml() {
   const rows = S.routes.pairs.map(p => {
     const o = `${p.a}-${p.b}`, r = `${p.b}-${p.a}`;
-    const low = dir => { const t = today(); let m = null; for (const [d, day] of Object.entries(S.data.days[dir] || {})) { const f = d > t && shown(day); if (f && (!m || f.price < m)) m = f.price; } return m; };
-    const checks = [...Object.values(S.data.days[o] || {}), ...Object.values(S.data.days[r] || {})].map(d => d.checked).sort();
+    const low = dir => { const t = today(); let m = null; for (const [d, day] of Object.entries(S.data.days[dir] || {})) { const f = d > t && shown(day); if (f && (!m || f.price < m.price)) m = { price: f.price, checked: day.checked }; } return m; };
     const lo = low(o), lr = low(r);
-    const age = checks.length ? ago(checks.at(-1)) : 'not checked yet';
+    // The age shown is that of the prices shown (the older of the two cheapest days).
+    const checks = [lo, lr].filter(Boolean).map(x => x.checked).sort();
+    const age = checks.length ? ago(checks[0]) : 'not checked yet';
     return `<a class="row" href="#${esc(o)}"><div class="main"><div class="t">${esc(label(p.a))} ⇄ ${esc(label(p.b))}</div>
-      <div class="s">${lo ? `from ${money(lo)} out` : 'no price out yet'} · ${lr ? `${money(lr)} back` : 'none back yet'}</div></div><div class="end">${esc(age)}</div><span class="chev" aria-hidden="true">›</span></a>`;
+      <div class="s">${lo ? `from ${money(lo.price)} out` : 'no price out yet'} · ${lr ? `${money(lr.price)} back` : 'none back yet'}</div></div><div class="end">${esc(age)}</div><span class="chev" aria-hidden="true">›</span></a>`;
   }).join('');
   return `<div class="label">Other routes</div><div class="group others">${rows}</div>`;
 }
@@ -229,8 +237,25 @@ function optHtml(kind, f, dir) {
   const stops = f.stops === 0 ? 'Non-stop' : `1 stop${f.via && f.via.length ? ' via ' + esc(f.via.join(', ')) : ''}`;
   const bag = /Air New Zealand/.test(f.airlines) ? '<div class="s">Cheapest fare may not include a checked bag.</div>' : '';
   const op = f.operated ? `<div class="s">Operated by ${esc(f.operated)}</div>` : '';
+  const airports = f.fromAirport && f.toAirport ? `<div class="s">${esc(f.fromAirport)} → ${esc(f.toAirport)}</div>` : '';
   return `<div class="row opt"><div class="main"><div class="t">${esc(f.airlines)}</div>
-    <div class="s">${esc(f.dep)} → ${esc(f.arr)}${plus} · ${esc(hm(f.mins))} · ${stops}</div>${op}${bag}</div><div class="price">${money(f.price)}</div></div>`;
+    <div class="s">${esc(f.dep)} → ${esc(f.arr)}${plus} · ${esc(hm(f.mins))} · ${stops}</div>${airports}${op}${bag}</div><div class="price">${money(f.price)}</div></div>`;
+}
+
+// "Down $40 since yesterday · Lowest seen $414" from a day's price history.
+function histHtml(hist) {
+  const h = (hist || []).filter(x => typeof x.a === 'number');
+  if (!h.length) return '';
+  const parts = [];
+  if (h.length > 1) {
+    const last = h[h.length - 1], prev = h[h.length - 2], diff = last.a - prev.a;
+    const since = ago(prev.d);
+    if (diff < 0) parts.push(`Down ${money(-diff)} since ${since}`);
+    else if (diff > 0) parts.push(`Up ${money(diff)} since ${since}`);
+    else parts.push(`Same as ${since}`);
+  }
+  parts.push(`Lowest seen ${money(Math.min(...h.map(x => x.a)))}`);
+  return `<p class="note">${esc(parts.join(' · '))}</p>`;
 }
 
 function openSheet(dir, date) {
@@ -240,9 +265,11 @@ function openSheet(dir, date) {
   const [from, to] = dir.split('-');
   const f = shown(day);
   const air = airlineUrl(f && f.airlines);
+  // Search from the airport that found the price (e.g. Western Sydney rather than Kingsford Smith).
+  const fq = (f && f.fromQ) || place(from).q, tq = (f && f.toQ) || place(to).q;
   const links = [
-    `<a href="${esc(googleUrl(place(from).q, place(to).q, date))}" target="_blank" rel="noopener">Google Flights</a>`,
-    `<a class="alt" href="${esc(skyscannerUrl(place(from).q, place(to).q, date))}" target="_blank" rel="noopener">Skyscanner</a>`,
+    `<a href="${esc(googleUrl(fq, tq, date))}" target="_blank" rel="noopener">Google Flights</a>`,
+    `<a class="alt" href="${esc(skyscannerUrl(fq, tq, date))}" target="_blank" rel="noopener">Skyscanner</a>`,
     air ? `<a class="alt" href="${esc(air)}" target="_blank" rel="noopener">${esc(f.airlines.split(/ and |, /)[0])}</a>` : '',
   ].join('');
   let el = $('#sheet');
@@ -250,6 +277,7 @@ function openSheet(dir, date) {
   el.innerHTML = `<div class="panel"><div class="top"><div><h3>${esc(label(from))} → ${esc(label(to))}</h3><div class="s">${esc(fmtDate(date))} · checked ${esc(ago(day.checked))}</div></div>
     <button class="x" type="button" aria-label="Close">×</button></div>
     <div class="group">${optHtml('Non-stop', day.nonstop, dir)}${optHtml('One stop', day.onestop, dir)}</div>
+    ${histHtml(day.hist)}
     <div class="links">${links}</div></div>`;
   el.querySelector('.x').focus();
 }

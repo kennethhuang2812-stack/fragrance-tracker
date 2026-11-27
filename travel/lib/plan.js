@@ -46,11 +46,11 @@ function byStaleness(routes, block, items, data) {
 /** The ordered list of searches for today: {block, dir, from, to, fromQ, toQ, date}. */
 export function planSearches(routes, data, today) {
   const win = windowDates(today, routes.windowDays);
-  const t = epochDay(today);
   const near = win.slice(0, 28);
   const far = win.slice(28);
-  const farA = far.filter((_, j) => (28 + j + t) % 2 === 0);
-  const farB = far.filter((_, j) => (28 + j + t) % 2 !== 0);
+  // Alternate each far date day by day: a date in main2 today is in main3 tomorrow.
+  const farA = far.filter((_, j) => j % 2 === 0);
+  const farB = far.filter((_, j) => j % 2 !== 0);
   const main = routes.main;
   const f2 = routes.focus2;
 

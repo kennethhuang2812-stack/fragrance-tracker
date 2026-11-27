@@ -49,12 +49,18 @@ test('the app shows Melbourne ⇄ Auckland, pairs, a day sheet and other routes'
     const pair = await page.locator('.pairs .row').first().innerText();
     assert.match(pair, /\$672/);
     assert.match(pair, /7 nights/);
+    assert.match(pair, /Qatar Airways return ticket/);
+    const pairLink = await page.locator('.pairs .row').first().locator('a').getAttribute('href');
+    assert.match(decodeURIComponent(pairLink), /Flights to AKL from MEL on 2026-12-10 through 2026-12-17/);
     await page.click('[data-dir="MEL-AKL"][data-date="2026-12-10"]');
     const sheet = page.locator('#sheet');
     await sheet.waitFor();
     const text = await sheet.innerText();
     assert.match(text, /Qatar Airways/);
     assert.match(text, /1:20 am/);
+    assert.match(text, /Melbourne Airport → Auckland Airport/);
+    assert.match(text, /Down \$40 since yesterday/);
+    assert.match(text, /Lowest seen \$414/);
     const href = await sheet.locator('a[href^="https://www.google.com/travel/flights?q="]').first().getAttribute('href');
     assert.ok(href);
     await page.keyboard.press('Escape');
@@ -79,7 +85,11 @@ test('a route row opens that route, and Back returns home', async () => {
     // hashchange renders after the hash updates, so wait for the new heading.
     await page.waitForFunction(() => /Sydney/.test(document.querySelector('h2.route')?.textContent || ''), null, { timeout: 5000 });
     assert.match(await page.locator('h2.route').first().innerText(), /Sydney ⇄ Auckland/);
-    assert.equal(await page.locator('[data-dir="SYD-AKL"][data-date="2026-12-14"]').count(), 1);
+    await page.click('[data-dir="SYD-AKL"][data-date="2026-12-14"]');
+    const g = await page.locator('#sheet a[href^="https://www.google.com/travel/flights?q="]').first().getAttribute('href');
+    assert.match(decodeURIComponent(g), /from WSI on 2026-12-14/);
+    assert.match(await page.locator('#sheet').innerText(), /Western Sydney International Airport/);
+    await page.keyboard.press('Escape');
     await page.click('.nav button');
     await page.waitForFunction(() => /Melbourne/.test(document.querySelector('h2.route')?.textContent || ''), null, { timeout: 5000 });
     assert.match(await page.locator('h2.route').first().innerText(), /Melbourne ⇄ Auckland/);

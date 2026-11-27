@@ -26,14 +26,15 @@ export function notable(before, after, routes, today) {
   const seen = new Set(((before.sales || {}).items || []).map(saleKey));
   for (const s of ((after.sales || {}).items || [])) {
     if (seen.has(saleKey(s))) continue;
-    if (s.dir && kenDirs.has(s.dir)) sales.push(`Sale: ${s.airline} ${arrow(s.dir)} from $${s.price}, ends ${fmtDate(s.ends)}.`);
-    else if (!s.dir && s.title) sales.push(`Sale: ${s.airline}: ${s.title}${s.ends ? `, ends ${fmtDate(s.ends)}` : ''}.`);
+    const ends = /^\d{4}-\d{2}-\d{2}$/.test(s.ends || '') ? `, ends ${fmtDate(s.ends)}` : '';
+    if (s.dir && kenDirs.has(s.dir)) sales.push(`Sale: ${s.airline} ${arrow(s.dir)} from $${s.price}${ends}.`);
+    else if (!s.dir && s.title) sales.push(`Sale: ${s.airline}: ${s.title}${ends}.`);
   }
 
   for (const [a, b] of focus) {
     const o = `${a}-${b}`, r = `${b}-${a}`;
-    const p0 = bestPairs(before.days[o], before.days[r], { roundTrips: (before.roundTrips || {})[o] || [], limit: 1 })[0];
-    const p1 = bestPairs(after.days[o], after.days[r], { roundTrips: (after.roundTrips || {})[o] || [], limit: 1 })[0];
+    const p0 = bestPairs(before.days[o], before.days[r], { roundTrips: (before.roundTrips || {})[o] || [], limit: 1, after: today })[0];
+    const p1 = bestPairs(after.days[o], after.days[r], { roundTrips: (after.roundTrips || {})[o] || [], limit: 1, after: today })[0];
     if (p0 && p1 && p0.price - p1.price >= 30)
       pairs.push(`Best ${a} ⇄ ${b} pair now $${p1.price}: out ${fmtDate(p1.out)}, back ${fmtDate(p1.back)} (was $${p0.price}).`);
   }

@@ -38,11 +38,14 @@ export function applyDay(data, dir, date, flights, today, budgetAirlines) {
   days[date] = day;
 }
 
-/** Record a round-trip total for an out-and-back pair. A blank changes nothing. */
-export function applyRoundTrip(data, dir, out, back, flights, today, budgetAirlines) {
-  if (!flights || !flights.length) return;
-  const f = shown(bestOptions(flights, budgetAirlines));
+/** Record a round-trip total for an out-and-back pair. A blank, a page of one-way fares, or a fare
+ * whose airline also runs a budget airline (its return flight could be a budget one) changes nothing. */
+export function applyRoundTrip(data, dir, out, back, flights, today, budgetAirlines, unsafe = []) {
+  const rts = (flights || []).filter(f => f && f.roundTrip);
+  if (!rts.length) return;
+  const f = shown(bestOptions(rts, budgetAirlines));
   if (!f) return;
+  if (f.airlines.split(/ and |, /).some(n => unsafe.includes(n.trim()))) return;
   const list = (data.roundTrips[dir] ||= []);
   const entry = { out, back, price: f.price, airlines: f.airlines, checked: today };
   const i = list.findIndex(r => r.out === out && r.back === back);

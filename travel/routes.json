@@ -35,5 +35,6 @@
     {"a": "SYD", "b": "CAN"},
     {"a": "SYD", "b": "SZX"}
   ],
-  "budgetAirlines": ["Jetstar", "Scoot", "AirAsia", "Zipair", "Peach", "Spring Airlines", "Cebu Pacific", "Tigerair", "Bonza", "Lion Air", "Batik Air", "VietJet", "Jeju Air", "T'way", "Jin Air", "HK Express", "Air Busan"]
+  "budgetAirlines": ["Jetstar", "Scoot", "AirAsia", "Zipair", "Peach", "Spring Airlines", "Cebu Pacific", "Tigerair", "Bonza", "Lion Air", "Batik Air", "VietJet", "Jeju Air", "T'way", "Jin Air", "HK Express", "Air Busan", "Spring Japan", "Lucky Air", "9 Air", "West Air", "China United"],
+  "roundTripUnsafe": ["Qantas", "Singapore Airlines", "JAL", "ANA", "Cathay Pacific"]
 }

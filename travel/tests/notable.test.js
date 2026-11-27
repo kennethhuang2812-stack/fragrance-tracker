@@ -39,3 +39,8 @@ test('a sale already seen, or on a route Ken does not fly, is not repeated', () 
 test('a first run with no earlier data reports no drops', () => {
   assert.deepEqual(notable(emptyData(), build(470, 280), routes, '2026-11-27'), []);
 });
+
+test('a sale with no end date still gives a line', () => {
+  const s = { airline: 'Air New Zealand', dir: 'MEL-AKL', price: 305 };
+  assert.deepEqual(notable(build(517, 300), build(517, 300, [s]), routes, '2026-11-27'), ['Sale: Air New Zealand MEL → AKL from $305.']);
+});

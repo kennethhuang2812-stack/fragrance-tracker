@@ -4,6 +4,7 @@ import { readFileSync } from 'node:fs';
 import { parseLabel } from '../lib/flights.js';
 import { emptyData, applyDay, applyRoundTrip, prune } from '../lib/merge.js';
 import { L1, L2, L4 } from './fixtures/labels.js';
+const UNSAFE = JSON.parse(readFileSync(new URL('../routes.json', import.meta.url))).roundTripUnsafe;
 
 const BUDGET = JSON.parse(readFileSync(new URL('../routes.json', import.meta.url))).budgetAirlines;
 const D = '2026-12-10';
@@ -76,4 +77,18 @@ test('prune drops past days and caps history', () => {
   assert.equal(h.length, 60);
   assert.equal(h[0].a, 10);
   assert.deepEqual(data.roundTrips['MEL-AKL'].map(r => r.out), ['2026-11-28']);
+});
+
+test('a one-way page is not stored as a round trip', () => {
+  const data = emptyData();
+  applyRoundTrip(data, 'MEL-AKL', D, '2026-12-17', [parseLabel(L1, D)], '2026-11-27', BUDGET, UNSAFE);
+  assert.deepEqual(data.roundTrips['MEL-AKL'] || [], []);
+});
+
+test('a round trip whose airline also runs a budget airline is not stored', () => {
+  const data = emptyData();
+  const qantas = { ...parseLabel(L4, D), airlines: 'Qantas' };
+  applyRoundTrip(data, 'MEL-AKL', D, '2026-12-17', [qantas], '2026-11-27', BUDGET, UNSAFE);
+  assert.deepEqual(data.roundTrips['MEL-AKL'] || [], []);
+  assert.ok(UNSAFE.includes('Qantas') && UNSAFE.includes('Singapore Airlines'));
 });

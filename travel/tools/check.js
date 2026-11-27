@@ -68,24 +68,30 @@ export async function runCheck({ data, routes, today, budget = 140, minutes = 70
   const firstBlock = plan.filter(s => s.block === 'main' || s.block === 'main2');
   const later = plan.filter(s => s.block !== 'main' && s.block !== 'main2');
 
+  // Each stored flight remembers which airport search found it (Sydney vs Western Sydney), so the
+  // app's links open the search that has it.
+  const apply = (s, flights) => applyDay(data, s.dir, s.date,
+    flights && flights.map(f => ({ ...f, fromQ: s.fromQ, toQ: s.toQ })), today, routes.budgetAirlines);
+
   for (const s of firstBlock) {
     const flights = await run(s.fromQ, s.toQ, s.date);
-    if (flights === null || stoppedBy) { if (flights) applyDay(data, s.dir, s.date, flights, today, routes.budgetAirlines); break; }
-    applyDay(data, s.dir, s.date, flights, today, routes.budgetAirlines);
+    if (flights === null || stoppedBy) { if (flights) apply(s, flights); break; }
+    apply(s, flights);
   }
   if (!stoppedBy) {
-    const pairs = bestPairs(data.days[mainDirs[0]], data.days[mainDirs[1]], { limit: 3 });
+    const pairs = bestPairs(data.days[mainDirs[0]], data.days[mainDirs[1]],
+      { limit: 3, after: today, roundTrips: data.roundTrips[mainDirs[0]] || [] });
     for (const p of pairs) {
       const flights = await run(routes.places[a].q, routes.places[b].q, p.out, p.back);
       if (flights === null || stoppedBy) break;
-      applyRoundTrip(data, mainDirs[0], p.out, p.back, flights, today, routes.budgetAirlines);
+      applyRoundTrip(data, mainDirs[0], p.out, p.back, flights, today, routes.budgetAirlines, routes.roundTripUnsafe || []);
     }
   }
   if (!stoppedBy) {
     for (const s of later) {
       const flights = await run(s.fromQ, s.toQ, s.date);
       if (flights === null) break;
-      applyDay(data, s.dir, s.date, flights, today, routes.budgetAirlines);
+      apply(s, flights);
       if (stoppedBy) break;
     }
   }
@@ -105,7 +111,8 @@ export async function runCheck({ data, routes, today, budget = 140, minutes = 70
   const note = `Checked ${searches} searches (${blanks} blank); ${mainText}; ${STOPPED[stoppedBy]}.`;
   data.meta = { lastRun: melbourneIso(), note, searches, blanks, stoppedBy, coverage: { mainDaysFresh, otherDaysFresh } };
 
-  const lines = notable(before, data, routes, today);
+  let lines = [];
+  try { lines = notable(before, data, routes, today); } catch (e) { lines = [`Couldn't work out today's changes: ${String(e).slice(0, 120)}`]; }
   const summary = [...(lines.length ? lines : ['No big changes on Melbourne ⇄ Auckland today.']), note];
   return { data, summary };
 }

@@ -72,3 +72,19 @@ test('summary', async () => {
   assert.match(data.meta.lastRun, /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2}$/);
   assert.equal(data.meta.coverage.mainDaysFresh, 20);
 });
+
+test('a sale with no end date does not lose the run', async () => {
+  const { searchFn } = recorder();
+  const salesFn = async () => [{ airline: 'Air New Zealand', dir: 'MEL-AKL', price: 305 }];
+  const { data, summary } = await runCheck({ ...common, data: emptyData(), budget: 4, searchFn, salesFn });
+  assert.equal(data.meta.searches, 4);
+  assert.ok(summary.some(l => l.startsWith('Sale:')));
+});
+
+test('stored options remember which airport search found them', async () => {
+  const { searchFn } = recorder();
+  const { data } = await runCheck({ ...common, data: emptyData(), budget: 2, searchFn });
+  const day = data.days['MEL-AKL']['2026-11-28'];
+  assert.equal(day.nonstop.fromQ, 'MEL');
+  assert.equal(day.nonstop.toQ, 'AKL');
+});

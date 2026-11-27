@@ -80,3 +80,10 @@ test('focus2 after main2', () => {
   assert.equal(i, 84);
   assert.ok(!p.some(s => s.block === 'sample' && (s.dir === 'AKL-TYO' || s.dir === 'TYO-AKL')));
 });
+
+test('main2 alternates: a far date is checked one day and not the next', () => {
+  const far = windowDates(TODAY, 56)[40];
+  const inMain2 = t => planSearches(routes, { days: {} }, t).some(s => s.block === 'main2' && s.date === far && s.dir === 'MEL-AKL');
+  assert.notEqual(inMain2('2026-11-27'), inMain2('2026-11-28'));
+  assert.notEqual(inMain2('2026-11-28'), inMain2('2026-11-29'));
+});

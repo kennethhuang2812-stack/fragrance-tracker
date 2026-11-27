@@ -349,7 +349,7 @@ THE APP: a static iPhone web app in the folder travel/ of the GitHub repository 
 
 1. Attach the repository with push access (Claude_Code_Remote add_repo tool; load it with ToolSearch if deferred) and clone it with depth 1 on main.
 2. Run: node travel/tools/check.js travel/data.json  (it can take over an hour, so run it in the background and wait for it to exit). Playwright and Chromium are already installed; never install them. The script reads only Google Flights pages of the form https://www.google.com/travel/flights?q=..., which Ken approved for this app, one search at a time, and stops on a bot check. Never change it to get around a bot check, never change the browser's user agent, and never load /travel/flights/search or any page robots.txt disallows.
-3. If the script fails with an error, read the error, fix the script only if the fix is small and obvious (for example Google changed a label), run node --test travel/tests/ to confirm, and run it again once. Otherwise leave data.json as it was.
+3. If the script fails with an error, read the error, fix the script only if the fix is small and obvious (for example Google changed a label), run node --test travel/tests/*.test.js to confirm, and run it again once. Otherwise leave data.json as it was.
 4. Commit only travel/data.json (plus travel/tools or travel/lib changes if you had to fix the checker) with the message "Update flight prices <today>" and push to main. If the push is rejected because main moved, run git pull --rebase once and push again. If pushing still fails, say so in the summary with the exact error.
 5. End with the summary lines the script printed (under 8 lines), leading with anything notable on Melbourne ⇄ Auckland, and say whether the app was updated.
 ```

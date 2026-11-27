@@ -55,8 +55,36 @@
     "onestop": null,
     "hist": [
      {
+      "d": "2026-11-26",
+      "a": 454
+     },
+     {
       "d": "2026-11-27",
       "a": 414
+     }
+    ]
+   },
+   "2026-11-20": {
+    "checked": "2026-11-19",
+    "nonstop": {
+     "price": 100,
+     "stops": 0,
+     "airlines": "Air New Zealand",
+     "operated": "",
+     "dep": "8:15 am",
+     "depDate": "2026-11-20",
+     "arr": "1:55 pm",
+     "arrDate": "2026-11-20",
+     "fromAirport": "Melbourne Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 220,
+     "via": []
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-19",
+      "a": 100
      }
     ]
    }
@@ -93,22 +121,50 @@
     "nonstop": {
      "price": 514,
      "stops": 0,
-     "airlines": "Qantas",
+     "airlines": "Air New Zealand",
      "operated": "",
      "dep": "7:15 pm",
      "depDate": "2026-12-14",
      "arr": "12:25 am",
      "arrDate": "2026-12-15",
-     "fromAirport": "Sydney Airport",
+     "fromAirport": "Western Sydney International Airport",
      "toAirport": "Auckland Airport",
      "mins": 190,
-     "via": []
+     "via": [],
+     "fromQ": "WSI",
+     "toQ": "AKL"
     },
     "onestop": null,
     "hist": [
      {
       "d": "2026-11-20",
       "a": 514
+     }
+    ]
+   },
+   "2026-12-20": {
+    "checked": "2026-11-27",
+    "nonstop": {
+     "price": 600,
+     "stops": 0,
+     "airlines": "Qantas",
+     "operated": "",
+     "dep": "7:15 pm",
+     "depDate": "2026-12-20",
+     "arr": "12:25 am",
+     "arrDate": "2026-12-21",
+     "fromAirport": "Sydney Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 190,
+     "via": [],
+     "fromQ": "SYD",
+     "toQ": "AKL"
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-27",
+      "a": 600
      }
     ]
    }
