@@ -1,0 +1,39 @@
+{
+  "windowDays": 56,
+  "main": ["MEL", "AKL"],
+  "focus2": null,
+  "places": {
+    "MEL": {"label": "Melbourne", "q": "MEL"},
+    "SYD": {"label": "Sydney", "q": "SYD"},
+    "AKL": {"label": "Auckland", "q": "AKL"},
+    "TYO": {"label": "Tokyo", "q": "Tokyo"},
+    "OSA": {"label": "Osaka", "q": "Osaka"},
+    "SHA": {"label": "Shanghai", "q": "Shanghai"},
+    "BJS": {"label": "Beijing", "q": "Beijing"},
+    "CAN": {"label": "Guangzhou", "q": "Guangzhou"},
+    "SZX": {"label": "Shenzhen", "q": "Shenzhen"}
+  },
+  "pairs": [
+    {"a": "SYD", "b": "AKL", "extra": {"SYD": ["WSI"]}},
+    {"a": "MEL", "b": "SYD", "extra": {"SYD": ["WSI"]}},
+    {"a": "AKL", "b": "TYO"},
+    {"a": "AKL", "b": "OSA"},
+    {"a": "MEL", "b": "TYO"},
+    {"a": "SYD", "b": "TYO"},
+    {"a": "MEL", "b": "OSA"},
+    {"a": "SYD", "b": "OSA"},
+    {"a": "AKL", "b": "SHA"},
+    {"a": "AKL", "b": "BJS"},
+    {"a": "AKL", "b": "CAN"},
+    {"a": "AKL", "b": "SZX"},
+    {"a": "MEL", "b": "SHA"},
+    {"a": "MEL", "b": "BJS"},
+    {"a": "MEL", "b": "CAN"},
+    {"a": "MEL", "b": "SZX"},
+    {"a": "SYD", "b": "SHA"},
+    {"a": "SYD", "b": "BJS"},
+    {"a": "SYD", "b": "CAN"},
+    {"a": "SYD", "b": "SZX"}
+  ],
+  "budgetAirlines": ["Jetstar", "Scoot", "AirAsia", "Zipair", "Peach", "Spring Airlines", "Cebu Pacific", "Tigerair", "Bonza", "Lion Air", "Batik Air", "VietJet", "Jeju Air", "T'way", "Jin Air", "HK Express", "Air Busan"]
+}

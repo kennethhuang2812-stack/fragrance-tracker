@@ -1,0 +1,5 @@
+// Google Flights result labels captured 2026-11-27 (L1–L3) and one built from them (L4).
+export const L1 = 'From 414 Australian dollars. Non-stop flight with Qatar Airways. Leaves Melbourne Airport at 1:20 am on Thursday, December 10 and arrives at Auckland Airport at 6:50 am on Thursday, December 10. Total duration 3 hrs 30 min.   Select flight';
+export const L2 = 'From 638 Australian dollars. Non-stop flight with Jetstar. Leaves Melbourne Airport at 11:55 pm on Thursday, December 10 and arrives at Auckland Airport at 5:30 am on Friday, December 11. Total duration 3 hrs 35 min.   Select flight';
+export const L3 = 'From 1023 Australian dollars. 1 stop flight with Scoot. Leaves Melbourne Airport at 1:25 pm on Monday, December 14 and arrives at Narita International Airport at 7:10 am on Tuesday, December 15. Total duration 19 hrs 45 min.  Stopover (1 of 1) is a 5 hrs 10 min stopover at Singapore Changi Airport in Singapore. Select flight';
+export const L4 = L1.replace('Australian dollars.', 'Australian dollars round trip total.').replace('414', '672');
