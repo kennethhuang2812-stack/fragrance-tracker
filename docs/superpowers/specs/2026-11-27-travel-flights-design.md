@@ -107,6 +107,7 @@ Ken chose to do **flights first**; stays and the rest are later projects.
 - Reading Google Flights `?q=` pages is allowed for this app only (the exception to "Never scrape
   Google" above).
 - His current trip: Melbourne → Auckland in the next one to two weeks, back whenever is cheapest.
+- The main routes are Melbourne → Auckland and Auckland → Melbourne.
 
 ## Calls made in this design (Ken can change any)
 
@@ -119,10 +120,12 @@ Ken chose to do **flights first**; stays and the rest are later projects.
   Emirates, JAL, ANA, Singapore Airlines, Cathay Pacific, China Eastern, China Southern, Air China,
   and other full-service airlines.
 - **Window:** departures from tomorrow to 8 weeks out.
-- **Focus route:** Melbourne ↔ Auckland is the focus by default. Every day in the window is
-  checked every day in both directions, with round-trip totals for the best few pairs. Ken
-  changes the focus (for example to Auckland ↔ Tokyo for a Japan trip) by asking Claude, which
-  edits `travel/routes.json`. The phone app can't tell the cloud check what to do.
+- **Main route (decided by Ken): Melbourne → Auckland and Auckland → Melbourne.** This is the
+  focus route, always. It gets first claim on each day's searches: every day in the window,
+  both directions, every day, with round-trip totals for the best few pairs. For a trip
+  elsewhere (for example Auckland ↔ Tokyo), Ken can ask Claude to add a temporary second focus
+  in `travel/routes.json`. It only uses searches left over after Melbourne ⇄ Auckland and never
+  replaces it. The phone app can't tell the cloud check what to do.
 - **Other routes:** checked from a rotating queue, oldest-checked dates first, aiming for at least
   one date a week per direction across the window. With spare budget, it adds more dates nearest
   to today. The numbers: the focus route takes about 112 searches a day (2 directions × 56 days),
@@ -175,8 +178,9 @@ Best pairs (5–21 nights)
  $747  Qatar Thu 10 Dec → Qantas Tue 22 Dec (12 nights)
 ```
 
-- Home: one row per route pair, with the cheapest out and back in the window, how old the data
-  is, and a sale banner when one applies.
+- Home: opens straight on Melbourne ⇄ Auckland: both calendars and the best pairs, plus a sale
+  banner when one applies. Below that, an "Other routes" list with one row per route pair,
+  showing the cheapest out and back in the window and how old the data is.
 - Route view: a calendar for each direction, coloured by price, with "checked X days ago" on
   stale days. Tap a day for its flights (airline, times, stops, duration, price, bag note) and
   search links.
