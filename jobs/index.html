@@ -9,123 +9,212 @@
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Jobs">
-<meta name="theme-color" content="#123a6b">
+<meta name="theme-color" content="#0b1530">
 <style>
-:root{--bg:#f2f2f7;--card:#fff;--ink:#111;--muted:#6b6b73;--line:#e3e3e8;--accent:#1d5fd1;--accent-ink:#fff;--chip:#eef1f6;--good:#14804a;--good-bg:#e3f5ea;--warn:#a15c00;--warn-bg:#fdf0dc;--bad:#b42318;--bad-bg:#fde7e5;--new:#6b2bd9;--new-bg:#efe6ff;--bar:#123a6b}
-@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#000;--card:#1c1c1e;--ink:#f2f2f7;--muted:#9a9aa2;--line:#2c2c30;--accent:#5b95ff;--accent-ink:#000;--chip:#2a2a2e;--good:#5fd38d;--good-bg:#11301f;--warn:#f0b45b;--warn-bg:#33240c;--bad:#ff8a80;--bad-bg:#3a1512;--new:#c3a4ff;--new-bg:#2a1c47;--bar:#0d2547}}
-:root[data-theme="dark"]{--bg:#000;--card:#1c1c1e;--ink:#f2f2f7;--muted:#9a9aa2;--line:#2c2c30;--accent:#5b95ff;--accent-ink:#000;--chip:#2a2a2e;--good:#5fd38d;--good-bg:#11301f;--warn:#f0b45b;--warn-bg:#33240c;--bad:#ff8a80;--bad-bg:#3a1512;--new:#c3a4ff;--new-bg:#2a1c47;--bar:#0d2547}
-*{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.4 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%}
+:root{--bg:#f3f4f8;--card:#fff;--ink:#0f1222;--ink2:#3a3f55;--muted:#6e7389;--line:#e6e8ef;--soft:#f5f6fa;
+--accent:#2f6bff;--accent2:#6a4cff;--accent-ink:#fff;--chip:#eef0f6;
+--good:#0f8a55;--good-bg:#e2f6ec;--warn:#a35a00;--warn-bg:#fff1dc;--bad:#c4291c;--bad-bg:#fde8e6;--new:#5b2fe0;--new-bg:#ece6ff;
+--bar:#0b1530;--bar2:#16285c;--shadow:0 1px 2px rgba(15,18,34,.05),0 4px 16px rgba(15,18,34,.06);--hl:60%;--hd:93%;--hi:34%}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#07090f;--card:#141826;--ink:#eef0f8;--ink2:#c9cde0;--muted:#8d93ab;--line:#232839;--soft:#1a1f30;
+--accent:#6b95ff;--accent2:#9a86ff;--accent-ink:#06102a;--chip:#1e2335;--good:#4fd394;--good-bg:#0f2a1f;--warn:#f5b35a;--warn-bg:#2e2110;--bad:#ff8c80;--bad-bg:#341613;--new:#b9a6ff;--new-bg:#241b45;
+--bar:#060b1a;--bar2:#0f1d45;--sbox:#1b2236;--sbox-ink:#eef0f8;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 20px rgba(0,0,0,.35);--hl:35%;--hd:22%;--hi:78%}}
+:root[data-theme="dark"]{--bg:#07090f;--card:#141826;--ink:#eef0f8;--ink2:#c9cde0;--muted:#8d93ab;--line:#232839;--soft:#1a1f30;
+--accent:#6b95ff;--accent2:#9a86ff;--accent-ink:#06102a;--chip:#1e2335;--good:#4fd394;--good-bg:#0f2a1f;--warn:#f5b35a;--warn-bg:#2e2110;--bad:#ff8c80;--bad-bg:#341613;--new:#b9a6ff;--new-bg:#241b45;
+--bar:#060b1a;--bar2:#0f1d45;--sbox:#1b2236;--sbox-ink:#eef0f8;--shadow:0 1px 0 rgba(255,255,255,.03) inset,0 6px 20px rgba(0,0,0,.35);--hl:35%;--hd:22%;--hi:78%}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 -apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",Roboto,sans-serif;-webkit-text-size-adjust:100%;-webkit-font-smoothing:antialiased}
 button,input,select,textarea{font:inherit;color:inherit}
 a{color:var(--accent)}
-header{position:sticky;top:0;z-index:5;background:var(--bar);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px;display:flex;align-items:center;gap:10px}
-header h1{font-size:19px;margin:0;flex:1}
-header small{display:block;font-weight:400;font-size:12px;opacity:.8}
-#refresh{background:rgba(255,255,255,.16);border:0;color:#fff;border-radius:10px;padding:8px 12px;font-weight:600}
-#refresh[disabled]{opacity:.6}
-main{max-width:760px;margin:0 auto;padding:12px 16px calc(84px + env(safe-area-inset-bottom))}
-nav{position:fixed;bottom:0;left:0;right:0;z-index:5;background:var(--card);border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
-nav button{flex:1;background:none;border:0;padding:10px 0 12px;color:var(--muted);font-size:12px;font-weight:600}
-nav button b{display:block;font-size:20px;line-height:1.1}
-nav button.on{color:var(--accent)}
-.tab{display:none}.tab.on{display:block}
-.search{display:flex;gap:8px}
-.search input{flex:1;min-width:0;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
-.btn{text-decoration:none;display:inline-block;border:1px solid var(--line);background:var(--card);border-radius:10px;padding:8px 12px;font-weight:600;cursor:pointer}
-.btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.btn.small{padding:5px 8px;font-size:13px}
-.btn.danger{color:var(--bad)}
-.chips{display:flex;gap:6px;overflow-x:auto;padding:10px 0 4px;scrollbar-width:none}
+svg.i{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none;vertical-align:-3px}
+
+/* header */
+header{position:sticky;top:0;z-index:6;background:var(--bar);color:#fff;padding:calc(env(safe-area-inset-top) + 10px) 16px 10px}
+.hbar{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.mark{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;flex:none;box-shadow:0 4px 14px rgba(47,107,255,.45)}
+.mark svg{width:22px;height:22px}
+header h1{font-size:18px;letter-spacing:-.01em;margin:0;line-height:1.15}
+header small{display:block;font-weight:500;font-size:12px;color:rgba(255,255,255,.62)}
+.hbar .brand{flex:1;display:flex;align-items:center;gap:11px;min-width:0}
+#refresh{width:40px;height:40px;border-radius:12px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.08);color:#fff;display:grid;place-items:center;cursor:pointer}
+#refresh svg{width:19px;height:19px}
+#refresh.busy svg{animation:spin 1s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.progress{position:absolute;left:0;right:0;bottom:0;height:2px;display:none;overflow:hidden}
+.progress.on{display:block}
+.progress i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),#5fe3c0);width:0;transition:width .3s}
+
+main{max-width:760px;margin:0 auto;padding:0 16px calc(96px + env(safe-area-inset-bottom))}
+.tab{display:none;padding-top:14px}.tab.on{display:block}
+#t-search{padding-top:0}
+
+/* hero band behind the search box */
+.hero{background:linear-gradient(180deg,var(--bar) 0%,var(--bar2) 100%);margin:0 -16px;padding:6px 16px 16px;border-radius:0 0 24px 24px;color:#fff;position:relative;overflow:hidden}
+.hero::before{content:"";position:absolute;right:-60px;top:-90px;width:260px;height:260px;border-radius:50%;border:1px solid rgba(255,255,255,.07);box-shadow:0 0 0 40px rgba(255,255,255,.025),0 0 0 80px rgba(255,255,255,.02);pointer-events:none}
+.search{display:flex;gap:8px;position:relative}
+.sbox{flex:1;min-width:0;display:flex;align-items:center;gap:8px;background:var(--sbox,#fff);color:var(--sbox-ink,#0f1222);border-radius:14px;padding:0 12px;box-shadow:0 6px 20px rgba(0,0,0,.18)}
+.sbox svg{color:#7a8098}
+.sbox input{flex:1;min-width:0;border:0;outline:0;background:transparent;padding:13px 0;color:inherit;font-size:16px}
+.sbox input::placeholder{color:#9aa0b5}
+#saveq{width:48px;border-radius:14px;border:1px solid rgba(255,255,255,.16);background:rgba(255,255,255,.1);color:#fff;display:grid;place-items:center;cursor:pointer}
+.pulse{display:flex;gap:14px;margin-top:12px;font-size:13px;color:rgba(255,255,255,.72);position:relative;flex-wrap:wrap}
+.pulse b{color:#fff;font-weight:700}
+.pulse .dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#5fe3c0;margin-right:6px;box-shadow:0 0 0 3px rgba(95,227,192,.2);vertical-align:1px}
+
+/* chips */
+.sect{font-size:11.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin:16px 2px 2px}
+.chips{display:flex;gap:7px;overflow-x:auto;padding:8px 16px 4px;margin:0 -16px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:6px 11px;font-size:13px;white-space:nowrap;cursor:pointer}
-.chip.on{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
-.chip select{border:0;background:transparent;padding:0;font-size:13px;-webkit-appearance:none;appearance:none}
-.chip.on select{color:var(--accent-ink)}
-.filters{display:none;grid-template-columns:1fr 1fr;gap:8px;margin:6px 0 4px}
+.chip{flex:none;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:999px;padding:7px 12px;font-size:13.5px;font-weight:500;white-space:nowrap;cursor:pointer;color:var(--ink2)}
+.chip.on{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip select{border:0;background:transparent;padding:0;font-size:13.5px;font-weight:500;-webkit-appearance:none;appearance:none;color:inherit;cursor:pointer}
+.savedq{background:var(--card);border-color:var(--line);padding:8px 10px 8px 13px;font-weight:600;color:var(--ink)}
+.savedq .n{background:var(--new);color:#fff;border-radius:999px;font-size:11px;font-weight:700;padding:1px 7px}
+.savedq .x{opacity:.35;font-size:12px;padding:0 2px}
+.savedq.on{background:linear-gradient(135deg,var(--accent),var(--accent2));border-color:transparent;color:#fff}
+.savedq.on .n{background:#fff;color:var(--accent)}
+.savedq.on .x{opacity:.7}
+.filters{display:none;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0 4px;background:var(--card);border-radius:16px;padding:12px;box-shadow:var(--shadow)}
 .filters.on{display:grid}
-.filters label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-.filters input,.filters select{padding:8px;border:1px solid var(--line);border-radius:10px;background:var(--card)}
-.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin:8px 2px}
-.list{display:flex;flex-direction:column;gap:8px}
-.job{background:var(--card);border-radius:14px;padding:12px 12px 10px;border:1px solid var(--line)}
-.job .top{display:flex;gap:10px;align-items:flex-start}
-.logo{width:36px;height:36px;border-radius:8px;flex:none;background:var(--chip);display:grid;place-items:center;font-weight:700;color:var(--muted);overflow:hidden;font-size:15px}
-.logo img{width:100%;height:100%;object-fit:cover}
-.job h3{margin:0;font-size:15.5px;line-height:1.3;cursor:pointer}
-.job .sub{color:var(--muted);font-size:13px;margin-top:2px}
-.badges{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
-.b{font-size:11.5px;font-weight:600;border-radius:6px;padding:2px 7px;background:var(--chip);color:var(--muted)}
+.filters label{font-size:12px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.filters input,.filters select{padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);font-size:15px}
+
+/* other sites */
+.ext{display:flex;align-items:center;gap:8px;margin:12px 0 0;background:var(--card);border-radius:14px;padding:8px 8px 8px 12px;box-shadow:var(--shadow)}
+.ext>span{flex:none;font-size:12px;font-weight:600;color:var(--muted)}
+.ext>div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.ext>div::-webkit-scrollbar{display:none}
+.ext a{flex:none;display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;padding:6px 10px;border-radius:10px;color:var(--ink);background:var(--soft);text-decoration:none}
+.ext a i{width:8px;height:8px;border-radius:50%;display:inline-block}
+
+.meta{display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px;margin:16px 2px 8px}
+.meta #count{font-weight:600;color:var(--ink2)}
+
+/* job cards */
+.list{display:flex;flex-direction:column;gap:10px}
+.job{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);position:relative;animation:rise .25s ease both}
+@keyframes rise{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.job .top{display:flex;gap:12px;align-items:flex-start}
+.logo{width:44px;height:44px;border-radius:12px;flex:none;display:grid;place-items:center;font-weight:800;overflow:hidden;font-size:17px;
+background:hsl(var(--h,220) var(--hl) var(--hd));color:hsl(var(--h,220) 55% var(--hi))}
+.logo.img{background:#fff;border:1px solid var(--line)}
+.logo img{width:100%;height:100%;object-fit:contain}
+.job h3{margin:0;font-size:16px;font-weight:650;letter-spacing:-.01em;line-height:1.3;cursor:pointer;padding-right:34px}
+.job .co{font-size:13.5px;font-weight:600;color:var(--ink2);margin-top:2px}
+.job .sub{color:var(--muted);font-size:12.5px;margin-top:2px;display:flex;gap:4px;align-items:center;min-width:0}
+.job .sub span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.star{position:absolute;top:10px;right:10px;width:36px;height:36px;border-radius:50%;border:0;background:transparent;color:var(--muted);display:grid;place-items:center;cursor:pointer}
+.star svg{width:21px;height:21px}
+.star.on{color:#f5a623}.star.on svg{fill:#f5a623}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.b{font-size:11.5px;font-weight:650;border-radius:7px;padding:3px 8px;background:var(--chip);color:var(--ink2)}
 .b.new{background:var(--new-bg);color:var(--new)}
 .b.good{background:var(--good-bg);color:var(--good)}
 .b.warn{background:var(--warn-bg);color:var(--warn)}
 .b.bad{background:var(--bad-bg);color:var(--bad)}
-.b.blue{background:var(--chip);color:var(--accent)}
-.actions{display:flex;gap:6px;margin-top:9px;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none}.actions .btn{flex:none}
-.empty{text-align:center;color:var(--muted);padding:40px 12px}
-.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:12px}
-.panel h2{font-size:15px;margin:0 0 8px}
-.panel p.hint{color:var(--muted);font-size:13px;margin:4px 0 8px}
-.row{display:flex;align-items:center;gap:8px;padding:8px 0;border-top:1px solid var(--line)}
+.b.blue{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--accent)}
+.actions{display:flex;gap:6px;margin-top:12px;align-items:center;border-top:1px solid var(--line);padding-top:10px}
+.actions .sp{flex:1}
+.ghost{border:0;background:none;color:var(--muted);font-size:13px;font-weight:600;padding:6px 8px;border-radius:8px;cursor:pointer}
+.ghost:active{background:var(--soft)}
+
+/* buttons */
+.btn{text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:var(--card);border-radius:11px;padding:9px 14px;font-weight:650;cursor:pointer;color:var(--ink)}
+.btn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border-color:transparent;box-shadow:0 3px 10px rgba(47,107,255,.28)}
+.btn.small{padding:7px 12px;font-size:13.5px}
+.btn.danger{color:var(--bad)}
+.btn svg{width:15px;height:15px}
+
+.empty{text-align:center;color:var(--muted);padding:36px 16px}
+.empty .big{width:64px;height:64px;margin:0 auto 10px;border-radius:20px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;color:#fff}
+.empty .big svg{width:34px;height:34px}
+.empty b{color:var(--ink)}
+.skel{background:var(--card);border-radius:18px;padding:14px;box-shadow:var(--shadow);display:flex;gap:12px}
+.skel i{display:block;border-radius:8px;background:linear-gradient(90deg,var(--chip),var(--soft),var(--chip));background-size:200% 100%;animation:shim 1.2s infinite}
+@keyframes shim{to{background-position:-200% 0}}
+
+/* panels (sources) */
+.panel{background:var(--card);border-radius:18px;padding:14px;margin-bottom:12px;box-shadow:var(--shadow)}
+.panel h2{font-size:16px;letter-spacing:-.01em;margin:0 0 4px}
+.panel p.hint{color:var(--muted);font-size:13px;margin:2px 0 10px}
+.row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}
 .row:first-of-type{border-top:0}
 .row .grow{flex:1;min-width:0}
 .row .grow small{display:block;color:var(--muted);font-size:12px}
-.switch{appearance:none;-webkit-appearance:none;width:44px;height:26px;border-radius:13px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:.2s}
-.switch:checked{background:var(--good)}
-.switch::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.2s}
+.switch{appearance:none;-webkit-appearance:none;width:48px;height:29px;border-radius:15px;background:var(--line);position:relative;flex:none;cursor:pointer;transition:.2s}
+.switch:checked{background:#34c759}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:25px;height:25px;border-radius:50%;background:#fff;box-shadow:0 2px 4px rgba(0,0,0,.2);transition:.2s}
 .switch:checked::after{left:21px}
 .addrow{display:flex;gap:6px}
-.addrow input{flex:1;min-width:0;padding:9px 10px;border:1px solid var(--line);border-radius:10px;background:var(--bg)}
-.seg{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
-.seg::-webkit-scrollbar{display:none}
-.track{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:12px;}
-.track .grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:9px}
-.track label{font-size:12px;color:var(--muted);display:flex;flex-direction:column;gap:3px}
-.track select,.track input,.track textarea{padding:7px 8px;border:1px solid var(--line);border-radius:9px;background:var(--bg);width:100%}
-.track textarea{min-height:56px;resize:vertical;grid-column:1/-1}
-.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px}
-.stat{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:8px;text-align:center}
-.stat b{display:block;font-size:20px}
-.stat span{font-size:11.5px;color:var(--muted)}
+.addrow input{flex:1;min-width:0;padding:10px 12px;border:1px solid var(--line);border-radius:11px;background:var(--soft);font-size:15px}
 .srcstat{font-size:12px;color:var(--muted)}
 .srcstat.err{color:var(--bad)}
-#sheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(0,0,0,.4)}
-#sheet.on{display:flex;align-items:flex-end;justify-content:center}
-#sheet .in{background:var(--card);width:100%;max-width:760px;max-height:88vh;overflow:auto;border-radius:18px 18px 0 0;padding:16px 16px calc(20px + env(safe-area-inset-bottom))}
-#sheet h2{margin:0 0 4px;font-size:18px}
-#sheet .desc{white-space:pre-wrap;color:var(--ink);font-size:14px;background:var(--bg);border-radius:10px;padding:10px;margin-top:10px;max-height:40vh;overflow:auto}
-#toast{position:fixed;left:50%;bottom:calc(80px + env(safe-area-inset-bottom));transform:translateX(-50%);background:#222;color:#fff;padding:9px 14px;border-radius:10px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw}
-#toast.on{opacity:1}
-.progress{height:3px;background:var(--line);border-radius:2px;overflow:hidden;margin:8px 0 0;display:none}
-.progress.on{display:block}
-.progress i{display:block;height:100%;background:var(--accent);width:0;transition:width .3s}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
-.tagx{display:inline-flex;align-items:center;gap:4px;background:var(--chip);border-radius:999px;padding:4px 4px 4px 10px;font-size:13px}
-.tagx button{border:0;background:var(--line);border-radius:50%;width:20px;height:20px;line-height:18px;padding:0;cursor:pointer}
-.ext{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:12px;color:var(--muted)}
-.ext>span{flex:none}
-.ext>div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
-.ext>div::-webkit-scrollbar{display:none}
-.ext a{flex:none;font-size:13px;font-weight:600;padding:5px 10px;border-radius:9px;color:#fff;text-decoration:none}
-.savedq{display:inline-flex;align-items:center;gap:6px}
-.savedq .n{background:var(--new);color:#fff;border-radius:999px;font-size:11px;padding:0 6px}
-.chip.on .n{background:#fff;color:var(--accent)}
+.tagx{display:inline-flex;align-items:center;gap:4px;background:var(--chip);border-radius:999px;padding:4px 4px 4px 11px;font-size:13px;font-weight:500}
+.tagx button{border:0;background:var(--card);border-radius:50%;width:22px;height:22px;line-height:20px;padding:0;cursor:pointer;color:var(--muted)}
+
+/* tracker */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+.stat{background:var(--card);border-radius:16px;padding:12px 6px;text-align:center;box-shadow:var(--shadow)}
+.stat b{display:block;font-size:22px;letter-spacing:-.02em;background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.stat span{font-size:11.5px;font-weight:600;color:var(--muted)}
+.seg{display:flex;gap:7px;overflow-x:auto;padding:0 16px 10px;margin:0 -16px;scrollbar-width:none}
+.seg::-webkit-scrollbar{display:none}
+.track{--st:var(--muted);background:var(--card);border-radius:18px;padding:14px 14px 14px 17px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.track::before{content:"";position:absolute;left:0;top:0;bottom:0;width:5px;background:var(--st)}
+.track.s-Applied{--st:var(--accent)}.track.s-Interviewing{--st:var(--new)}.track.s-Offer{--st:var(--good)}.track.s-Rejected{--st:var(--bad)}.track.s-Withdrawn{--st:var(--line)}.track.s-Saved{--st:#f5a623}
+.track h3{margin:0;font-size:16px;font-weight:650;letter-spacing:-.01em}
+.track .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.track label{font-size:12px;font-weight:600;color:var(--muted);display:flex;flex-direction:column;gap:4px}
+.track select,.track input,.track textarea{padding:8px 10px;border:1px solid var(--line);border-radius:10px;background:var(--soft);width:100%;font-size:15px;min-height:38px}
+.track textarea{min-height:64px;resize:vertical;grid-column:1/-1}
+.track .grid>*{min-width:0}
+.track input[type=date]{-webkit-appearance:none;appearance:none;min-width:0;display:block}
+.track .nx{display:flex;align-items:center;min-height:38px;padding:0 10px;border-radius:10px;background:color-mix(in srgb,var(--st) 12%,transparent);color:var(--ink);font-size:14px;font-weight:600}
+
+/* nav */
+nav{position:fixed;bottom:0;left:0;right:0;z-index:6;background:color-mix(in srgb,var(--card) 82%,transparent);-webkit-backdrop-filter:saturate(180%) blur(18px);backdrop-filter:saturate(180%) blur(18px);border-top:1px solid var(--line);display:flex;justify-content:center;padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;max-width:200px;background:none;border:0;padding:9px 0 10px;color:var(--muted);font-size:11px;font-weight:650;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative}
+nav button svg{width:24px;height:24px}
+nav button.on{color:var(--accent)}
+nav .badge{position:absolute;top:4px;left:calc(50% + 6px);background:#ff3b30;color:#fff;border-radius:999px;font-size:10.5px;min-width:17px;height:17px;line-height:17px;padding:0 4px;display:none}
+nav .badge.on{display:block}
+
+/* sheet + toast */
+#sheet{position:fixed;inset:0;z-index:20;display:none;background:rgba(6,9,20,.5);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+#sheet.on{display:flex;align-items:flex-end;justify-content:center}
+#sheet .in{background:var(--card);width:100%;max-width:760px;max-height:90vh;overflow:auto;border-radius:24px 24px 0 0;padding:8px 18px calc(22px + env(safe-area-inset-bottom));animation:up .22s ease}
+#sheet .in::before{content:"";display:block;width:40px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 10px}
+@keyframes up{from{transform:translateY(40px);opacity:.6}to{transform:none;opacity:1}}
+#sheet h2{margin:0 0 4px;font-size:20px;letter-spacing:-.015em}
+#sheet h3{font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+#sheet .desc{white-space:pre-wrap;color:var(--ink2);font-size:14px;background:var(--soft);border-radius:14px;padding:12px;margin-top:12px;max-height:40vh;overflow:auto}
+#toast{position:fixed;left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translate(-50%,8px);background:#14182a;color:#fff;padding:10px 16px;border-radius:14px;font-size:13.5px;font-weight:500;opacity:0;pointer-events:none;transition:.25s;z-index:30;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+#toast.on{opacity:1;transform:translate(-50%,0)}
+@media (min-width:700px){.hero{border-radius:0 0 28px 28px}}
 </style>
 </head>
 <body>
 <header>
-  <h1>Job Radar<small id="status">Not refreshed yet</small></h1>
-  <button id="refresh">↻ Refresh</button>
+  <div class="hbar">
+    <div class="brand"><span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".55"/><circle cx="12" cy="12" r="5" opacity=".8"/><path d="M12 12 19 6"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg></span><div><h1>Job Radar</h1><small id="status">Not refreshed yet</small></div></div>
+    <button id="refresh" aria-label="Refresh listings"><svg class="i" viewBox="0 0 24 24"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
+  </div>
+  <div class="progress" id="prog"><i></i></div>
 </header>
 <main>
-  <div class="progress" id="prog"><i></i></div>
 
   <!-- SEARCH -->
   <section class="tab on" id="t-search">
-    <div class="search">
-      <input id="q" type="search" placeholder='e.g. finance|accounting -senior "no experience"' autocomplete="off">
-      <button class="btn" id="saveq" title="Save this search">☆</button>
+    <div class="hero">
+      <div class="search">
+        <label class="sbox"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" placeholder='Try finance|accounting -senior' autocomplete="off" enterkeyhint="search"></label>
+        <button id="saveq" title="Save this search" aria-label="Save this search"><svg class="i" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg></button>
+      </div>
+      <div class="pulse" id="pulse"></div>
     </div>
+    <div class="sect" id="savedLbl">Your searches</div>
     <div class="chips" id="savedChips"></div>
+    <div class="sect">Filters</div>
     <div class="chips" id="quick">
       <button class="chip" data-f="remote">Remote</button>
       <button class="chip" data-f="entry">Entry level</button>
@@ -134,7 +223,7 @@ nav button.on{color:var(--accent)}
       <button class="chip" data-f="newonly">New only</button>
       <span class="chip"><select id="age"><option value="0">Posted: any time</option><option value="1">Past 24 hours</option><option value="3">Past 3 days</option><option value="7">Past week</option><option value="30">Past month</option></select></span>
       <span class="chip"><select id="sort"><option value="new">Newest</option><option value="rel">Best match</option><option value="pay">Highest pay</option></select></span>
-      <button class="chip" id="more">More filters…</button>
+      <button class="chip" id="more"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg> More</button>
     </div>
     <div class="filters" id="filters">
       <label>Location contains<input id="loc" placeholder="e.g. Sydney, Australia, UK"></label>
@@ -143,7 +232,7 @@ nav button.on{color:var(--accent)}
       <label>Source<select id="src"><option value="">All sources</option></select></label>
       <label style="grid-column:1/-1;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="anywhere" checked style="width:auto"> When filtering by location, also show remote jobs open worldwide</label>
     </div>
-    <div class="ext"><span>Also search</span><div id="ext"></div></div>
+    <div class="ext"><span>Also search on</span><div id="ext"></div></div>
     <div class="meta"><span id="count"></span><span id="hiddenInfo"></span></div>
     <div class="list" id="results"></div>
     <div style="text-align:center;margin:12px 0"><button class="btn" id="showmore" style="display:none">Show more</button></div>
@@ -195,9 +284,9 @@ nav button.on{color:var(--accent)}
 </main>
 
 <nav>
-  <button class="on" data-t="search"><b>⌕</b>Search</button>
-  <button data-t="track"><b>☆</b><span id="navTrack">Tracker</span></button>
-  <button data-t="src"><b>⚙</b>Sources</button>
+  <button class="on" data-t="search"><svg class="i" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>Search</button>
+  <button data-t="track"><svg class="i" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></svg>Tracker<span class="badge" id="navBadge"></span></button>
+  <button data-t="src"><svg class="i" viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>Sources</button>
 </nav>
 
 <div id="sheet"><div class="in" id="sheetIn"></div></div>
@@ -425,7 +514,7 @@ function parseCompany(input) {
 let busy = false;
 async function refresh() {
   if (busy) return; busy = true;
-  const btn = $('#refresh'); btn.disabled = true; btn.textContent = '↻ …';
+  const btn = $('#refresh'); btn.disabled = true; btn.classList.add('busy'); renderResults();
   const prog = $('#prog'); prog.classList.add('on');
   const tasks = [];
   for (const k of Object.keys(BOARDS)) if (settings.boards[k]) tasks.push({ key: k, name: BOARDS[k].name, direct: false, run: () => FETCH[k]() });
@@ -465,7 +554,7 @@ async function refresh() {
   const live = new Set(jobs.map(j => j.id));
   for (const id in firstSeen) if (!live.has(id) && !tracker[id] && firstSeen[id] < t - 90 * DAY) delete firstSeen[id];
   persist();
-  prog.classList.remove('on'); btn.disabled = false; btn.textContent = '↻ Refresh'; busy = false;
+  prog.classList.remove('on'); btn.disabled = false; btn.classList.remove('busy'); busy = false;
   const nNew = jobs.filter(isNew).length, nFail = failed.size;
   toast(`${jobs.length.toLocaleString()} jobs · ${nNew} new` + (nFail ? ` · ${nFail} source${nFail > 1 ? 's' : ''} failed` : ''));
   renderAll();
@@ -586,7 +675,7 @@ function extLinks(s) {
   return [['Seek', seek, '#0d3880'], ['LinkedIn', li, '#0a66c2'], ['Indeed', indeed, '#2557a7'], ['Jora', jora, '#00754a']];
 }
 function renderExt(s) {
-  $('#ext').innerHTML = extLinks(s).map(([n, u, c]) => `<a href="${esc(u)}" target="_blank" rel="noopener" style="background:${c}">${n} ↗</a>`).join('');
+  $('#ext').innerHTML = extLinks(s).map(([n, u, c]) => `<a href="${esc(u)}" target="_blank" rel="noopener"><i style="background:${c}"></i>${n}</a>`).join('');
 }
 
 const reCache = new Map();
@@ -651,8 +740,12 @@ function renderResults(reset) {
   const nh = jobs.filter(isHidden).length;
   $('#hiddenInfo').textContent = nh ? `${nh} hidden` : '';
   const box = $('#results');
+  if (!total && busy) {
+    box.innerHTML = Array.from({ length: 5 }, () => `<div class="skel"><i style="width:44px;height:44px;border-radius:12px"></i><div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:2px"><i style="height:14px;width:75%"></i><i style="height:11px;width:40%"></i><i style="height:11px;width:55%"></i></div></div>`).join('');
+    $('#showmore').style.display = 'none'; return;
+  }
   if (!total) {
-    box.innerHTML = `<div class="empty"><p style="font-size:34px;margin:0">📡</p><p><b>No listings yet</b></p><p>Tap <b>Refresh</b> to pull jobs from ${Object.values(settings.boards).filter(Boolean).length} job boards and ${settings.companies.length} company career pages.</p><button class="btn primary" onclick="refresh()">Refresh now</button></div>`;
+    box.innerHTML = `<div class="empty"><div class="big">${ICON_RADAR}</div><p><b>No listings yet</b></p><p>Tap <b>Refresh</b> to pull jobs from ${Object.values(settings.boards).filter(Boolean).length} job boards and ${settings.companies.length} company career pages.</p><button class="btn primary" onclick="refresh()">Refresh now</button></div>`;
     $('#showmore').style.display = 'none'; return;
   }
   const more = `<p>Seek, LinkedIn and Indeed have far more Australian jobs: tap one of the <b>Also search</b> buttons above to run this same search there.</p>`;
@@ -677,22 +770,29 @@ function badges(j, inTracker) {
 }
 function logo(j) {
   const l = (j.company || '?').trim()[0].toUpperCase();
-  return `<div class="logo">${j.logo ? `<img src="${esc(j.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.replaceWith(document.createTextNode('${esc(l)}'))">` : esc(l)}</div>`;
+  let h = 0; for (const c of normCo(j.company)) h = (h * 31 + c.charCodeAt(0)) % 360;
+  return `<div class="logo${j.logo ? ' img' : ''}" style="--h:${h}">${j.logo ? `<img src="${esc(j.logo)}" alt="" loading="lazy" referrerpolicy="no-referrer" onerror="this.parentNode.classList.remove('img');this.replaceWith(document.createTextNode('${esc(l)}'))">` : esc(l)}</div>`;
 }
+const ICON_RADAR = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9" opacity=".55"/><circle cx="12" cy="12" r="5" opacity=".8"/><path d="M12 12 19 6"/><circle cx="12" cy="12" r="1.6" fill="#fff"/></svg>';
+const ICON_STAR = '<svg class="i" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></svg>';
+const ICON_OUT = '<svg class="i" viewBox="0 0 24 24"><path d="M7 17 17 7M8 7h9v9"/></svg>';
 function card(j) {
   const when = j.posted ? ago(j.posted) : (firstSeen[j.id] ? 'seen ' + ago(firstSeen[j.id]) : '');
   const tr = tracker[j.id];
   return `<article class="job" data-id="${esc(j.id)}">
+    <button class="star${tr ? ' on' : ''}" data-act="save" aria-label="${tr ? 'In your tracker' : 'Save to tracker'}">${ICON_STAR}</button>
     <div class="top">${logo(j)}<div style="flex:1;min-width:0">
       <h3 data-act="open">${esc(j.title)}</h3>
-      <div class="sub">${esc(j.company)}${j.location ? ' · ' + esc(j.location.length > 70 ? j.location.slice(0, 70) + '…' : j.location) : ''}${when ? ' · ' + when : ''}</div>
+      <div class="co">${esc(j.company)}</div>
+      <div class="sub"><span>${esc(j.location || 'Location not given')}</span>${when ? `<span style="flex:none">· ${when}</span>` : ''}</div>
     </div></div>
     <div class="badges">${badges(j)}</div>
     <div class="actions">
-      <a class="btn small primary" href="${esc(j.sources[0].url)}" target="_blank" rel="noopener">Apply ↗</a>
-      <button class="btn small" data-act="save">${tr ? '★ Tracked' : '☆ Save'}</button>
-      <button class="btn small" data-act="hide">Hide</button>
-      <button class="btn small" data-act="block">Hide company</button>
+      <a class="btn small primary" href="${esc(j.sources[0].url)}" target="_blank" rel="noopener">Apply ${ICON_OUT}</a>
+      <button class="ghost" data-act="open">Details</button>
+      <span class="sp"></span>
+      <button class="ghost" data-act="hide">Hide</button>
+      <button class="ghost" data-act="block">Hide company</button>
     </div></article>`;
 }
 function findJob(id) { return jobs.find(j => j.id === id) || (tracker[id] && tracker[id].job); }
@@ -742,9 +842,9 @@ function renderSaved() {
   $('#savedChips').innerHTML = saved.map((s, i) => {
     const n = jobs.length ? search(s.state).filter(j => firstSeen[j.id] > (s.viewed || 0)).length : 0;
     const active = JSON.stringify(s.state) === JSON.stringify({ ...readState() });
-    return `<span class="chip savedq${active ? ' on' : ''}" data-i="${i}">${esc(s.name)}${n ? `<span class="n">${n > 99 ? '99+' : n} new</span>` : ''}<span data-del="${i}" title="Delete" style="opacity:.6">✕</span></span>`;
+    return `<span class="chip savedq${active ? ' on' : ''}" data-i="${i}">${esc(s.name)}${n ? `<span class="n">${n > 99 ? '99+' : n} new</span>` : ''}<span class="x" data-del="${i}" title="Delete">✕</span></span>`;
   }).join('');
-  $('#savedChips').style.display = saved.length ? '' : 'none';
+  $('#savedChips').style.display = $('#savedLbl').style.display = saved.length ? '' : 'none';
 }
 $('#savedChips').addEventListener('click', e => {
   const d = e.target.closest('[data-del]');
@@ -794,10 +894,10 @@ function trackCard(t) {
   const due = t.followUp && t.followUp <= endOfToday() && ACTIVE.has(t.status);
   const nudge = !t.followUp && t.status === 'Applied' && t.applied && now() - t.applied > 7 * DAY;
   const cls = { Offer: 'good', Rejected: 'bad', Withdrawn: '', Interviewing: 'new', Applied: 'blue', Saved: '' }[t.status];
-  return `<article class="track" data-id="${esc(t.id)}">
-    <div class="top" style="display:flex;gap:10px">${logo(j)}<div style="flex:1;min-width:0">
-      <h3 style="margin:0;font-size:15.5px">${esc(j.title)}</h3>
-      <div class="sub" style="color:var(--muted);font-size:13px">${esc(j.company)}${j.location ? ' · ' + esc(j.location.slice(0, 60)) : ''}</div>
+  return `<article class="track s-${esc(t.status)}" data-id="${esc(t.id)}">
+    <div class="top" style="display:flex;gap:12px">${logo(j)}<div style="flex:1;min-width:0">
+      <h3>${esc(j.title)}</h3>
+      <div class="sub" style="color:var(--muted);font-size:13px;margin-top:2px">${esc(j.company)}${j.location ? ' · ' + esc(j.location.slice(0, 60)) : ''}</div>
     </div></div>
     <div class="badges"><span class="b ${cls}">${esc(t.status)}</span>
       ${t.applied ? `<span class="b">Applied ${fmtDate(t.applied)} (${ago(t.applied)})</span>` : `<span class="b">Saved ${ago(t.added)}</span>`}
@@ -808,9 +908,10 @@ function trackCard(t) {
       <label>Status<select data-k="status">${STATUSES.map(s => `<option${s === t.status ? ' selected' : ''}>${s}</option>`).join('')}</select></label>
       <label>Applied on<input type="date" data-k="applied" value="${isoDay(t.applied)}"></label>
       <label>Follow up on<input type="date" data-k="followUp" value="${isoDay(t.followUp)}"></label>
-      <label>&nbsp;<span style="display:flex;gap:6px">${j.sources && j.sources[0] && j.sources[0].url ? `<a class="btn small" style="flex:1;text-align:center;text-decoration:none" href="${esc(j.sources[0].url)}" target="_blank" rel="noopener">Listing ↗</a>` : ''}<button class="btn small danger" data-del>Remove</button></span></label>
+      <label>Next step<span class="nx">${t.status === 'Saved' ? 'Apply' : t.status === 'Applied' ? (t.followUp ? 'Follow up ' + fmtDate(t.followUp) : 'Wait for reply') : t.status === 'Interviewing' ? 'Prepare' : t.status === 'Offer' ? 'Decide' : 'Done'}</span></label>
       <textarea data-k="notes" placeholder="Notes: contact name, salary discussed, interview questions…">${esc(t.notes)}</textarea>
-    </div></article>`;
+    </div>
+    <div class="actions">${j.sources && j.sources[0] && j.sources[0].url ? `<a class="btn small primary" href="${esc(j.sources[0].url)}" target="_blank" rel="noopener">Listing ${ICON_OUT}</a>` : ''}<span class="sp"></span><button class="ghost" style="color:var(--bad)" data-del>Remove</button></div></article>`;
 }
 $('#seg').addEventListener('click', e => { const b = e.target.closest('[data-f]'); if (!b) return; ui.trackFilter = b.dataset.f; LS.set('ui', ui); renderTracker(); });
 $('#tracked').addEventListener('change', e => {
@@ -929,10 +1030,14 @@ function setTab(t) {
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => setTab(b.dataset.t));
 function renderNav() {
   const all = trackList(), due = all.filter(t => t.followUp && t.followUp <= endOfToday() && ACTIVE.has(t.status)).length;
-  $('#navTrack').textContent = due ? `Tracker (${due})` : 'Tracker';
+  const nb = $('#navBadge'); nb.textContent = due; nb.classList.toggle('on', due > 0);
 }
 function renderStatus() {
-  $('#status').textContent = meta.lastRefresh ? `Updated ${ago(meta.lastRefresh)} · ${jobs.length.toLocaleString()} jobs` : 'Not refreshed yet';
+  $('#status').textContent = busy ? 'Checking sources…' : meta.lastRefresh ? `Updated ${ago(meta.lastRefresh)}` : 'Not refreshed yet';
+  const nNew = jobs.filter(isNew).length, nSrc = Object.values(meta.sources || {}).filter(x => x.ok).length;
+  const tr = Object.values(tracker), act = tr.filter(t => ACTIVE.has(t.status)).length;
+  $('#pulse').innerHTML = jobs.length ? `<span><span class="dot"></span><b>${jobs.length.toLocaleString()}</b> jobs</span><span><b>${nNew}</b> new</span><span><b>${nSrc}</b> sources</span>${act ? `<span><b>${act}</b> in progress</span>` : ''}`
+    : `<span>Jobs from ${Object.values(settings.boards).filter(Boolean).length + settings.companies.length} sources, plus Seek, LinkedIn and Indeed</span>`;
 }
 function renderSrcSelect() {
   const keys = [...Object.keys(BOARDS).filter(k => settings.boards[k]).map(k => [k, BOARDS[k].name]), ...settings.companies.map(c => [c.ats + ':' + c.slug, c.label])];
