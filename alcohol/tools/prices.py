@@ -7,16 +7,22 @@ without running JavaScript:
   bottlestop   Bottle-Stop (Boozebud)                  Shopify product JSON
   bhs          Blackhearts & Sparrows (Melbourne)      product page schema.org data
   thirsty      Thirsty Camel                           product page schema.org data
+  purvis       Purvis Beer (Richmond)                  Shopify product JSON
+  boccaccio    Boccaccio Cellars (Balwyn)              Shopify product JSON
+  liquorloot   Liquor Loot (online)                    Shopify product JSON
+  ourcellar    OurCellar (online)                      product page schema.org data
 Dan Murphy's and BWS allow bots but only show prices after JavaScript runs, so their prices
 come from search snapshots added by the daily check (via "snapshot"), or are typed in by hand.
-Liquorland, First Choice and Vintage Cellars block AI agents in robots.txt and are never read.
+Liquorland, First Choice and Vintage Cellars allow AI agents in robots.txt but sit behind bot protection,
+so they are not read (prices are typed in by hand). Blackhearts & Sparrows blocks AI *training* crawlers
+(ClaudeBot) and allows reference use, which is what this checker does.
 
 Usage:
   prices.py find  DATA.json   add listings for products/sizes that have none (searches stores)
   prices.py check DATA.json   re-read every page listing and append today's price to its history
   prices.py sync  DATA.json   copy new drinks (and search words) from seed.py into data.json
 """
-import json, re, sys, time, unicodedata, urllib.parse, urllib.request, datetime, gzip
+import json, os, re, sys, time, unicodedata, urllib.parse, urllib.request, datetime, gzip
 from zoneinfo import ZoneInfo
 
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0 Safari/537.36"
@@ -92,8 +98,8 @@ def extra_words(p, title):
 
 def matches(p, title):
     t = " " + norm(title) + " "
-    for w in p["must"]:
-        if norm(w) not in t:
+    for w in p["must"]:  # each required word must start a word in the title ("rose" isn't in "prosecco")
+        if not re.search(r"(?<![a-z0-9])" + re.escape(norm(w)), t):
             return False
     for w in p.get("avoid", []) + GLOBAL_AVOID:
         w = norm(w)
@@ -166,9 +172,18 @@ def coles_check(l, p):
     return None
 
 
-# ---------------------------------------------------------------- Bottle-Stop (Shopify)
+# ---------------------------------------------------------------- Shopify stores
+SHOPIFY = {
+    "bottlestop": "https://bottle-stop.com.au",      # Bottle-Stop (Boozebud), Melbourne stores
+    "purvis": "https://www.purvisbeer.com.au",        # Purvis Beer, Richmond
+    "boccaccio": "https://www.boccaccio.com.au",      # Boccaccio Cellars, Balwyn
+    "liquorloot": "https://liquorloot.com",           # Liquor Loot, online
+}
+
+
 def _bs_variants(prod):
-    """One entry per online variant (store-specific variants are named "... - <suburb>")."""
+    """One entry per online variant. Bottle-Stop names store-only variants "... - <suburb>" and gives
+    pack sizes as "Pack (6)" / "Case (24)"; other stores usually have one "Default Title" variant."""
     base = parse_size(prod["title"])
     m = re.search(r"(\d+)ml$", base or "")
     ml = int(m.group(1)) if m else (1000 if base == "1L" else None)
@@ -176,30 +191,53 @@ def _bs_variants(prod):
     for v in prod["variants"]:
         if " - " in v["title"] or ml is None:
             continue
-        n = re.search(r"\((\d+)\)", v["title"])
-        n = int(n.group(1)) if n else 1
+        n = re.search(r"\((\d+)\)", v["title"]) or re.search(r"\b(\d{1,2})\s*(?:pack|pk|case|block)\b", v["title"], re.I)
+        size = key_of(int(n.group(1)), ml) if n else base
         st = "unknown" if "available" not in v else ("in" if v["available"] else "out")
-        out.append(dict(variant=v["title"], size=key_of(n, ml), price=float(v["price"]), stock=st))
+        out.append(dict(variant=v["title"], size=size, price=float(v["price"]), stock=st))
     return out
 
 
-def bottlestop_search(p):
-    t = get("https://bottle-stop.com.au/search/suggest.json?" + urllib.parse.urlencode({"q": p["q"], "resources[type]": "product", "resources[limit]": 10}))
+_shop_sm = {}
+
+
+def shopify_sitemap(rid):
+    """Product URLs from a Shopify store's sitemap (its own search box can miss products)."""
+    if rid not in _shop_sm:
+        base, locs = SHOPIFY[rid], []
+        try:
+            for sm in re.findall(r"<loc>\s*([^<\s]+)", get(base + "/sitemap.xml")):
+                if "sitemap_products" in sm:
+                    locs += [u for u in re.findall(r"<loc>\s*([^<\s]+)", get(sm.replace("&amp;", "&"))) if "/products/" in u]
+        except Exception:
+            pass
+        _shop_sm[rid] = locs
+    return _shop_sm[rid]
+
+
+def shopify_search(rid, p):
+    base = SHOPIFY[rid]
+    t = get(base + "/search/suggest.json?" + urllib.parse.urlencode({"q": p["q"], "resources[type]": "product", "resources[limit]": 10}))
+    urls = [base + r["url"].split("?")[0] for r in json.loads(t)["resources"]["results"].get("products", []) if matches(p, r["title"])]
+    words = [norm(w).replace(" ", "") for w in p["must"]]
+    for u in shopify_sitemap(rid):
+        slug = norm(urllib.parse.unquote(u.rsplit("/", 1)[-1]).replace("-", " ")).replace(" ", "")
+        if all(w in slug for w in words) and u not in urls:
+            urls.append(u)
     out = []
-    for r in json.loads(t)["resources"]["results"].get("products", []):
-        if not matches(p, r["title"]):
-            continue
-        url = "https://bottle-stop.com.au" + r["url"].split("?")[0]
+    for url in urls[:12]:
         try:
             prod = json.loads(get(url + ".json"))["product"]
         except Exception:
+            continue
+        if not matches(p, prod["title"]):
             continue
         for v in _bs_variants(prod):
             out.append(dict(title=prod["title"], url=url, **v))
     return out
 
 
-def bottlestop_check(l, p):
+def shopify_check(l, p):
     prod = json.loads(get(l["url"] + ".json"))["product"]
     for v in _bs_variants(prod):
         if v["size"] == l["size"] and (not l.get("variant") or v["variant"] == l["variant"]):
@@ -213,8 +251,11 @@ _sm = {}
 
 def sitemap(rid):
     if rid not in _sm:
-        url = {"bhs": "https://www.blackheartsandsparrows.com.au/products/sitemap.xml", "thirsty": "https://www.thirstycamel.com.au/api/sitemap-products.xml"}[rid]
-        _sm[rid] = re.findall(r"<loc>([^<]+)</loc>", get(url))
+        if rid == "ourcellar":
+            _sm[rid] = re.findall(r"<loc>\s*([^<\s]+)", get("https://www.ourcellar.com.au/content/sitemap_products.xml"))
+        else:
+            url = {"bhs": "https://www.blackheartsandsparrows.com.au/products/sitemap.xml", "thirsty": "https://www.thirstycamel.com.au/api/sitemap-products.xml"}[rid]
+            _sm[rid] = re.findall(r"<loc>([^<]+)</loc>", get(url))
     return _sm[rid]
 
 
@@ -251,9 +292,10 @@ def sitemap_search(rid, p):
 
 STORES = {
     "coles": dict(search=lambda p: coles_search(p["q"]), check=coles_check),
-    "bottlestop": dict(search=bottlestop_search, check=bottlestop_check),
+    **{rid: dict(search=lambda p, rid=rid: shopify_search(rid, p), check=shopify_check) for rid in SHOPIFY},
     "bhs": dict(search=lambda p: sitemap_search("bhs", p), check=lambda l, p: page_read(l["url"])),
     "thirsty": dict(search=lambda p: sitemap_search("thirsty", p), check=lambda l, p: page_read(l["url"])),
+    "ourcellar": dict(search=lambda p: sitemap_search("ourcellar", p), check=lambda l, p: page_read(l["url"])),
 }
 
 
@@ -269,6 +311,8 @@ def find(data, only=None):
         if only and p["id"] not in only:
             continue
         for rid, st in STORES.items():
+            if os.environ.get("ONLY_STORES") and rid not in os.environ["ONLY_STORES"].split(","):
+                continue
             have = {l["size"] for l in data["listings"].values() if l["pid"] == p["id"] and l["rid"] == rid}
             if set(p["sizes"]) <= have:
                 continue

@@ -106,7 +106,7 @@ test('the fragrance and liquor apps still load', async () => {
   const browser = await chromium.launch();
   try {
     const page = await browser.newPage();
-    for (const [path, name] of [['/', /Fragrance|Prices/i], ['/alcohol/', /Liquor/]]) {
+    for (const [path, name] of [['/', /Fragrance|Prices/i], ['/alcohol/', /Liquor/], ['/jobs/', /Job Radar/]]) {
       await page.goto(srv.base + path);
       await page.waitForSelector('h1');
       assert.match(await page.locator('h1').first().innerText(), name, path);
@@ -120,6 +120,9 @@ test('the fragrance and liquor apps still load', async () => {
 test("the fragrance app's offline worker leaves /travel/ to its own worker", async () => {
   const { readFileSync } = await import('node:fs');
   const sw = readFileSync(new URL('../../sw.js', import.meta.url), 'utf8');
-  assert.match(sw, /url\.pathname\.includes\('\/travel\/'\)/);
-  assert.match(sw, /const CACHE = 'fpt-v23';/);
+  // One skip rule for every app with its own worker (liquor, jobs, flights); the cache version
+  // is bumped past main's fpt-v23 so phones install the updated worker.
+  assert.match(sw, /\/\\\/\(alcohol\|jobs\|travel\)\\\/\/\.test\(url\.pathname\)\) return;/);
+  assert.match(sw, /const CACHE = 'fpt-v24';/);
+  assert.doesNotMatch(sw, /<<<<<<<|>>>>>>>/);
 });

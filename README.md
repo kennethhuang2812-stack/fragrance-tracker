@@ -13,3 +13,7 @@ Files: index.html (the app), data.json (prices), manifest.webmanifest + icons (h
 The daily price check writes to the artifact's database. To update the app, replace data.json on the host with a fresh export of products, retailers, listings and meta/status (same shape as the current file).
 
 Watchlist stars and targets set in the app are saved on the phone only.
+
+## Other apps in this repo
+- `alcohol/`: Melbourne liquor price tracker.
+- `jobs/`: Job Radar, one search across job boards and company career pages, with an application tracker.

@@ -16,7 +16,9 @@ Files: index.html (the app), data.json (prices), manifest.webmanifest + icons, s
 | Thirsty Camel | read from the product page | online price, can differ by store |
 | Blackhearts & Sparrows | read from the product page | Melbourne bottle shops |
 | Dan Murphy's, BWS | search snapshots (≈) | their pages need JavaScript to show prices |
-| Liquorland, First Choice, Vintage Cellars | never read | their robots.txt blocks AI agents; add prices by hand in the app |
+| Purvis Beer, Boccaccio Cellars, Liquor Loot | read from the product page | Shopify stores; Purvis (Richmond) and Boccaccio (Balwyn) are in Melbourne |
+| OurCellar | read from the product page | online store that delivers to Melbourne |
+| Liquorland, First Choice, Vintage Cellars | never read | robots.txt allows AI agents, but the sites sit behind bot protection; add prices by hand in the app |
 
 Each drink also shows **price per standard drink** (10 g of alcohol), so a slab, a bottle of wine and a bottle of spirits can be compared.
 

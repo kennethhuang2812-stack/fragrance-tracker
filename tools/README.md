@@ -11,3 +11,10 @@ Helpers the daily price check can run in its cloud session.
 
 Puppeteer and Selenium do the same job as Playwright, and Scrapy is a crawler framework, so
 they are not added. Chrome DevTools is a browser panel rather than something to install.
+
+## Where the prices live
+
+`data.json` in this repository is the main copy of every price. The morning price check and the
+sales check edit it directly and push to `main`. The Claude artifact page (`artifact/index.html`,
+published at https://claude.ai/artifact/Aqi71ZEHxZbp3hpH4xMBpc) is republished with `data.json`
+alongside it, and only keeps the watchlist and price targets in the artifact's own database.
