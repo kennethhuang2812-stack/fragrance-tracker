@@ -50,6 +50,7 @@ h2.route{font-size:22px;line-height:1.2;font-weight:700;margin:22px 2px 4px}
 .cell .dn{font-size:11px;color:inherit;opacity:.75;line-height:1}
 .cell .pr{font-size:12.5px;font-weight:650;line-height:1.15;white-space:nowrap}
 .cell.none{cursor:default;color:var(--faint);background:transparent}
+.cell.none .pr{font-weight:400;opacity:.6}
 .cell.q1{background:var(--q1);color:var(--q1i)}.cell.q2{background:var(--q2);color:var(--q2i)}.cell.q3{background:var(--q3);color:var(--q3i)}.cell.q4{background:var(--q4);color:var(--q4i)}.cell.q5{background:var(--q5);color:var(--q5i)}
 .cell.stale{opacity:.5}
 .cell.pad{visibility:hidden}
@@ -75,6 +76,45 @@ details.how summary{list-style:none;cursor:pointer;color:var(--accent);font-size
 details.how summary::-webkit-details-marker{display:none}
 details.how .body{background:var(--card);border-radius:12px;padding:14px 16px;font-size:14px;color:var(--muted);line-height:1.5}
 details.how p{margin:0 0 10px}
+/* polish */
+.brand{display:flex;align-items:center;gap:10px}
+.brand .logo{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#1673d1,#0a3d75);display:grid;place-items:center;flex:none;box-shadow:0 1px 2px #0002}
+.brand .logo svg{width:20px;height:20px;fill:#fff;transform:rotate(45deg)}
+.hero{position:relative;overflow:hidden;border-radius:18px;padding:18px 18px 16px;color:#fff;background:linear-gradient(140deg,#1673d1 0%,#0b5cad 45%,#083a72 100%);box-shadow:0 8px 24px -12px #0b5cad99;margin:6px 0 10px}
+.hero::after{content:"";position:absolute;right:-40px;top:-40px;width:180px;height:180px;border-radius:50%;background:radial-gradient(circle,#ffffff22,#ffffff00 70%)}
+.hero .k{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;opacity:.8}
+.hero .amt{font-size:44px;font-weight:750;letter-spacing:-.02em;line-height:1.05;margin:6px 0 2px;font-variant-numeric:tabular-nums}
+.hero .amt small{font-size:15px;font-weight:600;opacity:.85;letter-spacing:0;margin-left:6px}
+.hero .when{font-size:15px;font-weight:600}
+.hero .who{font-size:14px;opacity:.85;margin-top:2px}
+.hero .cta{display:inline-flex;align-items:center;gap:6px;margin-top:14px;min-height:44px;padding:0 16px;border-radius:12px;background:#fff;color:#0b5cad;font-weight:650;font-size:15px;position:relative;z-index:1}
+.hero .pill{display:inline-block;font-size:12px;font-weight:650;background:#ffffff26;border-radius:999px;padding:2px 8px;margin-left:6px;vertical-align:3px}
+.hero.empty{background:var(--card);color:var(--muted);box-shadow:none}
+.tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 6px}
+.tile{border:0;text-align:left;background:var(--card);border-radius:14px;padding:12px 14px;cursor:pointer;color:var(--ink);min-height:44px}
+.tile .k{font-size:12px;color:var(--muted);font-weight:600}
+.tile .v{font-size:24px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:-.01em;margin:2px 0 0;color:var(--good)}
+.tile .d{font-size:13px;color:var(--muted)}
+.tile:disabled{cursor:default}
+.tile:disabled .v{color:var(--faint)}
+.sale{display:flex;gap:10px;align-items:flex-start;background:var(--card);border-radius:14px;padding:12px 14px;margin:0 0 8px;box-shadow:inset 3px 0 0 var(--accent)}
+.sale .pill{flex:none;font-size:11px;font-weight:750;letter-spacing:.05em;color:#fff;background:var(--accent);border-radius:6px;padding:3px 6px;margin-top:2px}
+.sale .items{flex:1;font-size:14px;line-height:1.4}
+.sale .items p{margin:0}.sale .items p+p{margin-top:6px}
+.sale .items .ends{color:var(--muted);white-space:nowrap}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--fill);border-radius:10px;padding:2px;margin:18px 0 10px}
+.seg button{border:0;background:none;border-radius:8px;min-height:36px;font-size:14px;font-weight:600;color:var(--muted);cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--card);color:var(--ink);box-shadow:0 1px 3px #0000001f}
+.calhead{display:flex;justify-content:space-between;align-items:baseline;margin:0 4px 8px;font-size:13px;color:var(--muted)}
+.calhead b{color:var(--ink);font-size:15px}
+.legend{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 4px 0;font-size:12px;color:var(--muted)}
+.legend .bar{display:flex;gap:3px;align-items:center}
+.legend .bar i{width:16px;height:8px;border-radius:3px;display:inline-block}
+.region{margin-top:22px}
+.age{font-size:12px;color:var(--muted);background:var(--fill);border-radius:999px;padding:2px 8px;white-space:nowrap}
+.age.new{color:var(--good);background:var(--good-soft)}
+.pairs .t .pp{color:var(--accent)}
+.go{border-radius:999px;background:var(--accent-soft);padding:0 12px;min-height:34px}
 #sheet{position:fixed;inset:0;background:#0006;display:flex;align-items:flex-end;justify-content:center;z-index:10}
 #sheet .panel{background:var(--bg);width:100%;max-width:720px;max-height:88vh;overflow:auto;border-radius:16px 16px 0 0;padding:16px max(16px,env(safe-area-inset-left)) calc(24px + env(safe-area-inset-bottom))}
 #sheet .top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:12px}
@@ -84,7 +124,7 @@ details.how p{margin:0 0 10px}
 .links{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
 .links a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:10px;background:var(--accent);color:#fff;font-weight:600;font-size:15px}
 .links a.alt{background:var(--card);color:var(--accent)}
-@media (prefers-color-scheme:dark){.links a:not(.alt){color:#0b1a2b}}
+@media (prefers-color-scheme:dark){.links a:not(.alt),.sale .pill{color:#0b1a2b}}
 </style></head>
 <body>
 <div id="app"><div class="wrap"><div class="hdr"><h1>Flights</h1></div><p class="sub">Loading prices…</p></div></div>
@@ -140,13 +180,44 @@ function salesFor(a, b) {
 
 function saleHtml(items) {
   if (!items.length) return '';
-  return `<div class="sale">${items.map(s => {
-    const what = s.dir ? `${esc(label(s.dir.split('-')[0]))} → ${esc(label(s.dir.split('-')[1]))} from <b>${money(s.price)}</b>${s.fare ? ` (${esc(s.fare)})` : ''}` : esc(s.title);
-    const travel = s.travel ? ` Travel ${esc(s.travel.replace(/^Economy:\s*/, ''))}.` : '';
-    const ends = s.ends ? ` Ends ${esc(fmtDate(s.ends))}.` : '';
+  return `<div class="sale"><span class="pill">SALE</span><div class="items">${items.map(s => {
+    const what = s.dir ? `${esc(label(s.dir.split('-')[0]))} → ${esc(label(s.dir.split('-')[1]))} from <b>${money(s.price)}</b>${s.fare ? ` ${esc(s.fare)}` : ''}` : esc(s.title);
+    // "Economy: 11 Jan - 22 Jan, 29 Jan - 13 Feb, …" → "travel from 11 Jan"
+    const first = s.travel ? s.travel.replace(/^Economy:\s*/, '').split(/\s*-\s*|,/)[0].trim() : '';
+    const travel = first ? ` · travel from ${esc(first)}` : '';
+    const ends = s.ends ? ` <span class="ends">· ends ${esc(fmtDate(s.ends))}</span>` : '';
     const u = okUrl(s.url);
-    return `<p>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">` : ''}<b>${esc(s.airline)} sale:</b> ${what}.${travel}${ends}${u ? '</a>' : ''}</p>`;
-  }).join('')}</div>`;
+    return `<p>${u ? `<a href="${esc(u)}" target="_blank" rel="noopener">` : ''}<b>${esc(s.airline)}</b> · ${what}${travel}${ends}${u ? '</a>' : ''}</p>`;
+  }).join('')}</div></div>`;
+}
+
+const windowLow = dir => {
+  const t = today(); let m = null;
+  for (const [d, day] of Object.entries((S.data.days || {})[dir] || {})) {
+    const f = d > t && shown(day);
+    if (f && (!m || f.price < m.f.price)) m = { date: d, f, checked: day.checked };
+  }
+  return m;
+};
+
+// The best trip right now, and the cheapest day each way.
+function heroHtml(a, b) {
+  const o = `${a}-${b}`, r = `${b}-${a}`;
+  const p = bestPairs(S.data.days[o], S.data.days[r], { minNights: nights.min, maxNights: nights.max, limit: 1, roundTrips: (S.data.roundTrips || {})[o] || [], after: today() })[0];
+  const hero = p
+    ? `<div class="hero"><div class="k">Best trip right now</div>
+        <div class="amt">${money(p.price)}<small>return</small>${p.roundTrip ? '<span class="pill">return ticket</span>' : ''}</div>
+        <div class="when">${esc(fmtDate(p.out))} → ${esc(fmtDate(p.back))} · ${p.nights} night${p.nights === 1 ? '' : 's'}</div>
+        <div class="who">${esc(p.rt ? p.rt.airlines : p.outFlight.airlines === p.backFlight.airlines ? p.outFlight.airlines : `${p.outFlight.airlines} out, ${p.backFlight.airlines} back`)}</div>
+        <a class="cta" href="${esc(googleUrl(p.outFlight.fromQ || place(a).q, p.outFlight.toQ || place(b).q, p.out, p.back))}" target="_blank" rel="noopener">Search on Google Flights ›</a></div>`
+    : `<div class="hero empty"><div class="k">Best trip right now</div><p>No prices for a ${nights.min}–${nights.max} night trip yet. The morning check fills these in.</p></div>`;
+  const tile = (dir, title) => {
+    const l = windowLow(dir);
+    return l
+      ? `<button class="tile" type="button" data-dir="${esc(dir)}" data-date="${esc(l.date)}"><div class="k">${esc(title)}</div><div class="v">${money(l.f.price)}</div><div class="d">${esc(fmtDate(l.date))} · ${esc(l.f.airlines.split(/ and |, /)[0])}</div></button>`
+      : `<button class="tile" type="button" disabled><div class="k">${esc(title)}</div><div class="v">–</div><div class="d">no price yet</div></button>`;
+  };
+  return `${hero}<div class="tiles">${tile(o, `Cheapest to ${label(b)}`)}${tile(r, `Cheapest to ${label(a)}`)}</div>`;
 }
 
 function calHtml(dir) {
@@ -167,7 +238,18 @@ function calHtml(dir) {
     const stale = epoch(today()) - epoch(day.checked) > 2 ? ' stale' : '';
     cells.push(`<button class="cell ${q(f.price)}${stale}" data-dir="${esc(dir)}" data-date="${esc(d)}" aria-label="${esc(fmtDate(d))}: ${money(f.price)} on ${esc(f.airlines)}, checked ${esc(ago(day.checked))}"><span class="dn">${dn}</span><span class="pr">${money(f.price)}</span></button>`);
   }
-  return `<div class="label">${esc(label(from))} → ${esc(label(to))}</div><div class="cal">${cells.join('')}</div>`;
+  const span = `${fmtDate(dates[0]).slice(4)} – ${fmtDate(dates[dates.length - 1]).slice(4)}`;
+  const legend = `<div class="legend"><span class="bar">Cheaper ${[1, 2, 3, 4, 5].map(i => `<i style="background:var(--q${i})"></i>`).join('')} Dearer</span><span>Faded = over 2 days old</span></div>`;
+  return `<div class="calhead" aria-label="${esc(label(from))} to ${esc(label(to))}"><b>Next 8 weeks</b><span>${esc(span)}</span></div><div class="cal">${cells.join('')}</div>${legend}`;
+}
+
+// Which direction's calendar is showing, per route (0 = outbound, 1 = return).
+const segSel = {};
+function segHtml(a, b) {
+  const k = `${a}-${b}`, sel = segSel[k] || 0;
+  return `<div class="seg" role="group" aria-label="Direction">
+    <button type="button" data-seg="${esc(k)}" data-i="0" aria-pressed="${sel === 0}">${esc(label(a))} → ${esc(label(b))}</button>
+    <button type="button" data-seg="${esc(k)}" data-i="1" aria-pressed="${sel === 1}">${esc(label(b))} → ${esc(label(a))}</button></div>`;
 }
 
 function pairsHtml(a, b) {
@@ -180,28 +262,42 @@ function pairsHtml(a, b) {
       ? `${esc(p.rt.airlines)} return ticket · Out ${esc(fmtDate(p.out))} · Back ${esc(fmtDate(p.back))}`
       : `Out ${esc(fmtDate(p.out))} ${esc(p.outFlight.airlines)} ${esc(p.outFlight.dep)} · Back ${esc(fmtDate(p.back))} ${esc(p.backFlight.airlines)} ${esc(p.backFlight.dep)}`;
     const link = googleUrl(p.outFlight.fromQ || place(a).q, p.outFlight.toQ || place(b).q, p.out, p.back);
-    return `<div class="row"><div class="main"><div class="t">${money(p.price)} · ${p.nights} night${p.nights === 1 ? '' : 's'}${p.roundTrip ? '<span class="tag">return ticket</span>' : ''}</div>
+    return `<div class="row"><div class="main"><div class="t"><span class="pp">${money(p.price)}</span> · ${p.nights} night${p.nights === 1 ? '' : 's'}${p.roundTrip ? '<span class="tag">return ticket</span>' : ''}</div>
     <div class="s">${detail}</div></div><a class="end go" href="${esc(link)}" target="_blank" rel="noopener" aria-label="Search these dates on Google Flights">Search ›</a></div>`;
   }).join('');
   return `<div class="label">Best pairs ${ctl}</div><div class="group pairs">${rows || '<div class="empty">No pairs in this range yet.</div>'}</div>`;
 }
 
+const REGIONS = [
+  ['Japan', p => ['TYO', 'OSA'].includes(p.a) || ['TYO', 'OSA'].includes(p.b)],
+  ['China', p => ['SHA', 'BJS', 'CAN', 'SZX'].includes(p.a) || ['SHA', 'BJS', 'CAN', 'SZX'].includes(p.b)],
+];
+const regionOf = p => (REGIONS.find(([, test]) => test(p)) || ['Australia & New Zealand'])[0];
+
 function othersHtml() {
-  const rows = S.routes.pairs.map(p => {
+  const row = p => {
     const o = `${p.a}-${p.b}`, r = `${p.b}-${p.a}`;
-    const low = dir => { const t = today(); let m = null; for (const [d, day] of Object.entries(S.data.days[dir] || {})) { const f = d > t && shown(day); if (f && (!m || f.price < m.price)) m = { price: f.price, checked: day.checked }; } return m; };
-    const lo = low(o), lr = low(r);
+    const lo = windowLow(o), lr = windowLow(r);
     // The age shown is that of the prices shown (the older of the two cheapest days).
     const checks = [lo, lr].filter(Boolean).map(x => x.checked).sort();
     const age = checks.length ? ago(checks[0]) : 'not checked yet';
+    const fresh = checks.length && epoch(today()) - epoch(checks[0]) <= 2;
+    const prices = lo || lr
+      ? `${lo ? `${money(lo.f.price)} out` : 'no price out yet'} · ${lr ? `${money(lr.f.price)} back` : 'none back yet'}`
+      : 'Not checked yet';
     return `<a class="row" href="#${esc(o)}"><div class="main"><div class="t">${esc(label(p.a))} ⇄ ${esc(label(p.b))}</div>
-      <div class="s">${lo ? `from ${money(lo.price)} out` : 'no price out yet'} · ${lr ? `${money(lr.price)} back` : 'none back yet'}</div></div><div class="end">${esc(age)}</div><span class="chev" aria-hidden="true">›</span></a>`;
+      <div class="s">${prices}</div></div>${checks.length ? `<span class="end age${fresh ? ' new' : ''}">${esc(age)}</span>` : ''}<span class="chev" aria-hidden="true">›</span></a>`;
+  };
+  const order = ['Australia & New Zealand', 'Japan', 'China'];
+  return order.map(name => {
+    const ps = S.routes.pairs.filter(p => regionOf(p) === name);
+    return ps.length ? `<div class="region"><div class="label">${esc(name)}</div><div class="group others">${ps.map(row).join('')}</div></div>` : '';
   }).join('');
-  return `<div class="label">Other routes</div><div class="group others">${rows}</div>`;
 }
 
 function routeHtml(a, b) {
-  return `${saleHtml(salesFor(a, b))}<h2 class="route">${esc(label(a))} ⇄ ${esc(label(b))}</h2>${calHtml(`${a}-${b}`)}${calHtml(`${b}-${a}`)}${pairsHtml(a, b)}`;
+  const k = `${a}-${b}`, dir = (segSel[k] || 0) === 0 ? `${a}-${b}` : `${b}-${a}`;
+  return `${saleHtml(salesFor(a, b))}<h2 class="route">${esc(label(a))} ⇄ ${esc(label(b))}</h2>${heroHtml(a, b)}${segHtml(a, b)}${calHtml(dir)}${pairsHtml(a, b)}`;
 }
 
 function currentPair() {
@@ -221,7 +317,8 @@ function render() {
   const body = pair
     ? `<div class="nav"><button type="button" id="back">‹ All routes</button></div>${routeHtml(a, b)}`
     : `${routeHtml(a, b)}${othersHtml()}`;
-  app.innerHTML = `<div class="wrap"><div class="hdr"><h1>Flights</h1></div><p class="sub">${sub}</p>${body}
+  const logo = '<span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z"/></svg></span>';
+  app.innerHTML = `<div class="wrap"><div class="hdr"><div class="brand">${logo}<h1>Flights</h1></div></div><p class="sub">${sub}</p>${body}
     <p class="note">${esc(meta.note || '')}</p>
     <details class="how"><summary>How this works</summary><div class="body">
       <p>Each morning a cloud check reads Google Flights one route and date at a time and keeps the cheapest fare on a decent airline: no Jetstar, Scoot or other budget airlines, including Jetstar flights sold as Qantas.</p>
@@ -285,8 +382,10 @@ function openSheet(dir, date) {
 function closeSheet() { S.sheet = null; const el = $('#sheet'); if (el) el.remove(); }
 
 document.addEventListener('click', e => {
-  const cell = e.target.closest('button.cell[data-dir]');
+  const cell = e.target.closest('button.cell[data-dir], button.tile[data-dir]');
   if (cell) { openSheet(cell.dataset.dir, cell.dataset.date); return; }
+  const seg = e.target.closest('.seg button[data-seg]');
+  if (seg) { segSel[seg.dataset.seg] = +seg.dataset.i; render(); return; }
   if (e.target.closest('#sheet .x') || e.target.id === 'sheet') { closeSheet(); return; }
   if (e.target.closest('#back')) { location.hash = ''; }
 });
