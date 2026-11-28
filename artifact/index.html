@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en-AU">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fragrance Price Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,600&family=Barlow:wght@400;600&family=Barlow+Condensed:wght@600;700&display=swap" rel="stylesheet">
+<style>
+/* VOICE: calm shop-floor price ticket; exact numbers, little chrome
+   IDEA: the fragrance counter's price tickets, one per bottle
+   PICTURE: each fragrance as a flacon in its own glass colour beside its best price and price trace
+   COLOUR and TYPE: deep sea-glass band, white tickets, vermilion sale mark; Bodoni Moda names, Barlow Condensed prices, Barlow text
+   LAYOUT: band (title, price mode) > ticket grid > recent drops > fine print; product view: band, size chips, chart, offers */
+:root{color-scheme:light dark;--bg:light-dark(#ffffff,#0a1315);--ink:light-dark(#121a1c,#e8efee);--muted:light-dark(#566265,#9cabad);--line:light-dark(#e2e8e8,#20333a);--card:light-dark(#ffffff,#0f1c1f);--soft:light-dark(#eef5f4,#13262a);--band:light-dark(#0c3b4a,#072a34);--bandink:#f3f8f7;--bandmuted:#b4d0d4;--acc:light-dark(#d9432a,#ff7d5f);--trace:light-dark(#0c3b4a,#8fd0dc)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 Barlow,system-ui,sans-serif;overflow-x:clip}
+a{color:inherit}
+.band{padding:clamp(28px,4vw,56px) max(5vw,16px);background:var(--band);color:var(--bandink)}
+.in{max-width:1240px;margin:0 auto}
+main{padding:28px max(5vw,16px) 64px}
+h1,h2,.name{font-family:"Bodoni Moda",Georgia,serif;font-weight:600;line-height:1.05;text-wrap:balance;margin:0}
+h1{font-size:clamp(32px,5vw,48px)}
+h2{font-size:26px;margin:44px 0 12px}
+.sub{color:var(--bandmuted);margin:10px 0 0}
+.top{display:flex;flex-wrap:wrap;gap:18px;align-items:end;justify-content:space-between}
+.seg{display:inline-flex;border:1px solid #ffffff55;border-radius:999px;padding:3px}
+.seg button{font:600 15px Barlow,sans-serif;color:var(--bandink);background:none;border:0;border-radius:999px;min-height:44px;padding:0 16px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--bandink);color:#0c3b4a}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,330px),1fr));gap:16px}
+.card{display:grid;grid-template-columns:60px minmax(0,1fr);gap:2px 16px;align-items:start;padding:18px;border:1px solid var(--line);border-radius:14px;background:var(--card);text-decoration:none;transition:transform .2s,box-shadow .2s}
+.card:hover{transform:translateY(-2px);box-shadow:0 8px 24px #0c3b4a1f}
+@media (prefers-reduced-motion:reduce){.card{transition:none}.card:hover{transform:none}}
+.card .bottle{grid-row:1/5}
+.name{font-size:22px}
+.meta{color:var(--muted);font-size:14px}
+.price{font:700 40px/1.05 "Barlow Condensed",sans-serif;white-space:nowrap;font-variant-numeric:tabular-nums}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.chip{display:inline-block;font:600 13px/1.6 Barlow,sans-serif;padding:1px 9px;border-radius:999px;white-space:nowrap;background:var(--soft);color:var(--muted)}
+.chip.down{background:var(--acc);color:#fff}.chip.hit{background:var(--band);color:var(--bandink)}
+.spark{grid-column:1/-1;display:block;width:100%;height:40px;margin-top:10px}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 18px}.bar .sizes{margin:0}
+.find{flex:1 1 220px;font:16px Barlow,sans-serif;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink)}
+.count{color:var(--muted);font-size:14px;margin:-6px 0 14px}
+.star{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid #ffffff66;background:none;color:var(--bandink);font:600 15px Barlow,sans-serif;cursor:pointer}.star[aria-pressed=true]{background:var(--bandink);color:#0c3b4a}
+.empty{padding:28px;border:1px dashed var(--line);border-radius:14px;color:var(--muted)}
+ul.drops{list-style:none;margin:0;padding:0;border-top:1px solid var(--line)}
+ul.drops li{display:flex;flex-wrap:wrap;gap:4px 12px;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}
+.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+.back{display:inline-flex;align-items:center;min-height:44px;color:var(--bandmuted);text-decoration:none;font-weight:600;margin:-12px 0 8px}
+.dhead{display:grid;grid-template-columns:auto minmax(0,1fr);gap:20px;align-items:center}
+.dhead .price{font-size:clamp(44px,7vw,56px)}
+.bandmeta{color:var(--bandmuted)}
+.sizes{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 16px}
+.sizes button{min-height:44px;padding:0 16px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--ink);font:600 15px Barlow,sans-serif;cursor:pointer}
+.sizes button[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.fig{position:relative;min-height:300px;border:1px solid var(--line);border-radius:14px;background:var(--card)}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;margin:10px 0 0;font-size:14px;color:var(--muted)}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+table{width:100%;border-collapse:collapse;margin-top:6px;font-size:15px}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:13px;color:var(--muted);font-weight:600}
+.n{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+tr.top1 td{background:var(--soft)}
+.lo{color:var(--acc);font-weight:600}
+form.target{display:flex;flex-wrap:wrap;gap:10px;align-items:end;margin-top:22px}
+form.target label{font-size:13px;color:var(--bandmuted);display:grid;gap:4px}
+form.target input,form.target select{font:16px Barlow,sans-serif;min-height:44px;padding:0 12px;border-radius:10px;border:1px solid #ffffff66;background:#ffffff14;color:var(--bandink);width:120px}
+form.target option{color:#121a1c}
+.btn{min-height:44px;padding:0 18px;border-radius:10px;border:0;background:var(--bandink);color:#0c3b4a;font:600 15px Barlow,sans-serif;cursor:pointer}
+.btn.ghost{background:none;color:var(--bandink);border:1px solid #ffffff66}
+.tmsg{flex-basis:100%;color:var(--bandmuted);font-size:14px;margin:0}
+.note{color:var(--muted);font-size:14px}
+.cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:8px 48px}
+details{margin-top:12px}summary{cursor:pointer;font-weight:600;min-height:44px;display:flex;align-items:center}
+.scroll{overflow-x:auto}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px;border-bottom:1px solid var(--line)}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:8em;text-align:start}.stack td::before{content:attr(data-l);float:inline-start;width:7.5em;margin-inline-start:-8em;white-space:normal;color:var(--muted)}.stack td:empty{display:none}.price{font-size:36px}}
+</style><script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script></head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><linearGradient id="gl" x1="0" x2="1"><stop offset=".55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".28"/></linearGradient></defs></svg>
+<div id="app"><header class="band"><div class="in"><h1>Fragrance price tracker</h1><p class="sub">Loading your prices…</p></div></header></div>
+<script>
+{
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=v=>v==null||!isFinite(v)?'—':'$'+Number(v).toFixed(2);
+const okId=s=>typeof s==='string'&&/^[a-z0-9-]+$/i.test(s);
+const okUrl=u=>typeof u==='string'&&u.startsWith('https://')?u:null;
+const okHex=c=>typeof c==='string'&&/^#[0-9a-f]{6}$/i.test(c)?c:'#7a8a8e';
+const num=v=>typeof v==='number'&&isFinite(v)?v:null;
+const tOf=d=>Date.parse(d+'T00:00:00');
+const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const fmtD=d=>{const x=new Date(typeof d==='number'?d:tOf(d));return isNaN(x)?'':x.getDate()+' '+MON[x.getMonth()]};
+const LINE=['#0c7c9e','#d9432a','#7a5af5','#c88a12','#d6457f','#2f8f6b','#5b6b73','#0f9d9a'];
+const S={products:{},retailers:{},listings:{},meta:{},mode:'del',size:null,sizeFor:null,loaded:false,slow:false,err:null,db:null,tmsg:'',pending:false,series:[],tab:null,q:''};
+try{S.mode=localStorage.getItem('fpt-mode')==='list'?'list':'del';S.tab=localStorage.getItem('fpt-tab')}catch(e){}
+
+/* ---------- pricing ---------- */
+const rname=id=>S.retailers[id]?.name||id;
+function fx(cur){if(!cur||cur==='AUD')return 1;return num(S.meta.fx&&S.meta.fx[cur])}
+function aud(l){if(num(l.aud)!=null)return l.aud;const f=fx(l.cur),p=num(l.price);return p!=null&&f?Math.round(p*f*100)/100:null}
+function ship(l,a){const r=S.retailers[l.rid]||{};if(num(l.ship)!=null)return l.ship;if(num(r.freeOver)!=null&&a>=r.freeOver)return 0;return num(r.shipFee)}
+function deliv(l,a){if(a==null)return null;const s=ship(l,a);if(s==null)return{v:a,unk:true,k:a+9.95};let v=a+s;if(S.retailers[l.rid]?.gstExtra)v*=1.1;v=Math.round(v*100)/100;return{v,unk:false,k:v}}
+const priceOf=(l,a)=>a==null?null:S.mode==='list'?{v:a,unk:false,k:a}:deliv(l,a);
+function hist(l){return(Array.isArray(l.hist)?l.hist:[]).filter(x=>x&&typeof x.d==='string'&&num(x.a)!=null).slice().sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
+function listingsOf(pid){return Object.entries(S.listings).filter(([,l])=>l&&l.pid===pid&&num(l.ml)!=null).map(([id,l])=>Object.assign({id},l))}
+function sizesOf(p,ls){return[...new Set([...(Array.isArray(p.sizes)?p.sizes.filter(n=>num(n)!=null):[]),...ls.map(l=>l.ml)])].sort((a,b)=>a-b)}
+function mainMl(p,ls){if(num(p.mainMl)!=null)return p.mainMl;const c={};ls.forEach(l=>c[l.ml]=(c[l.ml]||0)+1);return Number(Object.keys(c).sort((a,b)=>c[b]-c[a])[0])||100}
+function best(ls){let b=null;for(const l of ls){if(l.stock==='out')continue;const p=priceOf(l,aud(l));if(p&&(!b||p.k<b.p.k))b={l,p}}return b}
+function bestValue(ls){let b=null;for(const l of ls){if(l.stock==='out')continue;const p=priceOf(l,aud(l));if(!p)continue;const per=p.v/l.ml*100,pk=p.k/l.ml*100;if(!b||pk<b.pk)b={l,p,per,pk}}return b}
+function seriesOf(l){return hist(l).map(x=>({t:tOf(x.d),v:priceOf(l,x.a)?.v})).filter(p=>p.v!=null&&!isNaN(p.t))}
+function bestSeries(ls){const hs=ls.map(l=>[l,hist(l)]);const ds=[...new Set(hs.flatMap(([,h])=>h.map(x=>x.d)))].sort();
+  return ds.map(d=>{let m=null;for(const[l,h]of hs){let x=null;for(const y of h){if(y.d<=d)x=y;else break}if(!x)continue;const p=priceOf(l,x.a);if(p&&(m==null||p.v<m))m=p.v}return m==null?null:{t:tOf(d),v:m}}).filter(Boolean)}
+function lowOf(l){const s=seriesOf(l);return s.length?Math.min(...s.map(p=>p.v)):null}
+function drops(){const out=[],now=Date.now();for(const[id,l]of Object.entries(S.listings)){if(!l||!S.products[l.pid])continue;const h=hist(l);if(h.length<2)continue;const a=h[h.length-2],b=h[h.length-1];if(b.a<a.a&&now-tOf(b.d)<15*864e5){const pa=priceOf(l,a.a),pb=priceOf(l,b.a);if(pa&&pb&&pb.v<pa.v)out.push({l,from:pa.v,to:pb.v,d:b.d})}}return out.sort((x,y)=>y.d<x.d?-1:1).slice(0,10)}
+function targetHit(p,ls){const t=p.target;if(!t||num(t.price)==null||num(t.ml)==null)return null;const b=best(ls.filter(l=>l.ml===t.ml));return{t,b,hit:!!(b&&b.p.v<=t.price)}}
+
+/* ---------- drawing ---------- */
+function bottle(color,w){const c=okHex(color),h=Math.round(w*1.3);return`<svg class="bottle" width="${w}" height="${h}" viewBox="0 0 56 73" aria-hidden="true"><rect x="20" y="2" width="16" height="10" rx="2.5" fill="currentColor" opacity=".85"/><rect x="24" y="12" width="8" height="7" fill="${c}"/><rect x="6" y="18" width="44" height="52" rx="9" fill="${c}" stroke="#ffffff40"/><rect x="6" y="18" width="44" height="52" rx="9" fill="url(#gl)"/><rect x="11.5" y="24" width="4.5" height="38" rx="2.2" fill="#fff" opacity=".5"/><ellipse cx="28" cy="71.2" rx="21" ry="1.8" fill="currentColor" opacity=".14"/></svg>`}
+function spark(pts){if(pts.length<2)return`<svg class="spark" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><line x1="0" y1="14" x2="100" y2="14" stroke="var(--line)" stroke-width="2" stroke-dasharray="3 4" vector-effect="non-scaling-stroke"/></svg>`;
+  const vs=pts.map(p=>p.v),mn=Math.min(...vs),r=(Math.max(...vs)-mn)||1,t0=pts[0].t,dt=(pts[pts.length-1].t-t0)||1;
+  const xy=pts.map(p=>((p.t-t0)/dt*100).toFixed(2)+','+(17-(p.v-mn)/r*14).toFixed(2)).join(' ');
+  return`<svg class="spark" viewBox="0 0 100 20" preserveAspectRatio="none" aria-hidden="true"><polyline points="${xy}" fill="none" stroke="var(--trace)" stroke-width="2" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>`}
+function drawChart(){const s=$('#chart');if(!s)return;const W=s.clientWidth,H=s.clientHeight;if(!W||!H)return;const ser=S.series,pts=ser.flatMap(x=>x.pts);
+  if(!pts.length){s.innerHTML=`<text x="${W/2}" y="${H/2}" text-anchor="middle" fill="var(--muted)" font-size="14">No prices recorded for this size yet</text>`;return}
+  const L=W<520?44:56,R=16,T=18,B=32,ts=pts.map(p=>p.t),vs=pts.map(p=>p.v);const t0=Math.min(...ts),t1=Math.max(...ts);let v0=Math.min(...vs),v1=Math.max(...vs);const sp=Math.max(v1-v0,v1*.12,10);v0=Math.max(0,v0-sp*.2);v1+=sp*.2;
+  const X=t=>t1===t0?L+(W-L-R)/2:L+(t-t0)/(t1-t0)*(W-L-R),Y=v=>T+(1-(v-v0)/(v1-v0))*(H-T-B);let g='';const k=W<520?3:4;
+  for(let i=0;i<=k;i++){const v=v0+(v1-v0)*i/k,y=Y(v).toFixed(1);g+=`<line x1="${L}" x2="${W-R}" y1="${y}" y2="${y}" stroke="var(--line)"/><text x="${L-8}" y="${+y+4}" text-anchor="end" font-size="12" fill="var(--muted)">$${Math.round(v)}</text>`}
+  g+=`<text x="${L}" y="${H-10}" font-size="12" fill="var(--muted)">${fmtD(t0)}</text>`;if(t1!==t0)g+=`<text x="${W-R}" y="${H-10}" text-anchor="end" font-size="12" fill="var(--muted)">${fmtD(t1)}</text>`;
+  ser.forEach(x=>{const P=x.pts.map(p=>[X(p.t).toFixed(1),Y(p.v).toFixed(1)]);if(P.length>1)g+=`<polyline points="${P.map(q=>q.join(',')).join(' ')}" fill="none" stroke="${x.c}" stroke-width="2.5" stroke-linejoin="round"/>`;P.forEach((q,i)=>g+=`<circle cx="${q[0]}" cy="${q[1]}" r="${i===P.length-1?5:3}" fill="${x.c}" stroke="var(--card)" stroke-width="2"/>`)});
+  s.innerHTML=g}
+const ro=new ResizeObserver(()=>drawChart());
+
+/* ---------- views ---------- */
+function head(inner){return`<header class="band"><div class="in">${inner}</div></header>`}
+function modeSeg(){return`<div class="seg" role="group" aria-label="Price shown"><button data-mode="del" aria-pressed="${S.mode==='del'}">Delivered</button><button data-mode="list" aria-pressed="${S.mode==='list'}">Listed</button></div>`}
+function statusLine(){const m=S.meta,n=Object.values(S.listings).filter(l=>l&&num(l.price)!=null).length;let t='';const d=m.lastRun?new Date(m.lastRun):null;if(d&&!isNaN(d))t=' · last checked '+d.toLocaleString('en-AU',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});return`${Object.keys(S.products).length} fragrances · ${n} prices${t}`}
+function card(pid,p){const ls=listingsOf(pid),ml=mainMl(p,ls),main=ls.filter(l=>l.ml===ml),b=best(main),bv=bestValue(ls),ser=bestSeries(main),tg=targetHit(p,ls);
+  let chips='';if(ser.length>1){const d=ser[ser.length-1].v-ser[ser.length-2].v;if(d<-.004)chips+=`<span class="chip down">▼ ${money(-d)} since last check</span>`;else if(d>.004)chips+=`<span class="chip">▲ ${money(d)}</span>`}
+  if(b){const lo=lowOf(b.l);if(lo!=null&&b.p.v<=lo&&hist(b.l).length>2)chips+=`<span class="chip down">Lowest recorded</span>`}
+  if(tg)chips+=tg.hit?`<span class="chip hit">Target hit: under ${money(tg.t.price)}</span>`:`<span class="chip">Target ${money(tg.t.price)} · ${esc(tg.t.ml)}ml</span>`;
+  const val=bv&&(!b||bv.l.id!==b.l.id)?`<div class="meta">Best value: ${money(bv.per)}/100ml (${esc(bv.l.ml)}ml, ${esc(rname(bv.l.rid))})</div>`:'';
+  return`<a class="card" href="#${pid}">${bottle(p.color,52)}<div><div class="name">${esc(p.name)}</div><div class="meta">${esc(p.brand)} · ${esc(p.conc)}</div></div>
+  <div><span class="price">${b?money(b.p.v):'—'}</span>${b&&b.p.unk?' <span class="meta">+ delivery</span>':''}</div>
+  <div>${b?`<div>${esc(ml)}ml at ${esc(rname(b.l.rid))}</div>`:`<div class="meta">${ls.some(l=>num(l.price)!=null)?`No ${esc(ml)}ml price yet`:'No prices yet. The daily check is looking for stores.'}</div>`}${val}${chips?`<div class="chips">${chips}</div>`:''}</div>${spark(ser)}</a>`}
+function fine(){const rs=Object.entries(S.retailers).sort((a,b)=>String(a[1].name).localeCompare(String(b[1].name)));const fxs=S.meta.fx?Object.entries(S.meta.fx).filter(([,v])=>num(v)!=null).map(([k,v])=>`1 ${esc(k)} = ${v.toFixed(3)} AUD`).join(', '):'';
+  return`<h2>How the prices work</h2><div class="cols"><div><p><b>Listed</b> is the price on the retailer's site, converted to Australian dollars if needed. <b>Delivered</b> adds standard delivery for a single bottle, and 10% GST for overseas stores that charge it at checkout. Where a store's delivery fee isn't known, the price shows "+ delivery" and is ranked as if delivery were $9.95.</p>
+  <p>Claude checks every retailer page each morning, records the price, looks for sizes and stores not yet tracked, and sends a notification to your phone when a price drops or hits your target. Prices marked ≈ came from a search snapshot of the page and are confirmed on the next check.</p>
+  <p class="note">${fxs?`Exchange rate: ${fxs}${S.meta.fxDate?' ('+esc(fmtD(S.meta.fxDate))+')':''}. `:''}${S.meta.lastRunNote?esc(S.meta.lastRunNote):''}</p>
+  <details><summary>Put it on your home screen</summary><p class="note">Open this page in your phone's browser, tap Share, then Add to Home Screen. It opens like an app from then on.</p></details></div>
+  <div class="scroll"><table><thead><tr><th>Store</th><th class="n">Delivery</th><th class="n">Free over</th></tr></thead><tbody>${rs.map(([,r])=>`<tr><td>${esc(r.name)}${r.note?`<div class="note">${esc(r.note)}</div>`:''}</td><td class="n">${num(r.shipFee)!=null?money(r.shipFee):'At checkout'}</td><td class="n">${num(r.freeOver)!=null?money(r.freeOver):'—'}</td></tr>`).join('')}</tbody></table></div></div>`}
+const TABS=[['watch','Watchlist'],['men','Men'],['unisex','Unisex'],['all','All']];
+function visible(){const all=Object.entries(S.products).filter(([id])=>okId(id)).sort((a,b)=>(a[1].order??99)-(b[1].order??99));const hasFav=all.some(([,p])=>p.fav);
+  if(!TABS.some(t=>t[0]===S.tab))S.tab=hasFav?'watch':'all';if(S.tab==='watch'&&!hasFav)S.tab='all';
+  const q=S.q.trim().toLowerCase();return all.filter(([,p])=>(S.tab==='all'||(S.tab==='watch'?p.fav:p.cat===S.tab))&&(!q||(String(p.name)+' '+String(p.brand)).toLowerCase().includes(q)))}
+function gridHtml(){const ps=visible();return`<p class="count">${ps.length} fragrance${ps.length===1?'':'s'}${S.q.trim()?' matching "'+esc(S.q.trim())+'"':''}</p>`+(ps.length?`<div class="grid">${ps.map(([id,p])=>card(id,p)).join('')}</div>`:`<div class="empty">No fragrances match. Try another name or tab.</div>`)}
+function home(){const ps=Object.entries(S.products).filter(([id])=>okId(id));const dr=drops();visible();
+  let body;if(S.err)body=`<div class="empty">${'Your price data couldn\'t be loaded right now.'}</div>`;
+  else if(!ps.length)body=`<div class="empty">${S.slow?'Can\'t reach your price data yet. It will appear when the connection returns.':S.loaded?'No fragrances are being tracked yet.':'Loading your prices…'}</div>`;
+  else body=`<div class="bar"><div class="sizes" role="group" aria-label="Show">${TABS.map(([k,l])=>`<button data-tab="${k}" aria-pressed="${S.tab===k}">${l}</button>`).join('')}</div><input class="find" id="find" type="search" placeholder="Search fragrances or brands" aria-label="Search fragrances" value="${esc(S.q)}"></div><div id="grid">${gridHtml()}</div>
+  <h2>Recent price drops</h2>${dr.length?`<ul class="drops">${dr.map(x=>`<li><span>${esc(S.products[x.l.pid].name)} ${esc(x.l.ml)}ml · ${esc(rname(x.l.rid))}</span><span class="num"><s class="meta">${money(x.from)}</s> <b class="lo">${money(x.to)}</b> <span class="meta">${esc(fmtD(x.d))}</span></span></li>`).join('')}</ul>`:`<p class="note">No drops yet. The first daily check runs tomorrow morning, and drops from the last two weeks will show here.</p>`}${fine()}`;
+  return head(`<div class="top"><div><h1>Fragrance price tracker</h1><p class="sub">${S.loaded||ps.length?esc(statusLine()):'Every size, every store, checked daily'}</p></div>${modeSeg()}</div>`)+`<main><div class="in">${body}</div></main>`}
+function detail(pid){const p=S.products[pid];if(!p)return head(`<a class="back" href="#">← All fragrances</a><h1>Not found</h1>`)+`<main><div class="in"><div class="empty">${S.loaded?'This fragrance isn\'t being tracked.':'Loading…'}</div></div></main>`;
+  const ls=listingsOf(pid),sizes=sizesOf(p,ls);if(S.sizeFor!==pid||!sizes.includes(S.size)){S.size=mainMl(p,ls);S.sizeFor=pid;if(!sizes.includes(S.size))S.size=sizes[0]}
+  const sel=ls.filter(l=>l.ml===S.size),b=best(sel),tg=p.target||{};
+  const rows=sel.map(l=>({l,a:aud(l)})).map(x=>Object.assign(x,{p:priceOf(x.l,x.a),d:deliv(x.l,x.a)})).sort((x,y)=>(x.p?x.p.k:1e9)-(y.p?y.p.k:1e9));
+  S.series=rows.filter(x=>x.l.price!=null||hist(x.l).length).map((x,i)=>({c:LINE[i%LINE.length],name:rname(x.l.rid),pts:seriesOf(x.l)})).filter(x=>x.pts.length);
+  const one=S.series.every(x=>x.pts.length<2);
+  const perSize=sizes.map(ml=>({ml,b:best(ls.filter(l=>l.ml===ml))}));
+  const opts=sizes.map(ml=>`<option value="${ml}"${(num(tg.ml)!=null?tg.ml:S.size)===ml?' selected':''}>${ml}ml</option>`).join('');
+  const band=`<a class="back" href="#">← All fragrances</a><div class="dhead">${bottle(p.color,76)}<div><h1>${esc(p.name)}</h1><div class="bandmeta">${esc(p.brand)} · ${esc(p.conc)}</div><button class="star" id="fav" aria-pressed="${!!p.fav}" style="margin-top:12px">${p.fav?'★ On your watchlist':'☆ Add to watchlist'}</button></div></div>
+  <div class="top" style="margin-top:18px"><div><div class="price">${b?money(b.p.v):'—'}</div><div class="bandmeta">${b?`Best ${S.mode==='list'?'listed':'delivered'} price for ${esc(S.size)}ml, at ${esc(rname(b.l.rid))}`:`No ${esc(S.size)}ml price recorded yet`}</div></div>${modeSeg()}</div>
+  <form class="target" id="tform"><label>Alert me for<select name="ml">${opts}</select></label><label>at or under (delivered)<input name="price" type="number" inputmode="decimal" min="1" step="0.01" placeholder="$0.00" value="${num(tg.price)!=null?tg.price:''}"></label><button class="btn" type="submit">Save target</button>${num(tg.price)!=null?'<button class="btn ghost" type="button" id="tclear">Clear</button>':''}<p class="tmsg" id="tmsg">${esc(S.tmsg)}</p></form>`;
+  const table=`<div class="scroll"><table class="stack"><thead><tr><th>Store</th><th class="n">Listed</th><th class="n">Delivered</th><th class="n">Per 100ml</th><th class="n">Lowest seen</th><th>Checked</th></tr></thead><tbody>${rows.map((x,i)=>{const u=okUrl(x.l.url),lo=lowOf(x.l);
+    const st=x.l.price==null?'<span class="chip">Not checked yet</span>':x.l.stock==='out'?'<span class="chip">Out of stock</span>':'';
+    return`<tr class="${i===0&&x.p&&x.l.stock!=='out'?'top1':''}"><td>${u?`<a href="${esc(u)}" target="_blank" rel="noopener">${esc(rname(x.l.rid))} ↗</a>`:esc(rname(x.l.rid))}${x.l.note?`<div class="note">${esc(x.l.note)}</div>`:''}${st?`<div>${st}</div>`:''}</td>
+    <td class="n">${x.a!=null?money(x.a):''}${x.l.cur&&x.l.cur!=='AUD'&&num(x.l.price)!=null?`<div class="note">${esc(x.l.cur)} ${Number(x.l.price).toFixed(2)}</div>`:''}</td><td class="n">${x.d?(x.d.unk?'+ delivery':money(x.d.v)):''}</td><td class="n">${x.p?money(x.p.v/x.l.ml*100):''}</td><td class="n">${lo!=null?money(lo):''}</td><td>${x.l.checked?esc(fmtD(x.l.checked)):''}${x.l.via==='snapshot'?' ≈':''}</td></tr>`}).join('')}</tbody></table></div>`;
+  return head(band)+`<main><div class="in"><div class="sizes" role="group" aria-label="Bottle size">${sizes.map(ml=>`<button data-size="${ml}" aria-pressed="${ml===S.size}">${ml}ml</button>`).join('')}</div>
+  <div class="fig" id="fig"><svg id="chart" role="img" aria-label="${esc(S.size)}ml price history by store"></svg></div>
+  <div class="legend">${S.series.map(x=>`<span><i style="background:${x.c}"></i>${esc(x.name)}</span>`).join('')}</div>
+  ${one?`<p class="note">Each daily check adds a point, so the trend lines fill in from tomorrow.</p>`:''}
+  <h2>${esc(S.size)}ml offers</h2>${sel.length?table:`<div class="empty">No store is tracked for ${esc(S.size)}ml yet. The daily check looks for new listings.</div>`}
+  <h2>Best price by size</h2><div class="scroll"><table><thead><tr><th>Size</th><th class="n">${S.mode==='list'?'Listed':'Delivered'}</th><th class="n">Per 100ml</th><th>Store</th></tr></thead><tbody>${perSize.map(x=>`<tr><td>${esc(x.ml)}ml</td><td class="n">${x.b?money(x.b.p.v)+(x.b.p.unk?' +':''):'—'}</td><td class="n">${x.b?money(x.b.p.v/x.ml*100):''}</td><td>${x.b?esc(rname(x.b.l.rid)):'<span class="note">Not found yet</span>'}</td></tr>`).join('')}</tbody></table></div></div></main>`}
+function render(){const f=$('#tform'),fi=$('#find');if((f&&f.contains(document.activeElement))||(fi&&fi===document.activeElement&&!location.hash.slice(1))){if(fi&&fi===document.activeElement){$('#grid').innerHTML=gridHtml()}else S.pending=true;return}S.pending=false;
+  const id=decodeURIComponent(location.hash.slice(1));$('#app').innerHTML=okId(id)?detail(id):home();ro.disconnect();const fig=$('#fig');if(fig)ro.observe(fig)}
+
+/* ---------- events ---------- */
+document.addEventListener('click',e=>{const m=e.target.closest('[data-mode]');if(m){S.mode=m.dataset.mode==='list'?'list':'del';try{localStorage.setItem('fpt-mode',S.mode)}catch(x){}render();return}
+  const t=e.target.closest('[data-tab]');if(t){S.tab=t.dataset.tab;try{localStorage.setItem('fpt-tab',S.tab)}catch(x){}render();return}
+  if(e.target.closest('#fav')){toggleFav();return}
+  const z=e.target.closest('[data-size]');if(z){S.size=Number(z.dataset.size);render();return}
+  if(e.target.id==='tclear')saveTarget(null)});
+document.addEventListener('submit',e=>{if(e.target.id!=='tform')return;e.preventDefault();const ml=Number(e.target.ml.value),pr=Number(e.target.price.value);
+  if(!(pr>0)){$('#tmsg').textContent='Enter a price above $0.';return}saveTarget({ml,price:Math.round(pr*100)/100})});
+document.addEventListener('input',e=>{if(e.target.id==='find'){S.q=e.target.value;$('#grid').innerHTML=gridHtml()}});
+async function toggleFav(){const id=decodeURIComponent(location.hash.slice(1));const p=S.products[id];if(!p)return;if(!S.db){S.tmsg='Open this page in Claude while signed in to change your watchlist.';render();return}try{await S.db.doc('products/'+id).update({fav:!p.fav});p.fav=!p.fav;render()}catch(err){S.tmsg=err&&err.code==='invalid_argument'?'You can view this tracker but not change it.':'Couldn\'t update the watchlist just now.';render()}}
+document.addEventListener('focusout',()=>setTimeout(()=>{if(S.pending)render()},0));
+async function saveTarget(t){const id=decodeURIComponent(location.hash.slice(1));if(!S.db||!okId(id))return;document.activeElement?.blur();
+  try{await S.db.doc('products/'+id).update({target:t});if(S.products[id])S.products[id].target=t;S.tmsg=t?`Saved. You'll get a notification when ${t.ml}ml is ${money(t.price)} or less delivered.`:'Target cleared.'}
+  catch(err){S.tmsg=err&&err.code==='invalid_argument'?'You can view this tracker but not change it.':'Couldn\'t save just now. Try again in a moment.'}render()}
+addEventListener('hashchange',()=>{S.tmsg='';document.activeElement?.blur();render();scrollTo(0,0)});
+render();
+function applyMine(){if(!S.mine)return;for(const[id,m]of Object.entries(S.mine)){const p=S.products[id];if(p){p.fav=m.fav;p.target=m.target}}}
+(async()=>{const timer=setTimeout(()=>{if(!S.loaded){S.slow=true;render()}},10000);
+  try{const r=await fetch('data.json',{cache:'no-store'});if(!r.ok)throw new Error(r.status);const d=await r.json();
+    S.products=d.products&&typeof d.products==='object'?d.products:{};S.retailers=d.retailers||{};S.listings=d.listings||{};S.meta=d.meta||{};S.loaded=true;S.slow=false;applyMine()}
+  catch(e){S.err='error'}clearTimeout(timer);render();
+  const c=window.claude;const db=c&&typeof c.use==='function'?await c.use('db'):null;if(!db)return;S.db=db;
+  db.collection('products').onSnapshot(snap=>{const o={};snap.docs.forEach(x=>{if(x.exists){const v=x.data()||{};o[x.id]={fav:!!v.fav,target:v.target&&typeof v.target==='object'?v.target:null}}});S.mine=o;applyMine();render()},()=>{})})();
+}
+</script>
+</body>
+</html>
