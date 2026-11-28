@@ -101,6 +101,11 @@ nav button.on{color:var(--accent)}
 .tags{display:flex;flex-wrap:wrap;gap:6px}
 .tagx{display:inline-flex;align-items:center;gap:4px;background:var(--chip);border-radius:999px;padding:4px 4px 4px 10px;font-size:13px}
 .tagx button{border:0;background:var(--line);border-radius:50%;width:20px;height:20px;line-height:18px;padding:0;cursor:pointer}
+.ext{display:flex;align-items:center;gap:8px;margin:8px 0 2px;font-size:12px;color:var(--muted)}
+.ext>span{flex:none}
+.ext>div{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+.ext>div::-webkit-scrollbar{display:none}
+.ext a{flex:none;font-size:13px;font-weight:600;padding:5px 10px;border-radius:9px;color:#fff;text-decoration:none}
 .savedq{display:inline-flex;align-items:center;gap:6px}
 .savedq .n{background:var(--new);color:#fff;border-radius:999px;font-size:11px;padding:0 6px}
 .chip.on .n{background:#fff;color:var(--accent)}
@@ -117,12 +122,13 @@ nav button.on{color:var(--accent)}
   <!-- SEARCH -->
   <section class="tab on" id="t-search">
     <div class="search">
-      <input id="q" type="search" placeholder='e.g. designer -senior "product manager" react|vue' autocomplete="off">
+      <input id="q" type="search" placeholder='e.g. finance|accounting -senior "no experience"' autocomplete="off">
       <button class="btn" id="saveq" title="Save this search">☆</button>
     </div>
     <div class="chips" id="savedChips"></div>
     <div class="chips" id="quick">
       <button class="chip" data-f="remote">Remote</button>
+      <button class="chip" data-f="entry">Entry level</button>
       <button class="chip" data-f="salary">Shows salary</button>
       <button class="chip" data-f="direct">Company sites</button>
       <button class="chip" data-f="newonly">New only</button>
@@ -137,6 +143,7 @@ nav button.on{color:var(--accent)}
       <label>Source<select id="src"><option value="">All sources</option></select></label>
       <label style="grid-column:1/-1;flex-direction:row;align-items:center;gap:8px"><input type="checkbox" id="anywhere" checked style="width:auto"> When filtering by location, also show remote jobs open worldwide</label>
     </div>
+    <div class="ext"><span>Also search</span><div id="ext"></div></div>
     <div class="meta"><span id="count"></span><span id="hiddenInfo"></span></div>
     <div class="list" id="results"></div>
     <div style="text-align:center;margin:12px 0"><button class="btn" id="showmore" style="display:none">Show more</button></div>
@@ -209,7 +216,7 @@ const now = () => Date.now();
 const BOARDS = {
   remotive: { name: 'Remotive', note: 'Remote jobs, worldwide' },
   remoteok: { name: 'Remote OK', note: 'Remote jobs, mostly tech' },
-  jobicy: { name: 'Jobicy', note: 'Remote jobs, all fields' },
+  jobicy: { name: 'Jobicy', note: 'Remote jobs, all fields, plus its finance section' },
   arbeitnow: { name: 'Arbeitnow', note: 'Europe, mostly Germany, with visa-sponsor jobs' }
 };
 const ATS = { greenhouse: 'Greenhouse', lever: 'Lever', ashby: 'Ashby' };
@@ -217,7 +224,20 @@ const PRESETS = [
   ['Airwallex', 'ashby', 'airwallex'], ['Xero', 'ashby', 'xero'], ['Culture Amp', 'greenhouse', 'cultureamp'],
   ['Deputy', 'lever', 'deputy'], ['Anthropic', 'greenhouse', 'anthropic'], ['OpenAI', 'ashby', 'openai'],
   ['Stripe', 'greenhouse', 'stripe'], ['Figma', 'greenhouse', 'figma'], ['Airbnb', 'greenhouse', 'airbnb'],
-  ['Notion', 'ashby', 'notion'], ['Ramp', 'ashby', 'ramp'], ['Linear', 'ashby', 'linear']
+  ['Notion', 'ashby', 'notion'], ['Ramp', 'ashby', 'ramp'], ['Linear', 'ashby', 'linear'],
+  ['Zip', 'ashby', 'zip'], ['Block (Afterpay)', 'greenhouse', 'block'], ['Wise', 'greenhouse', 'wise'], ['Prospa', 'greenhouse', 'prospa'],
+  ['Plenti', 'lever', 'plenti'], ['Athena', 'greenhouse', 'athena'], ['Brighte', 'lever', 'brighte'], ['Wisr', 'lever', 'wisr']
+];
+// Finance companies followed from the start (also added once for people who already had the app).
+const FINANCE_COS = [['Zip', 'ashby', 'zip'], ['Block (Afterpay)', 'greenhouse', 'block'], ['Wise', 'greenhouse', 'wise'], ['Prospa', 'greenhouse', 'prospa'], ['Plenti', 'lever', 'plenti']];
+// Searches set up from the start. Each also opens on Seek, LinkedIn, Indeed and Jora.
+const STARTER_SEARCHES = [
+  ['Finance', { q: 'finance|accounting|accountant|financial' }],
+  ['Entry-level finance', { q: 'finance|accounting|banking|financial', entry: true }],
+  ['Remote finance', { q: 'finance|accounting|bookkeeping|financial', remote: true }],
+  ['No experience', { q: '"no experience"|"no prior experience"|trainee|graduate', entry: true }],
+  ['Banking', { q: 'bank|banking' }],
+  ['Commercial banking', { q: '"commercial banking"|"business banking"|"commercial lending"' }]
 ];
 const STATUSES = ['Saved', 'Applied', 'Interviewing', 'Offer', 'Rejected', 'Withdrawn'];
 const ACTIVE = new Set(['Saved', 'Applied', 'Interviewing', 'Offer']);
@@ -232,6 +252,11 @@ let tracker = LS.get('tracker', {});        // id -> {job, status, added, applie
 let hidden = LS.get('hidden', { jobs: [], companies: [], words: [] });
 let saved = LS.get('saved', []);            // [{name, state, viewed}]
 let ui = LS.get('ui', { tab: 'search', state: null, trackFilter: 'Active' });
+if (!LS.get('financeSetup', false)) {
+  for (const [label, ats, slug] of FINANCE_COS) if (!settings.companies.some(c => c.ats === ats && c.slug === slug)) settings.companies.push({ ats, slug, label });
+  for (const [name, st] of STARTER_SEARCHES) if (!saved.some(x => x.name === name)) saved.push({ name, state: { sort: 'new', anywhere: true, ...st }, viewed: now() });
+  LS.set('settings', settings); LS.set('saved', saved); LS.set('financeSetup', true);
+}
 
 // ---------- helpers ----------
 const $ = s => document.querySelector(s);
@@ -321,8 +346,10 @@ const FETCH = {
     }));
   },
   async jobicy() {
-    const d = await getJSON('https://jobicy.com/api/v2/remote-jobs?count=100');
-    return (d.jobs || []).map(j => {
+    const [all, fin] = await Promise.all([getJSON('https://jobicy.com/api/v2/remote-jobs?count=100'),
+      getJSON('https://jobicy.com/api/v2/remote-jobs?count=100&industry=finance').catch(() => ({ jobs: [] }))]);
+    const seen = new Set();
+    return [...(all.jobs || []), ...(fin.jobs || [])].filter(j => !seen.has(j.id) && seen.add(j.id)).map(j => {
       const pay = j.annualSalaryMin ? { min: +j.annualSalaryMin, max: +(j.annualSalaryMax || j.annualSalaryMin) } : null;
       return {
         title: stripHtml(j.jobTitle, 200), company: j.companyName, logo: j.companyLogo, location: j.jobGeo || 'Remote', remote: true,
@@ -486,7 +513,7 @@ function persist() {
 // ---------- search ----------
 function readState() {
   return {
-    q: $('#q').value.trim(), remote: on('remote'), salary: on('salary'), direct: on('direct'), newonly: on('newonly'),
+    q: $('#q').value.trim(), remote: on('remote'), salary: on('salary'), direct: on('direct'), newonly: on('newonly'), entry: on('entry'),
     age: +$('#age').value, sort: $('#sort').value, loc: $('#loc').value.trim(), minpay: +$('#minpay').value || 0,
     jtype: $('#jtype').value, src: $('#src').value, anywhere: $('#anywhere').checked
   };
@@ -494,7 +521,7 @@ function readState() {
 function writeState(s) {
   s = s || {};
   $('#q').value = s.q || '';
-  for (const f of ['remote', 'salary', 'direct', 'newonly']) document.querySelector(`[data-f="${f}"]`).classList.toggle('on', !!s[f]);
+  for (const f of ['remote', 'entry', 'salary', 'direct', 'newonly']) document.querySelector(`[data-f="${f}"]`).classList.toggle('on', !!s[f]);
   $('#age').value = s.age || 0; $('#sort').value = s.sort || 'new'; $('#loc').value = s.loc || ''; $('#minpay').value = s.minpay || '';
   $('#jtype').value = s.jtype || ''; $('#src').value = s.src || ''; $('#anywhere').checked = s.anywhere !== false;
   syncChips();
@@ -507,9 +534,10 @@ function syncChips() {
 // Query: words must all match; -word excludes; "a phrase"; a|b means either.
 function parseQuery(q) {
   const inc = [], exc = [];
-  (q.toLowerCase().match(/-?"[^"]+"|\S+/g) || []).forEach(t => {
+  // A token is a word or "a phrase", optionally joined to more with |, e.g. "no experience"|trainee
+  (q.toLowerCase().match(/-?(?:"[^"]*"|[^\s"|]+)(?:\|(?:"[^"]*"|[^\s"|]+))*/g) || []).forEach(t => {
     const neg = t.startsWith('-') && t.length > 1; if (neg) t = t.slice(1);
-    const alts = t.replace(/"/g, '').split('|').map(x => x.trim()).filter(Boolean);
+    const alts = t.split('|').map(x => x.replace(/"/g, '').trim()).filter(Boolean);
     if (alts.length) (neg ? exc : inc).push(alts);
   });
   return { inc, exc };
@@ -520,6 +548,52 @@ function isHidden(j) {
   if (hidden.companies.includes(normCo(j.company))) return true;
   const t = j.title.toLowerCase();
   return hidden.words.some(w => t.includes(w));
+}
+const SENIOR = /\b(senior|snr|sr|lead|principal|head|director|manager|vp|vice president|chief|staff|executive|partner|cfo|ceo|cto)\b/i;
+const JUNIOR = /\b(graduate|grad|junior|jnr|jr|entry[- ]level|trainee|traineeship|intern|internship|cadet|cadetship|apprentice|apprenticeship|assistant|werkstudent|praktikum|early careers?|no (prior )?experience)\b/i;
+const JUNIOR_DESC = /\b(no (prior |previous )?experience (is )?(required|necessary|needed)|entry[- ]level|recent graduates?|0\s*[-–]\s*[12] years?|1\s*[-–]\s*2 years?|will train|full training (is )?provided)\b/i;
+// Entry level: not a senior title, and either a junior title or a description that says so.
+function isEntry(j) {
+  if (SENIOR.test(j.title)) return false;
+  return JUNIOR.test(j.title) || j.type === 'Internship' || (j.tags || []).some(t => /entry|junior|intern/i.test(t)) || JUNIOR_DESC.test(j.desc || '');
+}
+
+// Links that run the same search on sites with no public feed. They open in the phone's browser.
+function extLinks(s) {
+  const { inc, exc } = parseQuery(s.q || '');
+  const q = joiner => inc.map(alts => alts.length > 1 ? '(' + alts.map(a => a.includes(' ') ? `"${a}"` : a).join(joiner) + ')' : (alts[0].includes(' ') ? `"${alts[0]}"` : alts[0])).join(' ');
+  const where = s.loc || 'Australia';
+  const age = +s.age || 0;
+  const enc = encodeURIComponent;
+  // Seek: words with "or" / "not"; no remote or seniority filter in the link, so those go in as words.
+  let seekQ = q(' or ') + exc.map(a => ' not ' + a.join(' not ')).join('');
+  if (s.remote) seekQ += ' remote';
+  if (s.entry && !/graduate|junior|trainee|entry|intern/i.test(s.q || '')) seekQ += ' (graduate or junior or entry level or trainee)';
+  const seekType = { 'Full-time': 242, 'Part-time': 243, 'Contract': 244 }[s.jtype];
+  const seek = `https://www.seek.com.au/jobs?keywords=${enc(seekQ.trim())}&where=${enc(where.replace(/^australia$/i, 'All Australia'))}` +
+    (age ? `&daterange=${age >= 30 ? 31 : age}` : '') + (seekType ? `&worktype=${seekType}` : '');
+  // LinkedIn: OR / NOT, plus filters for experience level, remote and date posted.
+  const liQ = q(' OR ') + exc.map(a => ' NOT ' + a.join(' NOT ')).join('');
+  const li = `https://www.linkedin.com/jobs/search/?keywords=${enc(liQ.trim())}&location=${enc(where)}` +
+    (s.entry ? '&f_E=1%2C2' : '') + (s.remote ? '&f_WT=2' : '') + (age ? `&f_TPR=r${age * 86400}` : '') +
+    ({ 'Full-time': '&f_JT=F', 'Part-time': '&f_JT=P', 'Contract': '&f_JT=C', 'Internship': '&f_JT=I' }[s.jtype] || '');
+  // Indeed: "or" and -word, plus filters for remote and entry level.
+  const inQ = q(' or ') + exc.map(a => ' -' + a.join(' -')).join('');
+  const sc = (s.remote ? 'attr(DSQF7)' : '') + (s.entry ? 'explvl(ENTRY_LEVEL)' : '');
+  const indeed = `https://au.indeed.com/jobs?q=${enc(inQ.trim())}&l=${enc(where)}` + (age ? `&fromage=${Math.min(age, 14)}` : '') + (sc ? `&sc=${enc('0kf:' + sc + ';')}` : '');
+  // Jora: plain words (it gathers jobs from many Australian sites).
+  const jora = `https://au.jora.com/j?q=${enc((inc.map(a => a[0]).join(' ') + (s.remote ? ' remote' : '') + (s.entry ? ' entry level' : '')).trim())}&l=${enc(where)}`;
+  return [['Seek', seek, '#0d3880'], ['LinkedIn', li, '#0a66c2'], ['Indeed', indeed, '#2557a7'], ['Jora', jora, '#00754a']];
+}
+function renderExt(s) {
+  $('#ext').innerHTML = extLinks(s).map(([n, u, c]) => `<a href="${esc(u)}" target="_blank" rel="noopener" style="background:${c}">${n} ↗</a>`).join('');
+}
+
+const reCache = new Map();
+function wordRe(a) {
+  let r = reCache.get(a);
+  if (!r) { r = new RegExp('(^|[^a-z0-9])' + a.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')); reCache.set(a, r); }
+  return r;
 }
 function search(s, list = jobs, opts = {}) {
   const { inc, exc } = parseQuery(s.q || '');
@@ -532,6 +606,7 @@ function search(s, list = jobs, opts = {}) {
     if (s.salary && !j.salary && !j.pay) continue;
     if (s.direct && !j.sources.some(x => x.direct)) continue;
     if (s.newonly && !isNew(j)) continue;
+    if (s.entry && !isEntry(j)) continue;
     if (minT && (j.posted || firstSeen[j.id] || 0) < minT) continue;
     if (s.minpay && !(j.pay && j.pay.max >= s.minpay)) continue;
     if (s.jtype && j.type !== s.jtype) continue;
@@ -541,12 +616,16 @@ function search(s, list = jobs, opts = {}) {
       const hit = loc.some(x => L.includes(x)) || (s.anywhere && j.remote && /worldwide|anywhere|global|^remote$|^$/.test(L.trim()));
       if (!hit) continue;
     }
-    const title = j.title.toLowerCase(), hay = (title + ' ' + j.company + ' ' + j.location + ' ' + j.tags.join(' ') + ' ' + (j.desc || '')).toLowerCase();
-    if (exc.some(alts => alts.some(a => hay.includes(a)))) continue;
+    // Words match the title, company, tags or location at the start of a word ("bank" finds "banking", not "sandbank").
+    // Phrases with a space ("no experience") also look in the description.
+    const title = j.title.toLowerCase(), hay = (title + ' ' + j.company + ' ' + j.location + ' ' + j.tags.join(' ')).toLowerCase(), desc = (j.desc || '').toLowerCase();
+    const has = (text, a) => wordRe(a).test(text);
+    const anywhere = a => has(hay, a) || (a.includes(' ') && has(desc, a));
+    if (exc.some(alts => alts.some(anywhere))) continue;
     let score = 0, ok = true;
     for (const alts of inc) {
-      if (alts.some(a => title.includes(a))) score += 3;
-      else if (alts.some(a => hay.includes(a))) score += 1;
+      if (alts.some(a => has(title, a))) score += 3;
+      else if (alts.some(anywhere)) score += 1;
       else { ok = false; break; }
     }
     if (!ok) continue;
@@ -566,6 +645,7 @@ function renderResults(reset) {
   const s = readState(); ui.state = s; LS.set('ui', ui);
   syncChips();
   lastResults = search(s);
+  renderExt(s);
   const total = jobs.length;
   $('#count').textContent = total ? `${lastResults.length.toLocaleString()} of ${total.toLocaleString()} jobs` : '';
   const nh = jobs.filter(isHidden).length;
@@ -575,8 +655,9 @@ function renderResults(reset) {
     box.innerHTML = `<div class="empty"><p style="font-size:34px;margin:0">📡</p><p><b>No listings yet</b></p><p>Tap <b>Refresh</b> to pull jobs from ${Object.values(settings.boards).filter(Boolean).length} job boards and ${settings.companies.length} company career pages.</p><button class="btn primary" onclick="refresh()">Refresh now</button></div>`;
     $('#showmore').style.display = 'none'; return;
   }
-  if (!lastResults.length) { box.innerHTML = `<div class="empty">Nothing matches. Try fewer words or filters.</div>`; $('#showmore').style.display = 'none'; return; }
-  box.innerHTML = lastResults.slice(0, shown).map(card).join('');
+  const more = `<p>Seek, LinkedIn and Indeed have far more Australian jobs: tap one of the <b>Also search</b> buttons above to run this same search there.</p>`;
+  if (!lastResults.length) { box.innerHTML = `<div class="empty">Nothing matches in the app's sources.${more}</div>`; $('#showmore').style.display = 'none'; return; }
+  box.innerHTML = lastResults.slice(0, shown).map(card).join('') + (lastResults.length < 10 ? `<div class="empty" style="padding:16px 12px">${more}</div>` : '');
   $('#showmore').style.display = lastResults.length > shown ? '' : 'none';
   $('#showmore').textContent = `Show more (${(lastResults.length - shown).toLocaleString()} left)`;
 }
@@ -669,7 +750,7 @@ $('#savedChips').addEventListener('click', e => {
   const d = e.target.closest('[data-del]');
   if (d) { const s = saved[+d.dataset.del]; if (confirm(`Delete saved search "${s.name}"?`)) { saved.splice(+d.dataset.del, 1); persist(); renderSaved(); } return; }
   const c = e.target.closest('[data-i]'); if (!c) return;
-  const s = saved[+c.dataset.i]; writeState(s.state); renderResults(true);
+  const s = saved[+c.dataset.i]; writeState(s.state); s.state = readState(); renderResults(true);
   s.viewed = meta.lastRefresh || now(); persist();
   setTimeout(renderSaved, 0);
 });
