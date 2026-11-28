@@ -1,0 +1,198 @@
+{
+ "meta": {
+  "lastRun": "2026-11-27T05:12:00+11:00",
+  "note": "Checked 132 searches (9 blank); Melbourne ⇄ Auckland fully up to date; stopped at the search budget.",
+  "searches": 132,
+  "blanks": 9,
+  "stoppedBy": "budget",
+  "coverage": {
+   "mainDaysFresh": 112,
+   "otherDaysFresh": 20
+  }
+ },
+ "days": {
+  "MEL-AKL": {
+   "2026-12-05": {
+    "checked": "2026-11-27",
+    "nonstop": {
+     "price": 507,
+     "stops": 0,
+     "airlines": "Air New Zealand",
+     "operated": "",
+     "dep": "12:10 pm",
+     "depDate": "2026-12-05",
+     "arr": "5:45 pm",
+     "arrDate": "2026-12-05",
+     "fromAirport": "Melbourne Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 215,
+     "via": []
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-27",
+      "a": 507
+     }
+    ]
+   },
+   "2026-12-10": {
+    "checked": "2026-11-27",
+    "nonstop": {
+     "price": 414,
+     "stops": 0,
+     "airlines": "Qatar Airways",
+     "operated": "",
+     "dep": "1:20 am",
+     "depDate": "2026-12-10",
+     "arr": "6:50 am",
+     "arrDate": "2026-12-10",
+     "fromAirport": "Melbourne Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 210,
+     "via": []
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-26",
+      "a": 454
+     },
+     {
+      "d": "2026-11-27",
+      "a": 414
+     }
+    ]
+   },
+   "2026-11-20": {
+    "checked": "2026-11-19",
+    "nonstop": {
+     "price": 100,
+     "stops": 0,
+     "airlines": "Air New Zealand",
+     "operated": "",
+     "dep": "8:15 am",
+     "depDate": "2026-11-20",
+     "arr": "1:55 pm",
+     "arrDate": "2026-11-20",
+     "fromAirport": "Melbourne Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 220,
+     "via": []
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-19",
+      "a": 100
+     }
+    ]
+   }
+  },
+  "AKL-MEL": {
+   "2026-12-17": {
+    "checked": "2026-11-27",
+    "nonstop": {
+     "price": 279,
+     "stops": 0,
+     "airlines": "Qatar Airways",
+     "operated": "",
+     "dep": "1:15 pm",
+     "depDate": "2026-12-17",
+     "arr": "3:10 pm",
+     "arrDate": "2026-12-17",
+     "fromAirport": "Auckland Airport",
+     "toAirport": "Melbourne Airport",
+     "mins": 235,
+     "via": []
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-27",
+      "a": 279
+     }
+    ]
+   }
+  },
+  "SYD-AKL": {
+   "2026-12-14": {
+    "checked": "2026-11-20",
+    "nonstop": {
+     "price": 514,
+     "stops": 0,
+     "airlines": "Air New Zealand",
+     "operated": "",
+     "dep": "7:15 pm",
+     "depDate": "2026-12-14",
+     "arr": "12:25 am",
+     "arrDate": "2026-12-15",
+     "fromAirport": "Western Sydney International Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 190,
+     "via": [],
+     "fromQ": "WSI",
+     "toQ": "AKL"
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-20",
+      "a": 514
+     }
+    ]
+   },
+   "2026-12-20": {
+    "checked": "2026-11-27",
+    "nonstop": {
+     "price": 600,
+     "stops": 0,
+     "airlines": "Qantas",
+     "operated": "",
+     "dep": "7:15 pm",
+     "depDate": "2026-12-20",
+     "arr": "12:25 am",
+     "arrDate": "2026-12-21",
+     "fromAirport": "Sydney Airport",
+     "toAirport": "Auckland Airport",
+     "mins": 190,
+     "via": [],
+     "fromQ": "SYD",
+     "toQ": "AKL"
+    },
+    "onestop": null,
+    "hist": [
+     {
+      "d": "2026-11-27",
+      "a": 600
+     }
+    ]
+   }
+  }
+ },
+ "roundTrips": {
+  "MEL-AKL": [
+   {
+    "out": "2026-12-10",
+    "back": "2026-12-17",
+    "price": 672,
+    "airlines": "Qatar Airways",
+    "checked": "2026-11-27"
+   }
+  ]
+ },
+ "sales": {
+  "checked": "2026-11-27",
+  "items": [
+   {
+    "airline": "Air New Zealand",
+    "dir": "MEL-AKL",
+    "price": 305,
+    "fare": "seat",
+    "travel": "Economy: 11 Jan - 22 Jan, 29 Jan - 13 Feb",
+    "ends": "2026-12-01",
+    "url": "https://www.airnewzealand.com.au/best-fares"
+   }
+  ]
+ }
+}
